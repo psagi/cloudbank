@@ -1,16 +1,12 @@
 #!/usr/bin/php
 <?php
-   require_once(dirname(__FILE__) . '/../conf/db.conf');
+   require_once(dirname(__FILE__) . '/../server/CloudBankServer.php');
+   require_once(dirname(__FILE__) . '/../server/SchemaDef.php');
 
-   try {
-      $v_dBConnection = new PDO($g_Dsn, $g_DBUser, $g_DBPasswd);
-   }
-   catch (PDOException $v_exception) {
-      exit("Connection failed: $v_exception->getMessage()\n");
-   }
-   foreach (glob(dirname(__FILE__) . '/db/*.sql') as $v_SQLFileName) {
+   $v_dBConnection = CloudBankServer::GetDBConnection();
+   foreach (SchemaDef::CreateSchemaStatements() as $v_sQLStatement) {
       try {
-	 $v_dBConnection->exec(file_get_contents($v_SQLFileName));
+	 $v_dBConnection->exec($v_sQLStatement);
       }
       catch (PDOException $v_exception) {
 	 exit(
