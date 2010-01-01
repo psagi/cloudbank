@@ -9,26 +9,20 @@
       private static $r_createSchemaStatements = array(
 	 'ledger_account' => '
 	    CREATE TABLE ledger_account (
-	       id INT NOT NULL PRIMARY KEY, name VARCHAR(32) NOT NULL UNIQUE,
+	       id NUMERIC(39) NOT NULL PRIMARY KEY,
+	       name VARCHAR(32) NOT NULL UNIQUE,
 	       type VARCHAR(16) NOT NULL
 	    )
 	 ', 
 	 'event' => '
 	    CREATE TABLE event (
-	       id INTEGER NOT NULL PRIMARY KEY, date DATE NOT NULL,
+	       id NUMERIC(39) NOT NULL PRIMARY KEY, date DATE NOT NULL,
 	       description VARCHAR(32) NOT NULL,
 	       credit_ledger_account_id NOT NULL REFERENCES ledger_account,
 	       debit_ledger_account_id NOT NULL REFERENCES ledger_account,
 	       amount NUMERIC(16,2) NOT NULL
 	    )
 	 '
-      );
-      private static $r_initSchemaStatements = array(
-	 'ledger_account' => "
-	    INSERT
-	       INTO ledger_account(id, name, type)
-	       VALUES (0, 'beginning', LedgerAccount::Beginning)
-	 "
       );
       private static $r_metadata = array(
 	 array(
@@ -66,9 +60,6 @@
       public static function CreateSchemaStatements() {
 	 return self::$r_createSchemaStatements;
       } 
-      public static function initSchemaStatements() {
-	 return self::$r_initSchemaStatements;
-      }
       public static function Metadata() { return self::$r_metadata; }
       public static function ContainmentMetadata() {
 	 return self::$r_containmentMetadata;
