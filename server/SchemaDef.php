@@ -9,62 +9,42 @@
       private static $r_createSchemaStatements = array(
 	 'ledger_account' => '
 	    CREATE TABLE ledger_account (
-	       id NUMERIC(39) NOT NULL PRIMARY KEY,
-	       name VARCHAR(32) NOT NULL UNIQUE,
-	       type VARCHAR(16) NOT NULL
+	       id VARCHAR(39) NOT NULL PRIMARY KEY,
+	       name VARCHAR(32) NOT NULL,
+	       type VARCHAR(16) NOT NULL,
+	       UNIQUE (name, type)
 	    )
 	 ', 
 	 'event' => '
 	    CREATE TABLE event (
-	       id NUMERIC(39) NOT NULL PRIMARY KEY, date DATE NOT NULL,
+	       id VARCHAR(39) NOT NULL PRIMARY KEY, date DATE NOT NULL,
 	       description VARCHAR(32) NOT NULL,
-	       credit_ledger_account_id NOT NULL REFERENCES ledger_account,
-	       debit_ledger_account_id NOT NULL REFERENCES ledger_account,
+	       credit_ledger_account_id VARCHAR(39)
+		  NOT NULL REFERENCES ledger_account,
+	       debit_ledger_account_id VARCHAR(39)
+		  NOT NULL REFERENCES ledger_account,
 	       amount NUMERIC(16,2) NOT NULL
 	    )
 	 '
-      );
-      private static $r_metadata = array(
-	 array(
-	    'name' => 'ledger_account',
-	    'columns' => array('id', 'name', 'type'), 'PK' => 'id'
-	 ), array(
-	    'name' => 'event',
-	    'columns' => array(
-	       'id', 'date', 'description', 'credit_ledger_account_id',
-	       'debit_ledger_account_id', 'amount'
-	    ), 'PK' => 'id',
-	    'FK' => array(
-	       'from' => 'credit_ledger_account_id', 'to' => 'ledger_account'
-	    )
-	 )
-      );
-      private static $r_containmentMetadata = array(
-	 array('parent' => 'ledger_account', 'child' => 'event')
-      );
-      private static $r_dASQuery = array(
-	 'query' => '
-	    SELECT
-	       la.id, la.name, la.type, e.id, e.date, e.description,
-	       e.debit_ledger_account_id, e.amount
-	    FROM ledger_account la, event e
-	    WHERE e.credit_ledger_account_id = la.id
-	 ', 
-	 'array' => array(
-	    'ledger_account.id', 'ledger_account.name', 'ledger_account.type',
-	    'event.id', 'event.date', 'event.description',
-	    'event.debit_ledger_account_id', 'event.amount'
-	 )
       );
 
       public static function CreateSchemaStatements() {
 	 return self::$r_createSchemaStatements;
       } 
-      public static function Metadata() { return self::$r_metadata; }
-      public static function ContainmentMetadata() {
-	 return self::$r_containmentMetadata;
+      public static function IsValidLedgerAccountName($p_name) {
+	 $v_length = strlen($p_name);
+	 return ($v_length > 0 && $v_length <= 32);
       }
-      public static function DASQuery() { return self::$r_dASQuery; }
+      public static function IsValidDate($p_date) {
+	 $v_dateComponents = strptime($p_date, '%Y-%m-%d');
+	 return (
+	    $v_dateComponents &&
+	    checkdate(
+	       $v_dateComponents['tm_mon']+1, $v_dateComponents['tm_mday'],
+	       $v_dateComponents['tm_year']+1900 
+	    ) && (strlen($v_dateComponents['unparsed']) == 0)
+	 );
+      }
 
       private function __construct() { } // to prevent creating an instance
    }
