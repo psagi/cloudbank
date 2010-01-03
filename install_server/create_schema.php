@@ -4,10 +4,9 @@
    require_once(dirname(__FILE__) . '/../server/SchemaDef.php');
    require_once(dirname(__FILE__) . '/../server/LedgerAccount.php');
 
-   $v_dBConnection = CloudBankServer::GetDBConnection();
    foreach (SchemaDef::CreateSchemaStatements() as $v_sQLStatement) {
 //      try {
-	 $v_dBConnection->exec($v_sQLStatement);
+	 CloudBankServer::Singleton()->execQuery($v_sQLStatement);
 //      }
 /*      
       catch (PDOException $v_exception) {
