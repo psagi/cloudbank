@@ -1,6 +1,4 @@
 <?php
-   require_once(dirname(__FILE__) . '/LedgerAccount.php');
-
    /* Hardcoded description of the DB schema. These should be generated from a
       common description. */
    class SchemaDef {
