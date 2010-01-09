@@ -6,7 +6,11 @@
       @service
       @binding.soap
    */
-   class Event {
+   class EventService {
+      public function __construct() {
+	 $this->r_cloudBankServer = CloudBankServer::Singleton();
+      }
+
       /**
 	 @param string $p_date		The date of the event (YYYY-MM-DD)
 	 @param string $p_description	The description of the event
@@ -17,28 +21,28 @@
 	 @param float $p_amount		The amount
 	 @return bool		Success
       */
-      public static function CreateEvent(
+      public function createEvent(
 	 $p_date, $p_description, $p_creditLedgerAccountID,
 	 $p_debitLedgerAccountID, $p_amount
       ) {
-	 CloudBankServer::Singleton()->beginTransaction();
+	 $this->r_cloudBankServer->beginTransaction();
 // Check input here!!!	
-	 self::CreateEvent_internal(
+	 $this->createEvent_internal(
 	    $p_date, $p_description, $p_creditLedgerAccountID,
 	    $p_debitLedgerAccountID, $p_amount
 	 );
-	 CloudBankServer::Singleton()->commitTransaction();
+	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
       }
 
-      public static function CreateEvent_internal(
+      public function createEvent_internal(
 	 $p_date, $p_description, $p_creditLedgerAccountID,
 	 $p_debitLedgerAccountID, $p_amount
       ) {
 	 if (!SchemaDef::IsValidDate($p_date)) {
 	    throw new Exception("Invalid Event date ($p_date)");
 	 }
-	 CloudBankServer::Singleton()->execQuery(
+	 $this->r_cloudBankServer->execQuery(
 	    '
 	       INSERT 
 		  INTO event(
@@ -58,5 +62,9 @@
 	    )
 	 );
       }
+
+      private function __clone() { }
+
+      private $r_cloudBankServer;
    }
 ?>
