@@ -2,7 +2,7 @@
 <?php
    require_once(dirname(__FILE__) . '/../server/CloudBankServer.php');
    require_once(dirname(__FILE__) . '/../server/SchemaDef.php');
-   require_once(dirname(__FILE__) . '/../server/LedgerAccount.php');
+   require_once('SCA/SCA.php');
 
    foreach (SchemaDef::CreateSchemaStatements() as $v_sQLStatement) {
 //      try {
@@ -17,5 +17,8 @@
       }
 */
    }
-   LedgerAccount::CreateBeginningAccount();
+   $v_ledgerAccountService = (
+      SCA::getService(dirname(__FILE__) . '/../server/LedgerAccountService.php')
+   );
+   $v_ledgerAccountService->createBeginningAccount();
 ?>
