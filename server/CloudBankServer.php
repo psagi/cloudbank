@@ -1,5 +1,6 @@
 <?php 
    require_once(dirname(__FILE__) . '/SchemaDef.php');
+   require_once(dirname(__FILE__) . '/Debug.php');
 
    class CloudBankServer {
       public static function Singleton() {
@@ -18,7 +19,8 @@
       }
 
       private function __construct() {
-	 $v_dBConf = parse_ini_file(dirname(__FILE__) . '/../conf/db.ini');
+	 date_default_timezone_set(@date_default_timezone_get());
+	 $v_dBConf = parse_ini_file(dirname(__FILE__) . '/../conf/server.ini');
 //	 try {
 	 $this->r_dBConnection = new PDO(
 	       $v_dBConf['dsn'], $v_dBConf['user'], $v_dBConf['passwd']
@@ -36,6 +38,8 @@
 
       public function execQuery($p_sQL, $p_bindArray = NULL) {
 	 $v_statement = $this->r_dBConnection->prepare($p_sQL);
+	 Debug::Singleton()->log(var_export($v_statement, true));
+	 Debug::Singleton()->log(var_export($p_bindArray, true));
 	 $v_statement->execute($p_bindArray);
 	 return $v_statement->fetchAll();
       }
