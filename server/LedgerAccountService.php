@@ -7,12 +7,16 @@
       @service
       @binding.soap
    */
-   class LedgerAccount {
+   class LedgerAccountService {
       const Account = 'Account';
       const Category = 'Category';
       const Beginning = 'Beginning'; 
       const BeginningEvntDesc = 'Beginning';
       const BeginningAccntName = 'Beginning';
+
+      public function __construct() {
+	 $this->r_cloudBankServer = CloudBankServer::Singleton();
+      }
 
       /**
 	 @param string $p_name	The name of the account
@@ -21,16 +25,16 @@
 	    The beginning balance of the account 
 	 @return bool		Success
       */
-      public static function CreateAccount(
+      public function createAccount(
 	 $p_name, $p_date, $p_beginningBalance
       ) {
-	 CloudBankServer::Singleton()->beginTransaction();
-	 $v_accntID = self::CreateLedgerAccount($p_name, self::Account);
-	 self::$r_dummyEventInstance->CreateEvent_internal(
+	 $this->r_cloudBankServer->beginTransaction();
+	 $v_accntID = $this->createLedgerAccount($p_name, self::Account);
+	 $this->r_eventService->createEvent_internal(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
 	    self::GetBeginningAccountID(), $p_beginningBalance
 	 );
-	 CloudBankServer::Singleton()->commitTransaction();
+	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
       }
 
@@ -38,11 +42,11 @@
 	 @param string $p_name	The name of the category
 	 @return bool		Success
       */
-      public static function CreateCategory($p_name) {
+      public function createCategory($p_name) {
 try {
-	 CloudBankServer::Singleton()->beginTransaction();
-	 self::CreateLedgerAccount($p_name, self::Category);
-	 CloudBankServer::Singleton()->commitTransaction();
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->createLedgerAccount($p_name, self::Category);
+	 $this->r_cloudBankServer->commitTransaction();
 } catch (Exception $v_exception) {
 Debug::Singleton()->log(var_export($v_exception, true));
 throw $v_exception;
@@ -55,15 +59,15 @@ throw $v_exception;
 	 unusable due to the missing annotations - and so type definitions in
 	 the WSDL.
       */
-      public static function CreateBeginningAccount() {
-	 CloudBankServer::Singleton()->beginTransaction();
-	 self::CreateLedgerAccount(self::BeginningAccntName, self::Beginning);
-	 CloudBankServer::Singleton()->commitTransaction();
+      public function createBeginningAccount() {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->createLedgerAccount(self::BeginningAccntName, self::Beginning);
+	 $this->r_cloudBankServer->commitTransaction();
       }
 
-      private static function GetBeginningAccountID() {
+      private function getBeginningAccountID() {
 	 $v_result = (
-	    CloudBankServer::Singleton()->execQuery(
+	    $this->r_cloudBankServer->execQuery(
 	       'SELECT id FROM ledger_account WHERE type = :type',
 	       array(':type' => self::Beginning)
 	    )
@@ -71,10 +75,10 @@ throw $v_exception;
 	 return $v_result[0]['id'];
       }
 
-      private static function DoesExist($p_name, $p_type) {
+      private function doesExist($p_name, $p_type) {
 	 return (
 	    count(
-	       CloudBankServer::Singleton()->execQuery(
+	       $this->r_cloudBankServer->execQuery(
 		  '
 		     SELECT 1
 			FROM ledger_account
@@ -85,17 +89,17 @@ throw $v_exception;
 	 );
       }
 
-      private static function CreateLedgerAccount($p_name, $p_type) {
+      private function createLedgerAccount($p_name, $p_type) {
 	 if (!SchemaDef::IsValidLedgerAccountName($p_name)) {
 	    throw new Exception("Invalid LedgerAccount name ($p_name)");
 	 }
-	 if (self::DoesExist($p_name, $p_type)) {
+	 if ($this->doesExist($p_name, $p_type)) {
 	    throw
 	       new Exception("LedgerAccount ($p_name, $p_type) already exists.")
 	    ;
 	 }
 	 $v_accountID = CloudBankServer::UUID();
-	 CloudBankServer::Singleton()->execQuery(
+	 $this->r_cloudBankServer->execQuery(
 	    '
 	       INSERT 
 		  INTO ledger_account(id, name, type) VALUES (:id, :name, :type)
@@ -104,14 +108,16 @@ throw $v_exception;
 	 );
 	 return $v_accountID;
       }
+      private function __clone() { }
 
       /**
 	 @reference
-	 @binding.php Event.php
+	 @binding.php EventService.php
       */
-      public static $r_dummyEventInstance;
-	 /* So static methods of Event can be accessed (instead of an include,
+      public $r_eventService;
+	 /* So methods of Event can be accessed (instead of an include,
 	    which does not work due to the SCA include. And it has to be public
 	    in order SCA to be able to manipulate it. */
+      private $r_cloudBankServer;
    }
 ?>
