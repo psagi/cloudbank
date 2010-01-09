@@ -1,6 +1,6 @@
 <?php
    require_once('CloudBankServer.php');
-   require_once('Event.php');
+   require_once('Debug.php');
    include('SCA/SCA.php');
 
    /**
@@ -26,7 +26,7 @@
       ) {
 	 CloudBankServer::Singleton()->beginTransaction();
 	 $v_accntID = self::CreateLedgerAccount($p_name, self::Account);
-	 Event::CreateEvent_internal(
+	 self::$r_dummyEventInstance->CreateEvent_internal(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
 	    self::GetBeginningAccountID(), $p_beginningBalance
 	 );
@@ -39,9 +39,14 @@
 	 @return bool		Success
       */
       public static function CreateCategory($p_name) {
+try {
 	 CloudBankServer::Singleton()->beginTransaction();
 	 self::CreateLedgerAccount($p_name, self::Category);
 	 CloudBankServer::Singleton()->commitTransaction();
+} catch (Exception $v_exception) {
+Debug::Singleton()->log(var_export($v_exception, true));
+throw $v_exception;
+}
 	 return true;
       }
       
@@ -99,5 +104,14 @@
 	 );
 	 return $v_accountID;
       }
+
+      /**
+	 @reference
+	 @binding.php Event.php
+      */
+      public static $r_dummyEventInstance;
+	 /* So static methods of Event can be accessed (instead of an include,
+	    which does not work due to the SCA include. And it has to be public
+	    in order SCA to be able to manipulate it. */
    }
 ?>
