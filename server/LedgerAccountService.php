@@ -6,7 +6,9 @@
    /**
       @service
       @binding.soap
+      @types http://pety.homelinux.org/CloudBank/LedgerAccountService LedgerAccountService.xsd
    */
+      // Note that annotations can not contain linebreaks.
    class LedgerAccountService {
       const Account = 'Account';
       const Category = 'Category';
@@ -52,6 +54,36 @@ Debug::Singleton()->log(var_export($v_exception, true));
 throw $v_exception;
 }
 	 return true;
+      }
+
+      /**
+	 @return AccountSet http://pety.homelinux.org/CloudBank/LedgerAccountService
+	    Set of Accounts
+      */
+      public function getAccounts() {
+	 $v_bindArray = array(':type' => self::Account);
+	 $v_accounts = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT la.id, la.name, e.amount
+		  FROM ledger_account la, event e
+		  WHERE e.credit_ledger_account_id = la.id AND la.type = :type
+	       ', $v_bindArray
+	    )
+	 );
+	 $v_accountSet_DO = (
+	    SCA::createDataObject(
+	       'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+	       'AccountSet'
+	    )
+	 );
+	 foreach ($v_accounts as $v_account) {
+	    $v_account_DO = $v_accountSet_DO->createDataObject('Account');
+	    $v_account_DO->id = $v_account['id'];
+	    $v_account_DO->name = $v_account['name'];
+	    $v_account_DO->beginning_balance = $v_account['amount'];
+	 }
+	 return $v_accountSet_DO;
       }
       
       /* Note that although this method is not annotated, SCA generates an
