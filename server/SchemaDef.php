@@ -29,9 +29,12 @@
       public static function CreateSchemaStatements() {
 	 return self::$r_createSchemaStatements;
       } 
+      private static function CheckStrLength($p_str, $p_minLen, $p_maxLen) {
+	 $v_length = strlen($p_str);
+	 return ($v_length >= $p_minLen && $v_length <= $p_maxLen);
+      }
       public static function IsValidLedgerAccountName($p_name) {
-	 $v_length = strlen($p_name);
-	 return ($v_length > 0 && $v_length <= 32);
+	 return self::CheckStrLength($p_name, 1, 32);
       }
       public static function IsValidDate($p_date) {
 	 $v_dateComponents = strptime($p_date, '%Y-%m-%d');
@@ -42,6 +45,12 @@
 	       $v_dateComponents['tm_year']+1900 
 	    ) && (strlen($v_dateComponents['unparsed']) == 0)
 	 );
+      }
+      public static function IsValidEventDescription($p_description) {
+	 return self::CheckStrLength($p_description, 1, 32);
+      }
+      public static function IsValidAmount($p_amount) {
+	 return (!empty($p_amount) || $p_amount == 0);
       }
 
       private function __construct() { } // to prevent creating an instance
