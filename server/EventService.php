@@ -26,7 +26,6 @@
 	 $p_debitLedgerAccountID, $p_amount
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
-// Check input here!!!	
 	 $this->createEvent_internal(
 	    $p_date, $p_description, $p_creditLedgerAccountID,
 	    $p_debitLedgerAccountID, $p_amount
@@ -41,6 +40,24 @@
       ) {
 	 if (!SchemaDef::IsValidDate($p_date)) {
 	    throw new Exception("Invalid Event date ($p_date)");
+	 }
+	 if (!SchemaDef::IsValidEventDescription($p_description)) {
+	    throw new Exception("Invalid Event description ($p_description)");
+	 }
+	 if (!$this->isExistingLedgerAccount($p_creditLedgerAccountID)) {
+	    throw new Exception(
+	       "Referenced LedgerAccount ($p_creditLedgerAccountID) to be " .
+		  "credited does not exist."
+	    );
+	 }
+	 if (!$this->isExistingLedgerAccount($p_debitLedgerAccountID)) {
+	    throw new Exception(
+	       "Referenced LedgerAccount ($p_debitLedgerAccountID) to be " .
+		  "debited does not exist."
+	    );
+	 }
+	 if (!SchemaDef::IsValidAmount($p_amount)) {
+	    throw new Exception("Invalid amount ($p_amount)");
 	 }
 	 $this->r_cloudBankServer->execQuery(
 	    '
@@ -64,6 +81,16 @@
       }
 
       private function __clone() { }
+      private function isExistingLedgerAccount($p_ledgerAccountID) {
+        return (
+            count(
+               $this->r_cloudBankServer->execQuery(
+                  'SELECT 1 FROM ledger_account WHERE id = :id',
+		  array(':id' => $p_ledgerAccountID)
+               )
+            ) > 0
+         );
+      }
 
       private $r_cloudBankServer;
    }
