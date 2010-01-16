@@ -18,4 +18,17 @@
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="beginning_balance" type="xsd:float"/>
    </xsd:complexType>
+   <xsd:element name="CategorySet" type="LedgerAccountService:CategorySet"/>
+   <xsd:complexType name="CategorySet">
+      <xsd:sequence>
+	 <xsd:element
+	    name="Category" type="LedgerAccountService:Category" minOccurs="0"
+	    maxOccurs="unbounded"
+	 />
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="Category">
+      <xsd:attribute name="id" type="xsd:string"/>
+      <xsd:attribute name="name" type="xsd:string"/>
+   </xsd:complexType>
 </xsd:schema>
