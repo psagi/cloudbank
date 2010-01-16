@@ -16,6 +16,30 @@
       const BeginningEvntDesc = 'Beginning';
       const BeginningAccntName = 'Beginning';
 
+      private static function ToSDO(
+	 $p_resultSet, $p_setTypeName, $p_elementTypeName, $p_mapping
+      ) {
+	 $v_set_DO = (
+	    SCA::createDataObject(
+	       'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+	       $p_setTypeName
+	    )
+	 );
+	 Debug::Singleton()->log(
+	    'LedgerAccountService::ToSDO(): $v_set_DO = ' .
+	       SDO_Model_ReflectionDataObject::export(
+		  new SDO_Model_ReflectionDataObject($v_set_DO), true
+	       )
+	 );
+	 foreach ($p_resultSet as $v_record) {
+	    $v_result_DO = $v_set_DO->createDataObject($p_elementTypeName);
+	    foreach ($p_mapping as $v_dBField => $v_sDOField) {
+	       $v_result_DO[$v_sDOField] = $v_record[$v_dBField];
+	    }
+	 }
+	 return $v_set_DO;
+      }
+
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
       }
@@ -71,19 +95,35 @@ throw $v_exception;
 	       ', $v_bindArray
 	    )
 	 );
-	 $v_accountSet_DO = (
-	    SCA::createDataObject(
-	       'http://pety.homelinux.org/CloudBank/LedgerAccountService',
-	       'AccountSet'
+	 return (
+	    self::ToSDO(
+	       $v_accounts, 'AccountSet', 'Account',
+	       array(
+		  'id' => 'id', 'name' => 'name',
+		  'amount' => 'beginning_balance'
+	       )
 	    )
 	 );
-	 foreach ($v_accounts as $v_account) {
-	    $v_account_DO = $v_accountSet_DO->createDataObject('Account');
-	    $v_account_DO->id = $v_account['id'];
-	    $v_account_DO->name = $v_account['name'];
-	    $v_account_DO->beginning_balance = $v_account['amount'];
-	 }
-	 return $v_accountSet_DO;
+      }
+
+      /**
+	 @return CategorySet http://pety.homelinux.org/CloudBank/LedgerAccountService
+	    Set of Categories
+      */
+      public function getCategories() {
+	 $v_bindArray = array(':type' => self::Category);
+	 $v_categories = (
+	    $this->r_cloudBankServer->execQuery(
+	       'SELECT id, name FROM ledger_account WHERE type = :type',
+	       $v_bindArray
+	    )
+	 );
+	 return (
+	    self::ToSDO(
+	       $v_categories, 'CategorySet', 'Category',
+	       array('id' => 'id', 'name' => 'name')
+	    )
+	 );
       }
       
       /* Note that although this method is not annotated, SCA generates an
