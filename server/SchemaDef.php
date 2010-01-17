@@ -2,6 +2,10 @@
    /* Hardcoded description of the DB schema. These should be generated from a
       common description. */
    class SchemaDef {
+      const LedgerAccountType_Account = 'Account';
+      const LedgerAccountType_Category = 'Category';
+      const LedgerAccountType_Beginning = 'Beginning';
+
       /* Constants cannot have complex type - as of now - that is why they are
 	 defined as static properties */
       private static $r_createSchemaStatements = array(
@@ -10,19 +14,47 @@
 	       id VARCHAR(39) NOT NULL PRIMARY KEY,
 	       name VARCHAR(32) NOT NULL,
 	       type VARCHAR(16) NOT NULL,
-	       UNIQUE (name, type)
+	       UNIQUE (name, type),
+	       CHECK (type IN (\'Account\', \'Category\', \'Beginning\'))
 	    )
-	 ', 
+	 ',	/* Account types should have been referenced from the constants
+		  declared above, but PHP can not do string concatenation in a
+		  constant expression - as of now */
 	 'event' => '
 	    CREATE TABLE event (
 	       id VARCHAR(39) NOT NULL PRIMARY KEY, date DATE NOT NULL,
 	       description VARCHAR(32) NOT NULL,
-	       credit_ledger_account_id VARCHAR(39)
-		  NOT NULL REFERENCES ledger_account,
 	       debit_ledger_account_id VARCHAR(39)
 		  NOT NULL REFERENCES ledger_account,
-	       amount NUMERIC(16,2) NOT NULL
+	       credit_ledger_account_id VARCHAR(39)
+		  NOT NULL REFERENCES ledger_account,
+	       amount NUMERIC(16,2) NOT NULL,
+	       CHECK (amount >= 0), 
+	       CHECK (debit_ledger_account_id <> credit_ledger_account_id)
 	    )
+	 ', 
+	 'account_events' => '
+	    CREATE VIEW account_events AS 
+	       SELECT 
+		  la.id AS ledger_account_id, la.name AS ledger_account_name,
+		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
+		  e.description AS description,
+                  (
+                     CASE la.id
+                        WHEN e.debit_ledger_account_id THEN e.amount
+                        ELSE -e.amount
+                     END
+                  ) AS amount, o_la.id AS other_ledger_account_id,
+		  o_la.name AS other_ledger_account_name
+	       FROM ledger_account la, event e, ledger_account o_la
+	       WHERE 
+		  (
+                     e.debit_ledger_account_id = la.id AND
+                     e.credit_ledger_account_id = o_la.id
+		  ) OR (
+                     e.credit_ledger_account_id = la.id AND
+                     e.debit_ledger_account_id = o_la.id
+                  )
 	 '
       );
 
@@ -50,7 +82,12 @@
 	 return self::CheckStrLength($p_description, 1, 32);
       }
       public static function IsValidAmount($p_amount) {
-	 return (!empty($p_amount) || $p_amount == 0);
+	 return ((!empty($p_amount) || $p_amount == 0) && $p_amount >= 0);
+      }
+      public static function IsValidLedgerAccountPair(
+	 $p_debitLedgerAccountID, $p_creditLedgerAccountID
+      ) {
+	 return ($p_debitLedgerAccountID <> $p_creditLedgerAccountID);
       }
 
       private function __construct() { } // to prevent creating an instance
