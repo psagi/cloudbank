@@ -14,6 +14,7 @@
 	 static $v_UUIDGenerator = NULL;
 	 if (!$v_UUIDGenerator) uuid_create(&$v_UUIDGenerator);
 	 uuid_make($v_UUIDGenerator, UUID_MAKE_V1);
+	 $v_uuid = str_repeat(' ', 39);
 	 uuid_export($v_UUIDGenerator, UUID_FMT_SIV, &$v_uuid);
 	 return rtrim($v_uuid);	// uuid_export() adds an extra "\0" to the end
       }
