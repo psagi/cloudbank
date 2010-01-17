@@ -10,34 +10,22 @@
    */
       // Note that annotations can not contain linebreaks.
    class LedgerAccountService {
-      const Account = 'Account';
-      const Category = 'Category';
-      const Beginning = 'Beginning'; 
       const BeginningEvntDesc = 'Beginning';
       const BeginningAccntName = 'Beginning';
 
       private static function ToSDO(
 	 $p_resultSet, $p_setTypeName, $p_elementTypeName, $p_mapping
       ) {
-	 $v_set_DO = (
-	    SCA::createDataObject(
-	       'http://pety.homelinux.org/CloudBank/LedgerAccountService',
-	       $p_setTypeName
+	 return (
+	    CloudBankServer::ToSDO(
+	       $p_resultSet,
+	       SCA::createDataObject(
+		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+		  $p_setTypeName
+	       ), // the root DO has to be created inside the SCA component
+	       $p_elementTypeName, $p_mapping
 	    )
 	 );
-	 Debug::Singleton()->log(
-	    'LedgerAccountService::ToSDO(): $v_set_DO = ' .
-	       SDO_Model_ReflectionDataObject::export(
-		  new SDO_Model_ReflectionDataObject($v_set_DO), true
-	       )
-	 );
-	 foreach ($p_resultSet as $v_record) {
-	    $v_result_DO = $v_set_DO->createDataObject($p_elementTypeName);
-	    foreach ($p_mapping as $v_dBField => $v_sDOField) {
-	       $v_result_DO[$v_sDOField] = $v_record[$v_dBField];
-	    }
-	 }
-	 return $v_set_DO;
       }
 
       public function __construct() {
@@ -55,10 +43,17 @@
 	 $p_name, $p_date, $p_beginningBalance
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $v_accntID = $this->createLedgerAccount($p_name, self::Account);
-	 $this->r_eventService->createEvent_internal(
-	    $p_date, self::BeginningEvntDesc, $v_accntID,
-	    self::GetBeginningAccountID(), $p_beginningBalance
+	 $v_accntID = $this->createLedgerAccount(
+	    $p_name, SchemaDef::LedgerAccountType_Account
+	 );
+	 CloudBankServer::SwapIf(
+	    ($p_beginningBalance < 0), $v_accntID,
+	    self::GetBeginningAccountID(), $v_debitLedgerAccountID,
+	    $v_creditLedgerAccountID
+	 );
+	 $this->r_eventService->createEvent(
+	    $p_date, self::BeginningEvntDesc, $v_debitLedgerAccountID,
+	    $v_creditLedgerAccountID, abs($p_beginningBalance)
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -71,7 +66,9 @@
       public function createCategory($p_name) {
 try {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->createLedgerAccount($p_name, self::Category);
+	 $this->createLedgerAccount(
+	    $p_name, SchemaDef::LedgerAccountType_Category
+	 );
 	 $this->r_cloudBankServer->commitTransaction();
 } catch (Exception $v_exception) {
 Debug::Singleton()->log(var_export($v_exception, true));
@@ -85,21 +82,28 @@ throw $v_exception;
 	    Set of Accounts
       */
       public function getAccounts() {
-	 $v_bindArray = array(':type' => self::Account);
+	 $this->r_cloudBankServer->beginTransaction();
 	 $v_accounts = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT la.id, la.name, e.amount
-		  FROM ledger_account la, event e
-		  WHERE e.credit_ledger_account_id = la.id AND la.type = :type
-	       ', $v_bindArray
+		  SELECT ledger_account_id, ledger_account_name, amount
+		  FROM account_events
+		  WHERE
+		     ledger_account_type = :type AND
+		     other_ledger_account_id = :beginningAccountID
+	       ', 
+	       array(
+		  ':type' => SchemaDef::LedgerAccountType_Account,
+		  ':beginningAccountID' => $this->getBeginningAccountID()
+	       )
 	    )
 	 );
+	 $this->r_cloudBankServer->commitTransaction();
 	 return (
 	    self::ToSDO(
 	       $v_accounts, 'AccountSet', 'Account',
 	       array(
-		  'id' => 'id', 'name' => 'name',
+		  'ledger_account_id' => 'id', 'ledger_account_name' => 'name',
 		  'amount' => 'beginning_balance'
 	       )
 	    )
@@ -111,7 +115,7 @@ throw $v_exception;
 	    Set of Categories
       */
       public function getCategories() {
-	 $v_bindArray = array(':type' => self::Category);
+	 $v_bindArray = array(':type' => SchemaDef::LedgerAccountType_Category);
 	 $v_categories = (
 	    $this->r_cloudBankServer->execQuery(
 	       'SELECT id, name FROM ledger_account WHERE type = :type',
@@ -133,7 +137,9 @@ throw $v_exception;
       */
       public function createBeginningAccount() {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->createLedgerAccount(self::BeginningAccntName, self::Beginning);
+	 $this->createLedgerAccount(
+	    self::BeginningAccntName, SchemaDef::LedgerAccountType_Beginning
+	 );
 	 $this->r_cloudBankServer->commitTransaction();
       }
 
@@ -141,7 +147,7 @@ throw $v_exception;
 	 $v_result = (
 	    $this->r_cloudBankServer->execQuery(
 	       'SELECT id FROM ledger_account WHERE type = :type',
-	       array(':type' => self::Beginning)
+	       array(':type' => SchemaDef::LedgerAccountType_Beginning)
 	    )
 	 );
 	 return $v_result[0]['id'];
