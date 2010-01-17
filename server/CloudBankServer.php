@@ -18,6 +18,30 @@
 	 return rtrim($v_uuid);	// uuid_export() adds an extra "\0" to the end
       }
 
+      public static function ToSDO(
+	 $p_resultSet, $p_rootDO, $p_elementTypeName, $p_mapping
+      ) {
+	 Debug::Singleton()->log(
+	    'CloudBankServer::ToSDO(): $p_rootDO = ' .
+	       SDO_Model_ReflectionDataObject::export(
+		  new SDO_Model_ReflectionDataObject($p_rootDO), true
+	       )
+	 );
+	 foreach ($p_resultSet as $v_record) {
+	    $v_result_DO = $p_rootDO->createDataObject($p_elementTypeName);
+	    foreach ($p_mapping as $v_dBField => $v_sDOField) {
+	       $v_result_DO[$v_sDOField] = $v_record[$v_dBField];
+	    }
+	 }
+	 return $p_rootDO;
+      }
+      public static function SwapIf(
+	 $p_is2BSwapped, $p_in1, $p_in2, &$p_out1, &$p_out2
+      ) {
+	 $p_out1 = ($p_is2BSwapped ? $p_in2 : $p_in1);
+	 $p_out2 = ($p_is2BSwapped ? $p_in1 : $p_in2);
+      }
+
       private function __construct() {
 	 date_default_timezone_set(@date_default_timezone_get());
 	 $v_dBConf = parse_ini_file(dirname(__FILE__) . '/../conf/server.ini');
