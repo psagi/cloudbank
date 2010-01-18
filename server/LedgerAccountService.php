@@ -129,6 +129,26 @@ throw $v_exception;
 	    )
 	 );
       }
+
+      /**
+	 @param string $p_ledgerAccountID	The ID of the Account/Category
+	 @return float				Its balance
+      */
+      public function getBalance($p_ledgerAccountID) {
+	 $v_balance = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT SUM(amount) AS balance
+		  FROM account_events
+		  WHERE ledger_account_id = :ledgerAccountID
+	       ', 
+	       array(
+		  ':ledgerAccountID' => $p_ledgerAccountID
+	       )
+	    )
+	 );
+	 return $v_balance[0]['balance'];
+      }
       
       /* Note that although this method is not annotated, SCA generates an
 	 operation for it in the WSDL. However this operation is probably
