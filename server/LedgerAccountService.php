@@ -150,6 +150,26 @@ throw $v_exception;
 	 return $v_balance[0]['balance'];
       }
       
+      /**
+	 @param string $p_ledgerAccountID
+	    The ID of the Category/Account to be deleted
+	 @return bool		Success
+	 
+	 WARNING! This operation also deletes all events related to the
+	 Category/Account.
+      */
+      public function deleteLedgerAccount($p_ledgerAccountID) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertAccountOrCategoryExists($p_ledgerAccountID);
+	 $this->r_eventService->deleteAllEvents($p_ledgerAccountID);
+	 $this->r_cloudBankServer->execQuery(
+	    'DELETE FROM ledger_account WHERE id = :id', 
+	    array(':id' => $p_ledgerAccountID)
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return true;
+      }
+      
       /* Note that although this method is not annotated, SCA generates an
 	 operation for it in the WSDL. However this operation is probably
 	 unusable due to the missing annotations - and so type definitions in
@@ -206,6 +226,29 @@ throw $v_exception;
 	 );
 	 return $v_accountID;
       }
+      private function assertAccountOrCategoryExists($p_id) {
+	 if (
+	    count(
+	       $this->r_cloudBankServer->execQuery(
+		  '
+		     SELECT 1
+			FROM ledger_account
+			WHERE id = :id AND type IN (:account, :category)
+		  ',
+		  array(
+		     ':id' => $p_id,
+		     ':account' => SchemaDef::LedgerAccountType_Account,
+		     ':category' => SchemaDef::LedgerAccountType_Category
+		  )
+	       )
+	    ) == 0
+	 ) {
+	    throw new Exception(
+	       "Referenced Account or Category ($p_id) does not exist."
+	    );
+	 }
+      }
+
       private function __clone() { }
 
       /**
