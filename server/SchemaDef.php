@@ -45,7 +45,8 @@
                         ELSE -e.amount
                      END
                   ) AS amount, o_la.id AS other_ledger_account_id,
-		  o_la.name AS other_ledger_account_name
+		  o_la.name AS other_ledger_account_name,
+		  o_la.type AS other_ledger_account_type
 	       FROM ledger_account la, event e, ledger_account o_la
 	       WHERE 
 		  (
