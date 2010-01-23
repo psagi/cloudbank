@@ -124,6 +124,18 @@
 	    )
 	 );
       }
+      
+      /**
+	 @param string $p_EventID	The Event to be deleted
+      */
+      public function deleteEvent($p_eventID) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertEventExists($p_eventID);
+	 $this->r_cloudBankServer->execQuery(
+	    'DELETE FROM event WHERE id = :id', array(':id' => $p_eventID)
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+      }
 
       public function createEvent(
 	 $p_date, $p_description, $p_debitLedgerAccountID,
@@ -203,6 +215,20 @@
 	    throw new Exception(
 	       "Referenced LedgerAccount ($p_ledgerAccountID" .
 		  (empty($p_type) ? "" : ", $p_type") . ") does not exist."
+	    );
+	 }
+      }
+      private function assertEventExists($p_eventID) {
+	 if (
+            count(
+               $this->r_cloudBankServer->execQuery(
+                  'SELECT 1 FROM event WHERE id = :id',
+		  array(':id' => $p_eventID)
+               )
+            ) == 0
+	 ) {
+	    throw new Exception(
+	       "Referenced Event ($p_eventID) does not exist."
 	    );
 	 }
       }
