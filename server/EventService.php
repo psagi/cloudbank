@@ -127,14 +127,16 @@
       
       /**
 	 @param string $p_EventID	The Event to be deleted
+	 @return bool			Success
       */
       public function deleteEvent($p_eventID) {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->assertEventExists($p_eventID);
+	 $this->assertNonBeginningEventExists($p_eventID);
 	 $this->r_cloudBankServer->execQuery(
 	    'DELETE FROM event WHERE id = :id', array(':id' => $p_eventID)
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
+	 return true;
       }
 
       public function createEvent(
@@ -182,6 +184,16 @@
 	    )
 	 );
       }
+      public function deleteAllEvents($p_ledgerAccountID) {
+	 $this->r_cloudBankServer->execQuery(
+	    '
+	       DELETE FROM event 
+		  WHERE
+		     debit_ledger_account_id = :ledger_account_id OR
+		     credit_ledger_account_id = :ledger_account_id
+	    ', array(':ledger_account_id' => $p_ledgerAccountID)
+	 );
+      }
 
       private function __clone() { }
       private function assertAccountExists($p_accountID) {
@@ -218,17 +230,27 @@
 	    );
 	 }
       }
-      private function assertEventExists($p_eventID) {
+      private function assertNonBeginningEventExists($p_eventID) {
 	 if (
             count(
                $this->r_cloudBankServer->execQuery(
-                  'SELECT 1 FROM event WHERE id = :id',
-		  array(':id' => $p_eventID)
+                  '
+		     SELECT 1
+		     FROM account_events
+		     WHERE
+		     id = :id AND
+		     :beginningType NOT IN (
+			ledger_account_type, other_ledger_account_type
+		     )
+		  ', array(
+		     ':id' => $p_eventID,
+		     ':beginningType' => SchemaDef::LedgerAccountType_Beginning
+		  )
                )
             ) == 0
 	 ) {
 	    throw new Exception(
-	       "Referenced Event ($p_eventID) does not exist."
+	       "Referenced (non-beginning) Event ($p_eventID) does not exist."
 	    );
 	 }
       }
