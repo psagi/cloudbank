@@ -46,14 +46,9 @@
 	 $v_accntID = $this->createLedgerAccount(
 	    $p_name, SchemaDef::LedgerAccountType_Account
 	 );
-	 CloudBankServer::SwapIf(
-	    ($p_beginningBalance < 0), $v_accntID,
-	    self::GetBeginningAccountID(), $v_debitLedgerAccountID,
-	    $v_creditLedgerAccountID
-	 );
-	 $this->r_eventService->createEvent(
-	    $p_date, self::BeginningEvntDesc, $v_debitLedgerAccountID,
-	    $v_creditLedgerAccountID, abs($p_beginningBalance)
+	 $this->r_eventService->createOrUpdateEvent(
+	    $p_date, self::BeginningEvntDesc, $v_accntID,
+	    self::GetBeginningAccountID(), $p_beginningBalance
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
