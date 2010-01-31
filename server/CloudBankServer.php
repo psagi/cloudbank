@@ -42,6 +42,25 @@
 	 $p_out1 = ($p_is2BSwapped ? $p_in2 : $p_in1);
 	 $p_out2 = ($p_is2BSwapped ? $p_in1 : $p_in2);
       }
+      public static function AssertIDsMatch($p_id1, $p_id2) {
+	 if ($p_id1 != $p_id2) {
+	    throw new Exception(
+	       "IDs ($p_id1, $p_id2) must match when modifying."
+	    );              
+	 }
+      }
+      public static function IsEqual($p_arr1, $p_arr2, $p_mapping) {
+	 Debug::Singleton()->log(
+	    'CloudBankService::IsEqual(' . var_export($p_arr1, true) . ', ' .
+	       var_export($p_arr2, true) . ', ' . var_export($p_mapping, true) .
+	       ')'
+	 );
+	 foreach ($p_mapping as $v_key1 => $v_key2) {
+	    $v_result = ($p_arr1[$v_key1] == $p_arr2[$v_key2]);
+	    if (!$v_result) break;
+	 }
+	 return $v_result;
+      }
 
       private function __construct() {
 	 date_default_timezone_set(@date_default_timezone_get());

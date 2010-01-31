@@ -22,18 +22,6 @@
 	    )
 	 );
       }
-      private static function IsEqual($p_arr1, $p_arr2, $p_mapping) {
-	 Debug::Singleton()->log(
-	    'EventService::IsEqual(' . var_export($p_arr1, true) . ', ' .
-	       var_export($p_arr2, true) . ', ' . var_export($p_mapping, true) .
-	       ')'
-	 );
-	 foreach ($p_mapping as $v_key1 => $v_key2) {
-	    $v_result = ($p_arr1[$v_key1] == $p_arr2[$v_key2]);
-	    if (!$v_result) break;
-	 }
-	 return $v_result;
-      }
 
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
@@ -104,12 +92,7 @@
 	 @return bool		Success
       */
       public function modifyEvent($p_accountID, $p_oldEvent, $p_newEvent) {
-	 if ($p_newEvent['id'] != $p_oldEvent['id']) {
-	    throw new Exception(
-	       "IDs ({$p_oldEvent['id']}, {$p_newEvent['id']}) must match " .
-		  "when modifying."
-	    );
-	 }
+	 CloudBankServer::AssertIDsMatch($p_newEvent['id'], $p_oldEvent['id']);
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->assertSameAsCurrent($p_accountID, $p_oldEvent);
 	 $this->createOrUpdateEvent(
@@ -266,7 +249,7 @@
 	    )
 	 );
 	 if (
-	    !self::IsEqual(
+	    !CloudBankServer::IsEqual(
 	       $p_oldEvent, $v_currentEvent[0],
 	       array(
 		  'date' => 'date', 'description' => 'description',
