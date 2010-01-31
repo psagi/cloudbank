@@ -82,9 +82,6 @@
       public static function IsValidEventDescription($p_description) {
 	 return self::CheckStrLength($p_description, 1, 32);
       }
-      public static function IsValidAmount($p_amount) {
-	 return ((!empty($p_amount) || $p_amount == 0) && $p_amount >= 0);
-      }
       public static function IsValidLedgerAccountPair(
 	 $p_debitLedgerAccountID, $p_creditLedgerAccountID
       ) {
