@@ -12,6 +12,7 @@
 	 />
       </xsd:sequence>
    </xsd:complexType>
+   <xsd:element name="Event" type="EventService:Event"/>
    <xsd:complexType name="Event">
       <xsd:attribute name="id" type="xsd:string"/>
       <xsd:attribute name="date" type="xsd:string"/>
