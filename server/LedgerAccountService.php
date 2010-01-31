@@ -43,7 +43,7 @@
 	 $p_name, $p_date, $p_beginningBalance
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $v_accntID = $this->createLedgerAccount(
+	 $v_accntID = $this->createOrUpdateLedgerAccount(
 	    $p_name, SchemaDef::LedgerAccountType_Account
 	 );
 	 $this->r_eventService->createOrUpdateEvent(
@@ -61,7 +61,7 @@
       public function createCategory($p_name) {
 try {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->createLedgerAccount(
+	 $this->createOrUpdateLedgerAccount(
 	    $p_name, SchemaDef::LedgerAccountType_Category
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
@@ -146,6 +146,50 @@ throw $v_exception;
       }
       
       /**
+	 @param Account $p_oldAccount http://pety.homelinux.org/CloudBank/LedgerAccountService
+	 @param Account $p_newAccount http://pety.homelinux.org/CloudBank/LedgerAccountService
+	 @return bool		Success
+      */
+      public function modifyAccount($p_oldAccount, $p_newAccount) {
+	 CloudBankServer::AssertIDsMatch(
+	    $p_newAccount['id'], $p_oldAccount['id']
+	 );
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertSameAccountAsCurrent($p_oldAccount);
+	 $v_beginningEvent = $this->getBeginningEvent($p_oldAccount['id']);
+	 $this->r_eventService->createOrUpdateEvent(
+	    $v_beginningEvent['date'], $v_beginningEvent['description'],
+	    $p_newAccount['id'], $v_beginningEvent['other_account_id'],
+	    $p_newAccount['beginning_balance'], $v_beginningEvent['id']
+	 );
+	 $this->createOrUpdateLedgerAccount(
+	    $p_newAccount['name'], SchemaDef::LedgerAccountType_Account,
+	    $p_newAccount['id']
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return true;
+      }
+
+      /**
+	 @param Category $p_oldCategory http://pety.homelinux.org/CloudBank/LedgerAccountService
+	 @param Category $p_newCategory http://pety.homelinux.org/CloudBank/LedgerAccountService
+	 @return bool		Success
+      */
+      public function modifyCategory($p_oldCategory, $p_newCategory) {
+	 CloudBankServer::AssertIDsMatch(
+	    $p_newCategory['id'], $p_oldCategory['id']
+	 );
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertSameCategoryAsCurrent($p_oldCategory);
+	 $this->createOrUpdateLedgerAccount(
+	    $p_newCategory['name'], SchemaDef::LedgerAccountType_Category,
+	    $p_newCategory['id']
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return true;
+      }
+
+      /**
 	 @param string $p_ledgerAccountID
 	    The ID of the Category/Account to be deleted
 	 @return bool		Success
@@ -172,7 +216,7 @@ throw $v_exception;
       */
       public function createBeginningAccount() {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->createLedgerAccount(
+	 $this->createOrUpdateLedgerAccount(
 	    self::BeginningAccntName, SchemaDef::LedgerAccountType_Beginning
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
@@ -188,36 +232,52 @@ throw $v_exception;
 	 return $v_result[0]['id'];
       }
 
-      private function doesExist($p_name, $p_type) {
+      private function doesExistAndNotThis($p_name, $p_type, $p_id) {
+	 $v_queryStr = (
+	    '
+	       SELECT 1
+	       FROM ledger_account
+	       WHERE name = :name AND type = :type
+	    '
+	 );
+	 $v_bindArray = array(':name' => $p_name, ':type' => $p_type);
+	 if (!is_null($p_id)) {
+	    $v_queryStr = $v_queryStr . ' AND id <> :id';
+	    $v_bindArray[':id'] = $p_id;
+	 }
 	 return (
 	    count(
-	       $this->r_cloudBankServer->execQuery(
-		  '
-		     SELECT 1
-			FROM ledger_account
-			WHERE name = :name AND type = :type
-		  ', array(':name' => $p_name, ':type' => $p_type)
-	       )
+	       $this->r_cloudBankServer->execQuery($v_queryStr, $v_bindArray)
 	    ) > 0
 	 );
       }
 
-      private function createLedgerAccount($p_name, $p_type) {
+      private function createOrUpdateLedgerAccount(
+	 $p_name, $p_type, $p_id = NULL
+      ) {
 	 if (!SchemaDef::IsValidLedgerAccountName($p_name)) {
 	    throw new Exception("Invalid LedgerAccount name ($p_name)");
 	 }
-	 if ($this->doesExist($p_name, $p_type)) {
+	 if ($this->doesExistAndNotThis($p_name, $p_type, $p_id)) {
 	    throw
 	       new Exception("LedgerAccount ($p_name, $p_type) already exists.")
 	    ;
 	 }
-	 $v_accountID = CloudBankServer::UUID();
+	 $v_accountID = (is_null($p_id) ? CloudBankServer::UUID() : $p_id);
+	 $v_bindArray = array(':id' => $v_accountID, ':name' => $p_name);
+	 if (is_null($p_id)) $v_bindArray[':type'] = $p_type;
 	 $this->r_cloudBankServer->execQuery(
-	    '
-	       INSERT 
-		  INTO ledger_account(id, name, type) VALUES (:id, :name, :type)
-	    ',
-	    array(':id' => $v_accountID, ':name' => $p_name, ':type' => $p_type)
+	    (
+	       is_null($p_id) ? 
+	       '
+		  INSERT 
+		     INTO ledger_account(id, name, type) VALUES (
+			:id, :name, :type
+		     )
+	       ' :
+	       'UPDATE ledger_account SET name = :name WHERE id = :id'
+		  // NOTE that the type of the LedgerAccount can not be modified
+	    ), $v_bindArray
 	 );
 	 return $v_accountID;
       }
@@ -243,7 +303,77 @@ throw $v_exception;
 	    );
 	 }
       }
-
+      private function assertSameAccountAsCurrent($p_oldAccount) {
+	 $v_currentAccount = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT ledger_account_name, amount
+		  FROM account_events
+		  WHERE
+		     ledger_account_id = :accountID AND
+		     other_ledger_account_id = :beginningAccountID
+	       ',
+	       array(
+		  ':accountID' => $p_oldAccount['id'],
+		  ':beginningAccountID' => $this->getBeginningAccountID()
+	       )
+	    )
+	 );
+	 if (
+	    !CloudBankServer::IsEqual(
+	       $p_oldAccount, $v_currentAccount[0],
+	       array(
+		  'name' => 'ledger_account_name',
+		  'beginning_balance' => 'amount'
+	       )
+	    )
+	 ) {
+            throw new Exception(
+               "The Account to be modified ({$p_oldAccount['id']}) does not " .
+                  "exist or has been modified by another session. Please try " .
+                  "again."
+            );
+	 }
+      }
+      private function assertSameCategoryAsCurrent($p_oldCategory) {
+	 $v_currentCategory = (
+	    $this->r_cloudBankServer->execQuery(
+	       'SELECT name FROM ledger_account WHERE id = :accountID',
+	       array( ':accountID' => $p_oldCategory['id'])
+	    )
+	 );
+	 if (
+	    !CloudBankServer::IsEqual(
+	       $p_oldCategory, $v_currentCategory[0], array('name' => 'name')
+	    )
+	 ) {
+            throw new Exception(
+               "The Category to be modified ({$p_oldCategory['id']}) does " .
+		  "not exist or has been modified by another session. Please " .
+		  "try again."
+            );
+	 }
+      }
+      private function getBeginningEvent($p_accountID) {
+	 $v_beginningEvent = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT
+		     id, date, description,
+		     other_ledger_account_id AS other_account_id
+		  FROM account_events
+		  WHERE
+		     ledger_account_id = :accountID AND
+		     other_ledger_account_id = :beginningAccountID
+	       ',
+	       array(
+		  ':accountID' => $p_accountID,
+		  ':beginningAccountID' => $this->getBeginningAccountID()
+	       )
+	    )
+	 );
+	 return $v_beginningEvent[0];
+      }
       private function __clone() { }
 
       /**
