@@ -13,6 +13,7 @@
 	 />
       </xsd:sequence>
    </xsd:complexType>
+   <xsd:element name="Account" type="LedgerAccountService:Account"/>
    <xsd:complexType name="Account">
       <xsd:attribute name="id" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
@@ -27,6 +28,7 @@
 	 />
       </xsd:sequence>
    </xsd:complexType>
+   <xsd:element name="Category" type="LedgerAccountService:Category"/>
    <xsd:complexType name="Category">
       <xsd:attribute name="id" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
