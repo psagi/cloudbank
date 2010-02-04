@@ -32,8 +32,15 @@
 	    $v_result_DO = $p_rootDO->createDataObject($p_elementTypeName);
 	    foreach ($p_mapping as $v_dBField => $v_sDOField) {
 	       $v_result_DO[$v_sDOField] = $v_record[$v_dBField];
+	       Debug::Singleton()->log(
+		  "CloudBankServer::ToSDO(): mapped: " .
+		     "\$v_record['$v_dBField'] = {$v_record[$v_dBField]} => " .
+		     "\$v_result_DO['$v_sDOField'] = " .
+		     "{$v_result_DO[$v_sDOField]}"
+	       );
 	    }
 	 }
+//echo('CloudBankServer::ToSDO(): $p_rootDO = '); var_dump($p_rootDO);
 	 return $p_rootDO;
       }
       public static function SwapIf(
