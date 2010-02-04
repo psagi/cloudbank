@@ -35,7 +35,7 @@
       /**
 	 @param string $p_name	The name of the account
 	 @param string $p_date	The date of creation of the account (YYYY-MM-DD)
-	 @param float $p_beginningBalance	\
+	 @param string $p_beginningBalance	\
 	    The beginning balance of the account 
 	 @return bool		Success
       */
@@ -127,7 +127,7 @@ throw $v_exception;
 
       /**
 	 @param string $p_ledgerAccountID	The ID of the Account/Category
-	 @return float				Its balance
+	 @return string				Its balance
       */
       public function getBalance($p_ledgerAccountID) {
 	 $v_balance = (
@@ -143,6 +143,20 @@ throw $v_exception;
 	    )
 	 );
 	 return $v_balance[0]['balance'];
+      }
+
+      /**
+	 @return string	The total balance of the Accounts
+      */
+      public function getAccountsTotal() {
+	 return $this->getTotal(SchemaDef::LedgerAccountType_Account);
+      }
+      
+      /**
+	 @return string	The total balance of the Categories
+      */
+      public function getCategoriesTotal() {
+	 return $this->getTotal(SchemaDef::LedgerAccountType_Category);
       }
       
       /**
@@ -373,6 +387,18 @@ throw $v_exception;
 	    )
 	 );
 	 return $v_beginningEvent[0];
+      }
+      private function getTotal($p_type) {
+	 $v_total = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT SUM(amount) AS total
+		  FROM account_events
+		  WHERE ledger_account_type = :type
+	       ', array(':type' => $p_type)
+	    )
+	 );
+	 return $v_total[0]['total'];
       }
       private function __clone() { }
 
