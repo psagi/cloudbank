@@ -34,7 +34,7 @@
 	    The account the event is started from
 	 @param string $p_otherAccountID
 	    The other account/category the amount to be debited/credited to/from
-	 @param float $p_amount	
+	 @param string $p_amount	
 	    The amount (negative if the starting account's balance is to be
 	    decreased)
 	 @return bool		Success
@@ -127,6 +127,11 @@
 	 }
 	 if (!SchemaDef::IsValidEventDescription($p_description)) {
 	    throw new Exception("Invalid Event description ($p_description)");
+	 }
+	 if (!(is_numeric($p_amount) && (strpos($p_amount, 'x') === FALSE))) {
+	    throw new Exception(
+	       "Invalid amount ($p_amount). Must be a floating point number."
+	    );
 	 }
 	 $this->prepareRelatedAccounts(
 	    $p_accountID, $p_otherAccountID, $p_amount, $v_debitLedgerAccountID,
