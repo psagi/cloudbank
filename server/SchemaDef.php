@@ -2,10 +2,6 @@
    /* Hardcoded description of the DB schema. These should be generated from a
       common description. */
    class SchemaDef {
-      const LedgerAccountType_Account = 'Account';
-      const LedgerAccountType_Category = 'Category';
-      const LedgerAccountType_Beginning = 'Beginning';
-
       /* Constants cannot have complex type - as of now - that is why they are
 	 defined as static properties */
       private static $r_createSchemaStatements = array(
