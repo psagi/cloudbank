@@ -29,7 +29,11 @@
 	       )
 	 );
 	 foreach ($p_resultSet as $v_record) {
-	    $v_result_DO = $p_rootDO->createDataObject($p_elementTypeName);
+	    $v_result_DO = (
+	       is_null($p_elementTypeName) ?
+	       $p_rootDO :
+	       $p_rootDO->createDataObject($p_elementTypeName)
+	    );
 	    foreach ($p_mapping as $v_dBField => $v_sDOField) {
 	       $v_result_DO[$v_sDOField] = $v_record[$v_dBField];
 	       Debug::Singleton()->log(
@@ -39,6 +43,7 @@
 		     "{$v_result_DO[$v_sDOField]}"
 	       );
 	    }
+	    if (is_null($p_elementTypeName)) break;
 	 }
 //echo('CloudBankServer::ToSDO(): $p_rootDO = '); var_dump($p_rootDO);
 	 return $p_rootDO;
