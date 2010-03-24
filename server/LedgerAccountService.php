@@ -1,4 +1,5 @@
 <?php
+   require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
    require_once('CloudBankServer.php');
    require_once('Debug.php');
    include('SCA/SCA.php');
@@ -21,9 +22,13 @@
 	       $p_resultSet,
 	       SCA::createDataObject(
 		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
-		  $p_setTypeName
+		  (
+		     is_null($p_setTypeName) ?
+		     $p_elementTypeName :
+		     $p_setTypeName
+		  )
 	       ), // the root DO has to be created inside the SCA component
-	       $p_elementTypeName, $p_mapping
+	       (is_null($p_setTypeName) ? NULL : $p_elementTypeName), $p_mapping
 	    )
 	 );
       }
@@ -44,7 +49,7 @@
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $v_accntID = $this->createOrUpdateLedgerAccount(
-	    $p_name, SchemaDef::LedgerAccountType_Account
+	    $p_name, CloudBankConsts::LedgerAccountType_Account
 	 );
 	 $this->r_eventService->createOrUpdateEvent(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
@@ -62,7 +67,7 @@
 try {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->createOrUpdateLedgerAccount(
-	    $p_name, SchemaDef::LedgerAccountType_Category
+	    $p_name, CloudBankConsts::LedgerAccountType_Category
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 } catch (Exception $v_exception) {
@@ -70,6 +75,32 @@ Debug::Singleton()->log(var_export($v_exception, true));
 throw $v_exception;
 }
 	 return true;
+      }
+
+      /**
+	 @param string $p_id	The ID of the account
+	 @return Account http://pety.homelinux.org/CloudBank/LedgerAccountService
+	    Account details
+      */
+      public function getAccount($p_id) {
+	 return (
+	    $this->getAccountOrCategory(
+	       $p_id, CloudBankConsts::LedgerAccountType_Account
+	    )
+	 );
+      }
+
+      /**
+	 @param string $p_id	The ID of the category
+	 @return Category http://pety.homelinux.org/CloudBank/LedgerAccountService
+	    Category details
+      */
+      public function getCategory($p_id) {
+	 return (
+	    $this->getAccountOrCategory(
+	       $p_id, CloudBankConsts::LedgerAccountType_Category
+	    )
+	 );
       }
 
       /**
@@ -88,7 +119,7 @@ throw $v_exception;
 		     other_ledger_account_id = :beginningAccountID
 	       ', 
 	       array(
-		  ':type' => SchemaDef::LedgerAccountType_Account,
+		  ':type' => CloudBankConsts::LedgerAccountType_Account,
 		  ':beginningAccountID' => $this->getBeginningAccountID()
 	       )
 	    )
@@ -110,7 +141,9 @@ throw $v_exception;
 	    Set of Categories
       */
       public function getCategories() {
-	 $v_bindArray = array(':type' => SchemaDef::LedgerAccountType_Category);
+	 $v_bindArray = (
+	    array(':type' => CloudBankConsts::LedgerAccountType_Category)
+	 );
 	 $v_categories = (
 	    $this->r_cloudBankServer->execQuery(
 	       'SELECT id, name FROM ledger_account WHERE type = :type',
@@ -149,14 +182,14 @@ throw $v_exception;
 	 @return string	The total balance of the Accounts
       */
       public function getAccountsTotal() {
-	 return $this->getTotal(SchemaDef::LedgerAccountType_Account);
+	 return $this->getTotal(CloudBankConsts::LedgerAccountType_Account);
       }
       
       /**
 	 @return string	The total balance of the Categories
       */
       public function getCategoriesTotal() {
-	 return $this->getTotal(SchemaDef::LedgerAccountType_Category);
+	 return $this->getTotal(CloudBankConsts::LedgerAccountType_Category);
       }
       
       /**
@@ -177,7 +210,7 @@ throw $v_exception;
 	    $p_newAccount['beginning_balance'], $v_beginningEvent['id']
 	 );
 	 $this->createOrUpdateLedgerAccount(
-	    $p_newAccount['name'], SchemaDef::LedgerAccountType_Account,
+	    $p_newAccount['name'], CloudBankConsts::LedgerAccountType_Account,
 	    $p_newAccount['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
@@ -196,7 +229,7 @@ throw $v_exception;
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->assertSameCategoryAsCurrent($p_oldCategory);
 	 $this->createOrUpdateLedgerAccount(
-	    $p_newCategory['name'], SchemaDef::LedgerAccountType_Category,
+	    $p_newCategory['name'], CloudBankConsts::LedgerAccountType_Category,
 	    $p_newCategory['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
@@ -231,7 +264,8 @@ throw $v_exception;
       public function createBeginningAccount() {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->createOrUpdateLedgerAccount(
-	    self::BeginningAccntName, SchemaDef::LedgerAccountType_Beginning
+	    self::BeginningAccntName,
+	    CloudBankConsts::LedgerAccountType_Beginning
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
       }
@@ -240,7 +274,7 @@ throw $v_exception;
 	 $v_result = (
 	    $this->r_cloudBankServer->execQuery(
 	       'SELECT id FROM ledger_account WHERE type = :type',
-	       array(':type' => SchemaDef::LedgerAccountType_Beginning)
+	       array(':type' => CloudBankConsts::LedgerAccountType_Beginning)
 	    )
 	 );
 	 return $v_result[0]['id'];
@@ -295,20 +329,31 @@ throw $v_exception;
 	 );
 	 return $v_accountID;
       }
-      private function assertAccountOrCategoryExists($p_id) {
+      private function assertAccountOrCategoryExists(
+	 $p_id, $p_ledgerAccountType = NULL
+      ) {
+	 $v_bindArray[':id'] = $p_id;
+	 if (is_null($p_ledgerAccountType)) {
+	    $v_typeWhereClause = 'type IN (:account, :category)';
+	    $v_bindArray[':account'] = (
+	       CloudBankConsts::LedgerAccountType_Account
+	    );
+	    $v_bindArray[':category'] = (
+	       CloudBankConsts::LedgerAccountType_Category
+	    );
+	 }
+	 else {
+	    $v_typeWhereClause = 'type = :type';
+	    $v_bindArray[':type'] = $p_ledgerAccountType;
+	 }
 	 if (
 	    count(
 	       $this->r_cloudBankServer->execQuery(
 		  '
 		     SELECT 1
 			FROM ledger_account
-			WHERE id = :id AND type IN (:account, :category)
-		  ',
-		  array(
-		     ':id' => $p_id,
-		     ':account' => SchemaDef::LedgerAccountType_Account,
-		     ':category' => SchemaDef::LedgerAccountType_Category
-		  )
+			WHERE id = :id AND ' . $v_typeWhereClause . '
+		  ', $v_bindArray
 	       )
 	    ) == 0
 	 ) {
@@ -400,6 +445,38 @@ throw $v_exception;
 	 );
 	 return $v_total[0]['total'];
       }
+      private function getAccountOrCategory($p_id, $p_type) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertAccountOrCategoryExists($p_id, $p_type);
+	 $v_map = array('id' => 'id', 'name' => 'name');
+	 switch ($p_type) {
+	    case CloudBankConsts::LedgerAccountType_Account :
+	       $v_queryStr = (
+		  '
+		     SELECT
+			ledger_account_id AS id, ledger_account_name AS name,
+			amount
+		     FROM account_events
+		     WHERE ledger_account_id = :id
+		  '
+	       );
+	       $v_map['amount'] = 'beginning_balance';
+	       break;
+	    case CloudBankConsts::LedgerAccountType_Category :
+	       $v_queryStr = (
+		  'SELECT id, name FROM ledger_account WHERE id = :id'
+	       );
+	       break;
+	 }
+	 $v_ledgerAccounts = (
+	    $this->r_cloudBankServer->execQuery(
+	       $v_queryStr, array(':id' => $p_id)
+	    )
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return self::ToSDO($v_ledgerAccounts, NULL, $p_type, $v_map);
+      }
+
       private function __clone() { }
 
       /**
