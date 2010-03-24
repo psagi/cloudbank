@@ -1,4 +1,5 @@
 <?php
+   require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
    require_once('CloudBankServer.php');
    include('SCA/SCA.php');
 
@@ -64,7 +65,8 @@
 	       '
 		  SELECT
 		     id, date, description, other_ledger_account_id,
-		     other_ledger_account_name, amount
+		     other_ledger_account_name, other_ledger_account_type,
+		     amount
 		  FROM account_events
 		  WHERE ledger_account_id = :accountID
 	       ', array(':accountID' => $p_accountID)
@@ -79,6 +81,7 @@
 		  'description' => 'description',
 		  'other_ledger_account_id' => 'other_account_id',
 		  'other_ledger_account_name' => 'other_account_name',
+		  'other_ledger_account_type' => 'other_account_type',
 		  'amount' => 'amount'
 	       )
 	    )
@@ -232,7 +235,8 @@
 		     )
 		  ', array(
 		     ':id' => $p_eventID,
-		     ':beginningType' => SchemaDef::LedgerAccountType_Beginning
+		     ':beginningType' =>
+			CloudBankConsts::LedgerAccountType_Beginning
 		  )
                )
             ) == 0
@@ -275,7 +279,7 @@
 	    &$p_debitLedgerAccountID, &$p_creditLedgerAccountID, &$p_amount
 	 ) {
 	 $this->assertLedgerAccountExists(
-	    $p_accountID, SchemaDef::LedgerAccountType_Account
+	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
 	 );
 	 $this->assertLedgerAccountExists($p_otherAccountID);
 	 CloudBankServer::SwapIf(
