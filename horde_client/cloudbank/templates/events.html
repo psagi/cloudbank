@@ -1,0 +1,30 @@
+<div class="header">
+   <span style="width:30%" class="leftFloat">
+      <span dir="ltr">
+	 <tag:account_or_category_name />&nbsp;<tag:account_or_category_icon />
+      </span>
+   </span>
+   <br class="clear"/>
+</div>
+<table class="item" width="100%" cellspacing="1">
+   <tr class="item">
+      <th align="left">Date</th>
+      <th align="left">Description</th>
+      <th align="left">To/From</th>
+      <th align="left">Amount</th>
+   </tr>
+   <loop:events>
+      <tr class="linedRow">
+	 <td><tag:events.date /></td>
+	 <td><tag:events.description /></td>
+	 <td><tag:events.icon /><tag:events.link /></td>
+	 <td align="right"><tag:events.amount /></td>
+      </tr>
+   </loop:events>
+   <tr class="item">
+      <th align="left">Total</th>
+      <th align="left"></th>
+      <th align="left"></th>
+      <th align="right"><tag:total /></th>
+   </tr>
+</table>

@@ -1,0 +1,16 @@
+<table class="item" width="100%" cellspacing="1">
+   <tr class="item">
+      <th align="left">Name</th>
+      <th align="left">Balance</th>
+   </tr>
+   <loop:accounts>
+      <tr class="linedRow">
+	 <td><tag:accounts.link /></td>
+	 <td align="right"><tag:accounts.balance /></td>
+      </tr>
+   </loop:accounts>
+   <tr class="item">
+      <th align="left">Total</th>
+      <th align="right"><tag:total /></th>
+   </tr>
+</table>
