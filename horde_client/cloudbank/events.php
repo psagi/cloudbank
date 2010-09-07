@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id$
+ * $Id: events.php,v 1.1 2010/07/17 20:49:07 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -45,6 +45,18 @@ CloudBank::AddIcons(
 Book::SortResultSet($g_events, 'date');
 $g_total = Book::Singleton()->getAccountBalance($g_id);
 $g_template = &new Horde_Template;
+$g_template->set(
+   'new_event.link', (
+      $g_type == CloudBankConsts::LedgerAccountType_Account ? (
+	 Horde::link(
+	    Util::addParameter(
+	       Horde::applicationUrl('event.php'), array('account_id' => $g_id)
+	    ), 'New'
+	 ) . 'New</a>'
+      ) :
+      ''
+   )
+);
 $g_template->set('account_or_category_name', $g_accountOrCategoryName);
 $g_template->set('account_or_category_icon', $g_accountOrCategoryIcon);
 $g_template->set('events', $g_events);
