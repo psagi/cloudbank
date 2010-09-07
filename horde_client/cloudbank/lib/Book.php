@@ -62,7 +62,7 @@
       }
       public function getAccountsAndCategories() {
 	 $v_accountsAndCategories = (
-	    array_merge($this->getAccounts(), $this->getCategories)
+	    array_merge($this->getAccounts(), $this->getCategories())
 	 );
 	 foreach ($v_accountsAndCategories as $v_record) {
 	    $v_accountsAndCategories_iDNameMap[$v_record['id']] = (
@@ -115,8 +115,18 @@
 	 self::FormatAmounts($v_events);
 	 return $v_events;
       }
+      public function createEvent($p_variables) {
+	 $this->r_eventService->createEvent(
+	    $p_variables->get('date'), $p_variables->get('description'),
+	    $p_variables->get('account_id'),
+	    $p_variables->get('other_account_id'), (
+	       ($p_variables->get('is_income') ? 1 : -1) *
+	       $p_variables->get('amount')
+	    )
+	 );
+      }
 /*
-      public function modifyEvent($v_variables) {
+      public function modifyEvent($p_variables) {
 	 $this->r_eventService->modifyEvent($v_variables->get('account_id'), 
 */     
       private function __construct() {
@@ -130,6 +140,14 @@
 	 return (
 	    self::CopyArray(
 	       $v_accounts_SDO[CloudBankConsts::LedgerAccountType_Account]
+	    )
+	 );
+      }
+      private function getCategories() {
+	 $v_categories_SDO = $this->r_ledgerAccountService->getCategories();
+	 return (
+	    self::CopyArray(
+	       $v_categories_SDO[CloudBankConsts::LedgerAccountType_Category]
 	    )
 	 );
       }
