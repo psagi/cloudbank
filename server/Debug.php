@@ -18,7 +18,7 @@
       }
 
       private function __construct() {
-	 $v_conf = parse_ini_file(dirname(__FILE__) . '/../conf/server.ini');
+	 $v_conf = parse_ini_file(dirname(__FILE__) . '/../conf/cloudbank.ini');
 	 $this->r_isOn = ($v_conf['debug'] == 'on');
 	 $this->r_logFile = $v_conf['log_file'];
       }
