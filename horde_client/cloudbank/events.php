@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: events.php,v 1.1 2010/07/17 20:49:07 pety Exp pety $
+ * $Id: events.php,v 1.2 2010/09/07 18:25:29 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -26,13 +26,34 @@ $g_accountOrCategoryName = (
    Book::Singleton()->getAccountOrCategoryName($g_id, $g_type)
 );
 $g_accountOrCategoryIcon = Book::Singleton()->getAccountOrCategoryIcon($g_type);
-$g_events = Book::Singleton()->getEvents($g_id);
+$g_events = (
+   Book::Singleton()->getEvents($g_id, $g_type, $g_accountOrCategoryName)
+);
+CloudBank::AddLinks(
+   $g_events, 'event.php',
+   array(
+      'date' => 'date', 'description' => 'description', 
+      'account_id' => 'account_id', 'other_account_id' => 'other_account_id',
+      'amount' => 'amount', 'event_id' => 'id',
+      'account_type' => 'account_type', 'account_name' => 'account_name',
+      'other_account_type' => 'other_account_type'
+	 /* Note that this field is not required in the link, but needed for the
+	    exclusion filter to work */
+   ), 'description', 'description_link',
+   array(
+      'date' => NULL, 'description' => NULL, 'account_id' => NULL,
+      'other_account_id' => NULL, 'amount' => NULL, 'id' => NULL,
+      'account_type' => CloudBankConsts::LedgerAccountType_Category,
+      'account_name' => NULL,
+      'other_account_type' => CloudBankConsts::LedgerAccountType_Beginning
+   )
+);
 CloudBank::AddLinks(
    $g_events, 'events.php',
    array(
       'ledger_account_id' => 'other_account_id',
       'ledger_account_type' => 'other_account_type'
-   ), 'other_account_name',
+   ), 'other_account_name', 'account_link',
    array(
       'other_account_id' => NULL,
       'other_account_type' => CloudBankConsts::LedgerAccountType_Beginning
@@ -50,7 +71,11 @@ $g_template->set(
       $g_type == CloudBankConsts::LedgerAccountType_Account ? (
 	 Horde::link(
 	    Util::addParameter(
-	       Horde::applicationUrl('event.php'), array('account_id' => $g_id)
+	       Horde::applicationUrl('event.php'),
+	       array(
+		  'account_id' => $g_id,
+		  'account_name' => $g_accountOrCategoryName
+	       )
 	    ), 'New'
 	 ) . 'New</a>'
       ) :

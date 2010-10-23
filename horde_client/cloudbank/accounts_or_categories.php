@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id$
+ * $Id: accounts.php,v 1.2 2010/07/17 20:47:54 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -21,7 +21,8 @@ require_once CLOUDBANK_BASE . '/lib/Book.php';
 $g_accounts = Book::Singleton()->getAccountsWBalance();
 CloudBank::AddLinks(
    $g_accounts, 'events.php',
-   array('ledger_account_id' => 'id', 'ledger_account_type' => 'type'), 'name'
+   array('ledger_account_id' => 'id', 'ledger_account_type' => 'type'), 'name',
+   'account_link'
 );
 Book::SortResultSet($g_accounts, 'name');
 $g_total = Book::Singleton()->getAccountsTotal();
