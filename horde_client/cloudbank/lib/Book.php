@@ -15,6 +15,14 @@
 	    self::GetColValues($p_resultSet, $p_colName), $p_resultSet
 	 );
       }
+      public static function VariablesToSDO(
+	 $p_variables, $p_rootDO, $p_mapping
+      ) {
+	 foreach($p_mapping as $p_variableName => $p_attributeName) {
+	    $p_rootDO[$p_attributeName] = $p_variables->get($p_variableName);
+	 }
+	 return $p_rootDO;
+      }
       
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
@@ -36,8 +44,19 @@
       }
       private static function FormatAmounts(&$p_resultSet) {
 	 foreach ($p_resultSet as &$v_record) {
-	    $v_record['amount'] = self::FormatAmount($v_record['amount']);
+	    $v_record['amount_fmt'] = self::FormatAmount($v_record['amount']);
 	 }
+      }
+      private static function FixAmount(
+	 &$p_variables, $p_amountVarName, $p_isIncomeVarName
+      ) {
+	 $p_variables->set(
+	    $p_amountVarName,
+	    (
+	       $p_variables->get($p_amountVarName) *
+	       ($p_variables->get($p_isIncomeVarName) ? 1 : -1)
+	    )
+	 );
       }
       
       public function getAccountBalance($p_id) {
@@ -109,26 +128,86 @@
 	    )
 	 );
       }
-      public function getEvents($p_id) {
+      public function getEvents($p_id, $p_type, $p_name) {
 	 $v_events_SDO = $this->r_eventService->getEvents($p_id);
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
 	 self::FormatAmounts($v_events);
+	 foreach ($v_events as &$v_event) {
+	    $v_event['account_id'] = $p_id;
+	    $v_event['account_type'] = $p_type;
+	    $v_event['account_name'] = $p_name;
+	 }
 	 return $v_events;
       }
       public function createEvent($p_variables) {
+	 self::FixAmount($p_variables, 'amount', 'is_income');
 	 $this->r_eventService->createEvent(
 	    $p_variables->get('date'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
-	    $p_variables->get('other_account_id'), (
-	       ($p_variables->get('is_income') ? 1 : -1) *
-	       $p_variables->get('amount')
-	    )
+	    $p_variables->get('other_account_id'), $p_variables->get('amount')
 	 );
       }
-/*
+      public function populateEventForm(&$p_variables) {
+	 $p_variables->set(
+	    'is_income',
+	    (
+	       ($p_variables->get('amount') >= 0) ==
+	       (
+		  $p_variables->get('account_type') ==
+		  CloudBankConsts::LedgerAccountType_Account
+	       )
+	    )
+	 );
+	 $p_variables->set('amount', abs($p_variables->get('amount')));
+	 foreach(
+	    array(
+	       'date', 'description', 'is_income', 'other_account_id', 'amount'
+	    ) as $v_variableName
+	 ) {
+	    $p_variables->set(
+	       'old_' . $v_variableName, $p_variables->get($v_variableName)
+	    );
+	 }
+      }
       public function modifyEvent($p_variables) {
-	 $this->r_eventService->modifyEvent($v_variables->get('account_id'), 
-*/     
+	 self::FixAmount($p_variables, 'old_amount', 'old_is_income');
+	 $v_oldEvent_SDO = (
+	    self::VariablesToSDO(
+	       $p_variables,
+	       $this->r_eventService->createDataObject(
+		  'http://pety.homelinux.org/CloudBank/EventService', 'Event'
+	       ), 
+	       array(
+		  'event_id' => 'id', 'old_date' => 'date',
+		  'old_description' => 'description',
+		  'old_other_account_id' => 'other_account_id',
+		  'old_other_account_name' => 'other_account_name',
+		  'old_other_account_type' => 'other_account_type',
+		  'old_amount' => 'amount'
+	       )
+	    )
+	 );
+	 self::FixAmount($p_variables, 'amount', 'is_income');
+	 $v_newEvent_SDO = (
+	    self::VariablesToSDO(
+	       $p_variables,
+	       $this->r_eventService->createDataObject(
+		  'http://pety.homelinux.org/CloudBank/EventService', 'Event'
+	       ), 
+	       array(
+		  'event_id' => 'id', 'date' => 'date',
+		  'description' => 'description',
+		  'other_account_id' => 'other_account_id',
+		  'other_account_name' => 'other_account_name',
+		  'other_account_type' => 'other_account_type',
+		  'amount' => 'amount'
+	       )
+	    )
+	 );
+	 $this->r_eventService->modifyEvent(
+	    $p_variables->get('account_id'), $v_oldEvent_SDO, $v_newEvent_SDO
+	 );
+      }
       private function __construct() {
 	 $this->r_ledgerAccountService = (
 	    SCA::getService('LedgerAccountService.wsdl')
