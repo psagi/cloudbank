@@ -2,7 +2,7 @@
 /**
  * Cloudbank Base Class.
  *
- * $Id: Cloudbank.php,v 1.1 2010/07/17 21:02:38 pety Exp pety $
+ * $Id: Cloudbank.php,v 1.2 2010/10/23 19:55:23 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -16,7 +16,7 @@ class Cloudbank {
 
    public static function AddLinks(
       &$p_recordSet, $p_phpScript, $p_key, $p_label, $p_linkField,
-      $p_exclusionFilter = NULL
+      $p_exclusionFilter = NULL, $p_title =  NULL
    ) {
    /* Please note that p_exclusionFilter has to contain every field of the key,
       exlusion occurs if ANY of the fields match the provided value. */
@@ -42,8 +42,9 @@ class Cloudbank {
 	 $v_record[$p_linkField] = (
 	    $v_isExcluded ?
 	    $v_record[$p_label] :
-	    Horde::link($v_showURL, $v_record[$p_label]) . $v_record[$p_label] .
-	       '</a>'
+	    Horde::link(
+	       $v_showURL, (is_null($p_title) ? $v_record[$p_label] : $p_title)
+	    ) . $v_record[$p_label] . '</a>'
 	 );
 	    /* the actual display text is included too to be able to keep the
 	       template-generated HTML clean */
