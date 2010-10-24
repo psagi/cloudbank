@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: event.php,v 1.1 2010/09/07 19:24:41 pety Exp pety $
+ * $Id: event.php,v 1.2 2010/10/23 19:30:31 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -78,9 +78,7 @@ else {	// render
       $g_variables->set('date', strftime('%Y-%m-%d'));
    }
    else {
-      Book::Singleton()->populateEventForm(
-	 $g_variables, $g_account_id, $g_account_type, $g_event_id
-      );
+      Book::PopulateEventForm($g_variables);
    }
    $title = ($g_isEdit ? 'Edit Event' : 'Add Event');
    require CLOUDBANK_TEMPLATES . '/common-header.inc';
