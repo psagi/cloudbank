@@ -1,5 +1,6 @@
 <?php
    require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
+   require_once(dirname(__FILE__) . '/../lib/Util.php');
    require_once('CloudBankServer.php');
    include('SCA/SCA.php');
 
@@ -13,13 +14,13 @@
          $p_resultSet, $p_setTypeName, $p_elementTypeName, $p_mapping
       ) {
 	 return (
-	    CloudBankServer::ToSDO(
+	    Util::ToSDO(
 	       $p_resultSet,
 	       SCA::createDataObject(
 		  'http://pety.homelinux.org/CloudBank/EventService',
-		  $p_setTypeName
+		  is_null($p_setTypeName) ? $p_elementTypeName : $p_setTypeName
 	       ), // the root DO has to be created inside the SCA component
-	       $p_elementTypeName, $p_mapping
+	       is_null($p_setTypeName) ? NULL : $p_elementTypeName, $p_mapping
 	    )
 	 );
       }
@@ -49,6 +50,53 @@
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
+      }
+ 
+      /**
+	 @param string $p_accountID
+	    The ID of the primary account of the event 
+	 @param string $p_eventID	The ID of the event
+	 @return Event http://pety.homelinux.org/CloudBank/EventService
+	     Event details
+
+	 Note that it returns the event from the Account point of view regarding
+	 the 'account' and 'other account' relations. (The account is the
+	 Account.)
+      */
+      public function getEvent($p_eventID) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertNonBeginningEventExists($p_eventID);
+	 $v_event = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT
+		     id, date, description, other_ledger_account_id,
+		     other_ledger_account_name, other_ledger_account_type,
+		     amount
+		  FROM account_events
+		  WHERE id = :iD AND ledger_account_type = :ledgerAccountType
+	       ',
+	       array(
+		  ':iD' => $p_eventID,
+		  ':ledgerAccountType' =>
+		     CloudBankConsts::LedgerAccountType_Account
+	       )
+	    )
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return (
+	    self::ToSDO(
+	       $v_event, NULL, 'Event',
+	       array(
+		  'id' => 'id', 'date' => 'date',
+		  'description' => 'description',
+		  'other_ledger_account_id' => 'other_account_id',
+		  'other_ledger_account_name' => 'other_account_name',
+		  'other_ledger_account_type' => 'other_account_type',
+		  'amount' => 'amount'
+	       )
+	    )
+	 );
       }
 
       /**
