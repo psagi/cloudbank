@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: accounts.php,v 1.2 2010/07/17 20:47:54 pety Exp pety $
+ * $Id: accounts.php,v 1.3 2010/10/23 19:29:54 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -24,9 +24,20 @@ CloudBank::AddLinks(
    array('ledger_account_id' => 'id', 'ledger_account_type' => 'type'), 'name',
    'account_link'
 );
+CloudBank::AddLinks(
+   $g_accounts, 'account.php',
+   array(
+      'account_id' => 'id', 'name' => 'name',
+      'beginning_balance' => 'beginning_balance'
+   ), 'edit_icon', 'edit_icon_link', NULL, 'Edit'
+);
 Book::SortResultSet($g_accounts, 'name');
 $g_total = Book::Singleton()->getAccountsTotal();
 $g_template = &new Horde_Template;
+$g_template->set(
+   'new_account.link', 
+   Horde::link(Horde::applicationUrl('account.php')) . 'New</a>'
+);
 $g_template->set('accounts', $g_accounts);
 $g_template->set('total', $g_total);
 

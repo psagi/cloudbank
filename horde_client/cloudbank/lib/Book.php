@@ -23,6 +23,28 @@
 	 }
 	 return $p_rootDO;
       }
+      public static function PopulateAccountForm(&$p_variables) {
+	 self::CopyToOldVars($p_variables, array('name', 'beginning_balance'));
+      }
+      public static function PopulateEventForm(&$p_variables) {
+	 $p_variables->set(
+	    'is_income',
+	    (
+	       ($p_variables->get('amount') >= 0) ==
+	       (
+		  $p_variables->get('account_type') ==
+		  CloudBankConsts::LedgerAccountType_Account
+	       )
+	    )
+	 );
+	 $p_variables->set('amount', abs($p_variables->get('amount')));
+	 self::CopyToOldVars(
+	    $p_variables,  
+	    array(
+	       'date', 'description', 'is_income', 'other_account_id', 'amount'
+	    )
+	 );
+      }
       
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
@@ -58,6 +80,13 @@
 	    )
 	 );
       }
+      private static function CopyToOldVars(&$p_variables, $p_varNames) {
+	 foreach($p_varNames as $v_variableName) {
+	    $p_variables->set(
+	       'old_' . $v_variableName, $p_variables->get($v_variableName)
+	    );
+	 }
+      }
       
       public function getAccountBalance($p_id) {
 	 return (
@@ -65,10 +94,17 @@
 	 );
       }
       public function getAccountsWBalance() {
+	 global $registry;
 	 $v_accounts = $this->getAccounts();
+	 $v_edit_icon = (
+	    Horde::img(
+	       'edit.png', 'Edit', '', $registry->getImageDir('cloudbank')
+	    )
+	 );
 	 foreach ($v_accounts as &$v_account) {
 	    $v_account['balance'] = $this->getAccountBalance($v_account['id']);
 	    $v_account['type'] = CloudBankConsts::LedgerAccountType_Account;
+	    $v_account['edit_icon'] = $v_edit_icon;
 	 }
 	 return $v_accounts;
       }
@@ -128,6 +164,43 @@
 	    )
 	 );
       }
+      public function createAccount($p_variables) {
+	 $this->r_ledgerAccountService->createAccount(
+	    $p_variables->get('name'), strftime('%Y-%m-%d'),
+	    $p_variables->get('beginning_balance')
+	 );
+      }
+      public function modifyAccount($p_variables) {
+	 $v_oldAccount_SDO = (
+	    self::VariablesToSDO(
+	       $p_variables,
+	       $this->r_ledgerAccountService->createDataObject(
+		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+		  'Account'
+	       ), 
+	       array(
+		  'account_id' => 'id', 'old_name' => 'name',
+		  'old_beginning_balance' => 'beginning_balance',
+	       )
+	    )
+	 );
+	 $v_newAccount_SDO = (
+	    self::VariablesToSDO(
+	       $p_variables,
+	       $this->r_ledgerAccountService->createDataObject(
+		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+		  'Account'
+	       ), 
+	       array(
+		  'account_id' => 'id', 'name' => 'name',
+		  'beginning_balance' => 'beginning_balance',
+	       )
+	    )
+	 );
+	 $this->r_ledgerAccountService->modifyAccount(
+	    $v_oldAccount_SDO, $v_newAccount_SDO
+	 );
+      }
       public function getEvents($p_id, $p_type, $p_name) {
 	 $v_events_SDO = $this->r_eventService->getEvents($p_id);
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
@@ -146,28 +219,6 @@
 	    $p_variables->get('account_id'),
 	    $p_variables->get('other_account_id'), $p_variables->get('amount')
 	 );
-      }
-      public function populateEventForm(&$p_variables) {
-	 $p_variables->set(
-	    'is_income',
-	    (
-	       ($p_variables->get('amount') >= 0) ==
-	       (
-		  $p_variables->get('account_type') ==
-		  CloudBankConsts::LedgerAccountType_Account
-	       )
-	    )
-	 );
-	 $p_variables->set('amount', abs($p_variables->get('amount')));
-	 foreach(
-	    array(
-	       'date', 'description', 'is_income', 'other_account_id', 'amount'
-	    ) as $v_variableName
-	 ) {
-	    $p_variables->set(
-	       'old_' . $v_variableName, $p_variables->get($v_variableName)
-	    );
-	 }
       }
       public function modifyEvent($p_variables) {
 	 self::FixAmount($p_variables, 'old_amount', 'old_is_income');
