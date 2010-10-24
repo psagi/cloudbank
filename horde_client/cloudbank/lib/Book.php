@@ -101,10 +101,16 @@
 	       'edit.png', 'Edit', '', $registry->getImageDir('cloudbank')
 	    )
 	 );
+	 $v_delete_icon = (
+	    Horde::img(
+	       'delete.png', 'Delete', '', $registry->getImageDir('cloudbank')
+	    )
+	 );
 	 foreach ($v_accounts as &$v_account) {
 	    $v_account['balance'] = $this->getAccountBalance($v_account['id']);
 	    $v_account['type'] = CloudBankConsts::LedgerAccountType_Account;
 	    $v_account['edit_icon'] = $v_edit_icon;
+	    $v_account['delete_icon'] = $v_delete_icon;
 	 }
 	 return $v_accounts;
       }
@@ -201,14 +207,24 @@
 	    $v_oldAccount_SDO, $v_newAccount_SDO
 	 );
       }
+      public function deleteAccount($p_account_id) {
+	 $this->r_ledgerAccountService->deleteLedgerAccount($p_account_id);
+      }
       public function getEvents($p_id, $p_type, $p_name) {
+	 global $registry;
 	 $v_events_SDO = $this->r_eventService->getEvents($p_id);
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
 	 self::FormatAmounts($v_events);
+	 $v_delete_icon = (
+	    Horde::img(
+	       'delete.png', 'Delete', '', $registry->getImageDir('cloudbank')
+	    )
+	 );
 	 foreach ($v_events as &$v_event) {
 	    $v_event['account_id'] = $p_id;
 	    $v_event['account_type'] = $p_type;
 	    $v_event['account_name'] = $p_name;
+	    $v_event['delete_icon'] = $v_delete_icon;
 	 }
 	 return $v_events;
       }
@@ -258,6 +274,9 @@
 	 $this->r_eventService->modifyEvent(
 	    $p_variables->get('account_id'), $v_oldEvent_SDO, $v_newEvent_SDO
 	 );
+      }
+      public function deleteEvent($p_event_id) {
+	 $this->r_eventService->deleteEvent($p_event_id);
       }
       private function __construct() {
 	 $this->r_ledgerAccountService = (

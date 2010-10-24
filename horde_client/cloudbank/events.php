@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: events.php,v 1.2 2010/09/07 18:25:29 pety Exp pety $
+ * $Id: events.php,v 1.3 2010/10/23 19:30:42 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -47,6 +47,19 @@ CloudBank::AddLinks(
       'account_name' => NULL,
       'other_account_type' => CloudBankConsts::LedgerAccountType_Beginning
    )
+);
+CloudBank::AddLinks(
+   $g_events, 'delete_event.php',
+   array(
+      'event_id' => 'id', 'account_id' => 'account_id',
+      'other_account_type' => 'other_account_type'
+	 /* Note that this field is not required in the link, but needed for the
+	    exclusion filter to work */
+   ), 'delete_icon', 'delete_icon_link',
+   array(
+      'id' => NULL, 'account_id' => NULL,
+      'other_account_type' => CloudBankConsts::LedgerAccountType_Beginning
+   ), 'Delete'
 );
 CloudBank::AddLinks(
    $g_events, 'events.php',

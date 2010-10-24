@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: accounts.php,v 1.3 2010/10/23 19:29:54 pety Exp pety $
+ * $Id: accounts.php,v 1.4 2010/10/24 10:04:28 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -30,6 +30,11 @@ CloudBank::AddLinks(
       'account_id' => 'id', 'name' => 'name',
       'beginning_balance' => 'beginning_balance'
    ), 'edit_icon', 'edit_icon_link', NULL, 'Edit'
+);
+CloudBank::AddLinks(
+   $g_accounts, 'delete_account.php',
+   array('account_id' => 'id'),
+   'delete_icon', 'delete_icon_link', NULL, 'Delete'
 );
 Book::SortResultSet($g_accounts, 'name');
 $g_total = Book::Singleton()->getAccountsTotal();
