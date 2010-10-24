@@ -1,7 +1,8 @@
 <?php
    require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
+   require_once(dirname(__FILE__) . '/../lib/Debug.php');
+   require_once(dirname(__FILE__) . '/../lib/Util.php');
    require_once('CloudBankServer.php');
-   require_once('Debug.php');
    include('SCA/SCA.php');
 
    /**
@@ -18,7 +19,7 @@
 	 $p_resultSet, $p_setTypeName, $p_elementTypeName, $p_mapping
       ) {
 	 return (
-	    CloudBankServer::ToSDO(
+	    Util::ToSDO(
 	       $p_resultSet,
 	       SCA::createDataObject(
 		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
