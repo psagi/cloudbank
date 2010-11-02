@@ -88,14 +88,18 @@
 	 }
       }
       
-      public function getAccountBalance($p_id) {
+      public function getAccountOrCategoryBalance($p_id) {
 	 return (
 	    self::FormatAmount($this->r_ledgerAccountService->getBalance($p_id))
 	 );
       }
-      public function getAccountsWBalance() {
+      public function getAccountsOrCategoriesWBalance($p_type) {
 	 global $registry;
-	 $v_accounts = $this->getAccounts();
+	 $v_accountsOrCategories = (
+	    $p_type == CloudBankConsts::LedgerAccountType_Account ? 
+	       $this->getAccounts() :
+	       $this->getCategories()
+	 );
 	 $v_edit_icon = (
 	    Horde::img(
 	       'edit.png', 'Edit', '', $registry->getImageDir('cloudbank')
@@ -106,18 +110,27 @@
 	       'delete.png', 'Delete', '', $registry->getImageDir('cloudbank')
 	    )
 	 );
-	 foreach ($v_accounts as &$v_account) {
-	    $v_account['balance'] = $this->getAccountBalance($v_account['id']);
-	    $v_account['type'] = CloudBankConsts::LedgerAccountType_Account;
-	    $v_account['edit_icon'] = $v_edit_icon;
-	    $v_account['delete_icon'] = $v_delete_icon;
+	 foreach ($v_accountsOrCategories as &$v_accountOrCategory) {
+	    $v_accountOrCategory['balance'] = (
+	       $this->getAccountOrCategoryBalance($v_accountOrCategory['id'])
+	    );
+	    $v_accountOrCategory['type'] = $p_type;
+	    $v_accountOrCategory['edit_icon'] = $v_edit_icon;
+	    $v_accountOrCategory['delete_icon'] = $v_delete_icon;
 	 }
-	 return $v_accounts;
+	 return $v_accountsOrCategories;
       }
       public function getAccountsTotal() {
 	 return (
 	    self::FormatAmount(
 	       $this->r_ledgerAccountService->getAccountsTotal()
+	    )
+	 );
+      }
+      public function getCategoriesTotal() {
+	 return (
+	    self::FormatAmount(
+	       $this->r_ledgerAccountService->getCategoriesTotal()
 	    )
 	 );
       }
@@ -209,6 +222,34 @@
       }
       public function deleteAccount($p_account_id) {
 	 $this->r_ledgerAccountService->deleteLedgerAccount($p_account_id);
+      }
+      public function createCategory($p_variables) {
+	 $this->r_ledgerAccountService->createCategory(
+	    $p_variables->get('name')
+	 );
+      }
+      public function modifyCategory($p_variables) {
+	 $v_oldCategory_SDO = (
+	    self::VariablesToSDO(
+	       $p_variables,
+	       $this->r_ledgerAccountService->createDataObject(
+		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+		  'Category'
+	       ), array('account_id' => 'id', 'old_name' => 'name')
+	    )
+	 );
+	 $v_newCategory_SDO = (
+	    self::VariablesToSDO(
+	       $p_variables,
+	       $this->r_ledgerAccountService->createDataObject(
+		  'http://pety.homelinux.org/CloudBank/LedgerAccountService',
+		  'Category'
+	       ), array('account_id' => 'id', 'name' => 'name')
+	    )
+	 );
+	 $this->r_ledgerAccountService->modifyCategory(
+	    $v_oldCategory_SDO, $v_newCategory_SDO
+	 );
       }
       public function getEvents($p_id, $p_type, $p_name) {
 	 global $registry;

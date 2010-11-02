@@ -2,7 +2,7 @@
 /**
  * Cloudbank Base Class.
  *
- * $Id: Cloudbank.php,v 1.2 2010/10/23 19:55:23 pety Exp pety $
+ * $Id: Cloudbank.php,v 1.3 2010/10/24 10:02:49 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -71,6 +71,16 @@ class Cloudbank {
 	 $v_record['account_icon'] = ($v_isIncluded ? $v_icon : NULL);
       }
    }
+/*
+   public static function AccountOrCategoryURL($p_type) {
+      return (
+	 Util::addParameter(
+	    Horde::applicationUrl('accounts_or_categories.php'),
+	    array('type' => $p_type)
+	 )
+      );
+   }
+*/
 
     /**
      * Build Cloudbank's list of menu items.
@@ -85,6 +95,10 @@ class Cloudbank {
         $menu->add(
 	 Horde::applicationUrl('accounts.php'), _("Accounts"), 'account.png',
 	 $registry->getImageDir('cloudbank')
+        );
+        $menu->add(
+	 Horde::applicationUrl('categories.php'), _("Categories"),
+	 'category.png', $registry->getImageDir('cloudbank')
         );
 
         if ($returnType == 'object') {
