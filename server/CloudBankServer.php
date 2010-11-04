@@ -14,9 +14,9 @@
 	 static $v_UUIDGenerator = NULL;
 	 if (!$v_UUIDGenerator) uuid_create(&$v_UUIDGenerator);
 	 uuid_make($v_UUIDGenerator, UUID_MAKE_V1);
-	 $v_uuid = str_repeat(' ', 39);
-	 uuid_export($v_UUIDGenerator, UUID_FMT_SIV, &$v_uuid);
-	 return rtrim($v_uuid);	// uuid_export() adds an extra "\0" to the end
+	 uuid_export($v_UUIDGenerator, UUID_FMT_STR, &$v_uuid);
+	 return substr($v_uuid, 0, UUID_LEN_STR);
+	    // uuid_export() adds an extra "\0" to the end
       }
       public static function SwapIf(
 	 $p_is2BSwapped, $p_in1, $p_in2, &$p_out1, &$p_out2
