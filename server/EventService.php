@@ -53,15 +53,9 @@
       }
  
       /**
-	 @param string $p_accountID
-	    The ID of the primary account of the event 
 	 @param string $p_eventID	The ID of the event
 	 @return Event http://pety.homelinux.org/CloudBank/EventService
 	     Event details
-
-	 Note that it returns the event from the Account point of view regarding
-	 the 'account' and 'other account' relations. (The account is the
-	 Account.)
       */
       public function getEvent($p_eventID) {
 	 $this->r_cloudBankServer->beginTransaction();
@@ -102,10 +96,13 @@
       /**
 	 @param string $p_accountID	\
 	    The LedgerAccount the related events to be returned for
+	 @param string $p_limitDate					\
+	    The oldest date thats Events are returned. If NULL all	\
+	    Events are returned for the LedgerAccount
 	 @return EventSet http://pety.homelinux.org/CloudBank/EventService
 	     Set of Events
       */
-      public function getEvents($p_accountID) {
+      public function getEvents($p_accountID, $p_limitDate = NULL) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->assertLedgerAccountExists($p_accountID);
 	 $v_events = (
@@ -117,7 +114,8 @@
 		     amount
 		  FROM account_events
 		  WHERE ledger_account_id = :accountID
-	       ', array(':accountID' => $p_accountID)
+	       ' . (empty($p_limitDate) ? '' : 'AND date >= :limitDate'),
+	       array(':accountID' => $p_accountID, ':limitDate' => $p_limitDate)
 	    )
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
