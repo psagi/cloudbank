@@ -1,0 +1,39 @@
+<?php
+/**
+ * Release focus. Possible values:
+ * 0 - N/A
+ * 1 - Initial freshmeat announcement
+ * 2 - Documentation
+ * 3 - Code cleanup
+ * 4 - Minor feature enhancements
+ * 5 - Major feature enhancements
+ * 6 - Minor bugfixes
+ * 7 - Major bugfixes
+ * 8 - Minor security fixes
+ * 9 - Major security fixes
+ */
+$this->notes['fm']['focus'] = 1;
+
+/* Mailing list release notes. */
+$this->notes['ml']['changes'] = <<<ML
+The Horde Team is pleased to announce the first release of the Cloudbank Application version H3 (0.1).
+
+The Cloudbank Application is web client for the Cloudbank Server. It can be used for keeping track of personal finance matters. The incomes/expenses are organized into Accounts and Categories.
+
+This is a preview version that should not be used on production systems.  This
+version is not considered feature complete and there might still be a few bugs.
+You should not use this preview version over existing production data.
+
+We encourage widespread testing and feedback via the mailing lists or our bug
+tracking system. The localization feature is not expected to be working yet.
+
+ML;
+
+/* Freshmeat release notes, not more than 600 characters. */
+$this->notes['fm']['changes'] = <<<FM
+The Cloudbank Application is web client for the Cloudbank Server. It can be used for keeping track of personal finance matters. The incomes/expenses are organized into Accounts and Categories.
+FM;
+
+$this->notes['name'] = 'Cloudbank';
+$this->notes['fm']['project'] = 'cloudbank';
+$this->notes['fm']['branch'] = 'Default';
