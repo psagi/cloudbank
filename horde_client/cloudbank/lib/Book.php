@@ -3,6 +3,8 @@
    require_once('lib/CloudBankConsts.php');
 
    class Book {
+      const MonthFormat = 'Y-m';
+
       public static function Singleton() {
 	 static $v_instance = NULL;
 	 if (!isset($v_instance)) {
@@ -10,9 +12,12 @@
 	 }
 	 return $v_instance;
       }
-      public static function SortResultSet(&$p_resultSet, $p_colName) {
+      public static function SortResultSet(
+	 &$p_resultSet, $p_colName, $p_isDescending = FALSE
+      ) {
 	 array_multisort(
-	    self::GetColValues($p_resultSet, $p_colName), $p_resultSet
+	    self::GetColValues($p_resultSet, $p_colName),
+	    ($p_isDescending ? SORT_DESC : SORT_ASC), $p_resultSet
 	 );
       }
       public static function VariablesToSDO(
@@ -45,7 +50,11 @@
 	    )
 	 );
       }
-      
+      public static function PreviousMonth($p_month_str) {
+	 $v_month = new DateTime($p_month_str);
+	 $v_month->modify('-1 month');
+	 return $v_month->format(self::MonthFormat);
+      }
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
 	 else {
@@ -251,9 +260,11 @@
 	    $v_oldCategory_SDO, $v_newCategory_SDO
 	 );
       }
-      public function getEvents($p_id, $p_type, $p_name) {
+      public function getEvents($p_id, $p_type, $p_name, $p_limitMonth) {
 	 global $registry;
-	 $v_events_SDO = $this->r_eventService->getEvents($p_id);
+	 $v_events_SDO = (
+	    $this->r_eventService->getEvents($p_id, $p_limitMonth . '-01')
+	 );
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
 	 self::FormatAmounts($v_events);
 	 $v_delete_icon = (

@@ -1,13 +1,17 @@
 <div class="header">
    <span style="width:30%" class="leftFloat">
       <span dir="ltr">
-	 <tag:account_or_category_name />&nbsp;<tag:account_or_category_icon />
+	 <tag:account_or_category_name />&nbsp;<tag:account_or_category_icon /> 
+	 <tag:limit_month />&nbsp - 
       </span>
    </span>
+   <span class="rightFloat"><tag:total /></span>
    <br class="clear"/>
 </div>
 <table class="item" width="100%" cellspacing="1">
-   <tr><td class="control" colspan=6><tag:new_event.link /></td></tr>
+   <tr class="control" align="left">
+      <th colspan=6><tag:new_event.link /></th>
+   </tr>
    <tr class="item">
       <th align="left">Date</th>
       <th align="left">Description</th>
@@ -27,10 +31,6 @@
       </tr>
    </loop:events>
    <tr class="item">
-      <th align="left">Total</th>
-      <th align="left"></th>
-      <th align="left"></th>
-      <th align="left"></th>
-      <th align="right"><tag:total /></th>
+      <th colspan=5 align="left"><tag:more_events.link /></th>
    </tr>
 </table>

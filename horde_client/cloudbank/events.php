@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: events.php,v 1.4 2010/10/24 17:24:02 pety Exp pety $
+ * $Id: events.php,v 1.5 2010/11/02 21:52:29 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -22,12 +22,20 @@ require_once CLOUDBANK_BASE . '/lib/Book.php';
 $g_variables = &Variables::getDefaultVariables();
 $g_id = $g_variables->get('ledger_account_id');
 $g_type = $g_variables->get('ledger_account_type');
+$g_limitMonth = $g_variables->get('limit_month');
+
 $g_accountOrCategoryName = (
    Book::Singleton()->getAccountOrCategoryName($g_id, $g_type)
 );
 $g_accountOrCategoryIcon = Book::Singleton()->getAccountOrCategoryIcon($g_type);
+if (empty($g_limitMonth)) {
+   $g_currentTime = new DateTime();
+   $g_limitMonth = $g_currentTime->format(Book::MonthFormat);
+}
 $g_events = (
-   Book::Singleton()->getEvents($g_id, $g_type, $g_accountOrCategoryName)
+   Book::Singleton()->getEvents(
+      $g_id, $g_type, $g_accountOrCategoryName, $g_limitMonth
+   )
 );
 CloudBank::AddLinks(
    $g_events, 'event.php',
@@ -76,8 +84,9 @@ CloudBank::AddIcons(
    $g_events, 'right_arrow.png', 'cloudbank',
    array('other_account_type' => CloudBankConsts::LedgerAccountType_Account)
 );
-Book::SortResultSet($g_events, 'date');
+Book::SortResultSet($g_events, 'date', TRUE);
 $g_total = Book::Singleton()->getAccountOrCategoryBalance($g_id);
+
 $g_template = &new Horde_Template;
 $g_template->set(
    'new_event.link', (
@@ -97,8 +106,22 @@ $g_template->set(
 );
 $g_template->set('account_or_category_name', $g_accountOrCategoryName);
 $g_template->set('account_or_category_icon', $g_accountOrCategoryIcon);
+$g_template->set('limit_month', $g_limitMonth);
 $g_template->set('events', $g_events);
 $g_template->set('total', $g_total);
+$g_template->set(
+   'more_events.link', (
+      Horde::link(
+	 Util::addParameter(
+	    Horde::applicationUrl('events.php'),
+	    array(
+	       'ledger_account_id' => $g_id, 'ledger_account_type' => $g_type,
+	       'limit_month' => Book::PreviousMonth($g_limitMonth)
+	    )
+	 ), 'More...'
+      ) . 'More...</a>'
+   )
+);
 
 $title = $g_accountOrCategoryName;
 
