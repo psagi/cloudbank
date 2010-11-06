@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<!-- $Horde: cloudbank/locale/en_US/help.xml,v 1.1 2003-11-03 03:01:38 jwm Exp $ -->
+<help>
+
+<entry id="cloudbank-overview">
+    <title>Cloudbank Overview</title>
+
+    <heading>What is Cloudbank?</heading>
+    <para>The Cloudbank Application is web client for the Cloudbank Server. It can be used for keeping track of personal finance matters. The incomes/expenses are organized into Accounts and Categories.</para>
+</entry>
+
+</help>
