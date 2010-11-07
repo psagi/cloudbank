@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:tns2="http://LedgerAccountService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="http://LedgerAccountService">
+  <wsdl:types>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+      xmlns:ns0="http://pety.homelinux.org/CloudBank/LedgerAccountService"
+      targetNamespace="http://LedgerAccountService"
+      elementFormDefault="qualified">
+      <xs:import schemaLocation="../lib/LedgerAccountService.xsd" namespace="http://pety.homelinux.org/CloudBank/LedgerAccountService"/>
+      <xs:element name="createAccount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_name" type="xs:string"/>
+            <xs:element name="p_date" type="xs:string"/>
+            <xs:element name="p_beginningBalance" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="createAccountReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createCategory">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_name" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createCategoryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="createCategoryReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAccount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_id" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getAccountReturn" type="ns0:Account"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getCategory">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_id" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getCategoryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getCategoryReturn" type="ns0:Category"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAccounts">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAccountsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getAccountsReturn" type="ns0:AccountSet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getCategories">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getCategoriesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getCategoriesReturn" type="ns0:CategorySet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getBalance">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_ledgerAccountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getBalanceResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getBalanceReturn" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAccountsTotal">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAccountsTotalResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getAccountsTotalReturn" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getCategoriesTotal">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getCategoriesTotalResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getCategoriesTotalReturn" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="modifyAccount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_oldAccount" type="ns0:Account"/>
+            <xs:element name="p_newAccount" type="ns0:Account"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="modifyAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="modifyAccountReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="modifyCategory">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_oldCategory" type="ns0:Category"/>
+            <xs:element name="p_newCategory" type="ns0:Category"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="modifyCategoryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="modifyCategoryReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="deleteLedgerAccount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_ledgerAccountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="deleteLedgerAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="deleteLedgerAccountReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createBeginningAccount">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createBeginningAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+
+  <wsdl:message name="createAccountRequest">
+    <wsdl:part name="createAccountRequest" element="tns2:createAccount"/>
+  </wsdl:message>
+  <wsdl:message name="createAccountResponse">
+    <wsdl:part name="return" element="tns2:createAccountResponse"/>
+  </wsdl:message>
+  <wsdl:message name="createCategoryRequest">
+    <wsdl:part name="createCategoryRequest" element="tns2:createCategory"/>
+  </wsdl:message>
+  <wsdl:message name="createCategoryResponse">
+    <wsdl:part name="return" element="tns2:createCategoryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getAccountRequest">
+    <wsdl:part name="getAccountRequest" element="tns2:getAccount"/>
+  </wsdl:message>
+  <wsdl:message name="getAccountResponse">
+    <wsdl:part name="return" element="tns2:getAccountResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getCategoryRequest">
+    <wsdl:part name="getCategoryRequest" element="tns2:getCategory"/>
+  </wsdl:message>
+  <wsdl:message name="getCategoryResponse">
+    <wsdl:part name="return" element="tns2:getCategoryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getAccountsRequest">
+    <wsdl:part name="getAccountsRequest" element="tns2:getAccounts"/>
+  </wsdl:message>
+  <wsdl:message name="getAccountsResponse">
+    <wsdl:part name="return" element="tns2:getAccountsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getCategoriesRequest">
+    <wsdl:part name="getCategoriesRequest" element="tns2:getCategories"/>
+  </wsdl:message>
+  <wsdl:message name="getCategoriesResponse">
+    <wsdl:part name="return" element="tns2:getCategoriesResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getBalanceRequest">
+    <wsdl:part name="getBalanceRequest" element="tns2:getBalance"/>
+  </wsdl:message>
+  <wsdl:message name="getBalanceResponse">
+    <wsdl:part name="return" element="tns2:getBalanceResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getAccountsTotalRequest">
+    <wsdl:part name="getAccountsTotalRequest" element="tns2:getAccountsTotal"/>
+  </wsdl:message>
+  <wsdl:message name="getAccountsTotalResponse">
+    <wsdl:part name="return" element="tns2:getAccountsTotalResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getCategoriesTotalRequest">
+    <wsdl:part name="getCategoriesTotalRequest" element="tns2:getCategoriesTotal"/>
+  </wsdl:message>
+  <wsdl:message name="getCategoriesTotalResponse">
+    <wsdl:part name="return" element="tns2:getCategoriesTotalResponse"/>
+  </wsdl:message>
+  <wsdl:message name="modifyAccountRequest">
+    <wsdl:part name="modifyAccountRequest" element="tns2:modifyAccount"/>
+  </wsdl:message>
+  <wsdl:message name="modifyAccountResponse">
+    <wsdl:part name="return" element="tns2:modifyAccountResponse"/>
+  </wsdl:message>
+  <wsdl:message name="modifyCategoryRequest">
+    <wsdl:part name="modifyCategoryRequest" element="tns2:modifyCategory"/>
+  </wsdl:message>
+  <wsdl:message name="modifyCategoryResponse">
+    <wsdl:part name="return" element="tns2:modifyCategoryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="deleteLedgerAccountRequest">
+    <wsdl:part name="deleteLedgerAccountRequest" element="tns2:deleteLedgerAccount"/>
+  </wsdl:message>
+  <wsdl:message name="deleteLedgerAccountResponse">
+    <wsdl:part name="return" element="tns2:deleteLedgerAccountResponse"/>
+  </wsdl:message>
+  <wsdl:message name="createBeginningAccountRequest">
+    <wsdl:part name="createBeginningAccountRequest" element="tns2:createBeginningAccount"/>
+  </wsdl:message>
+  <wsdl:message name="createBeginningAccountResponse">
+    <wsdl:part name="return" element="tns2:createBeginningAccountResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="LedgerAccountServicePortType">
+    <wsdl:operation name="createAccount">
+      <wsdl:input message="tns2:createAccountRequest"/>
+      <wsdl:output message="tns2:createAccountResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="createCategory">
+      <wsdl:input message="tns2:createCategoryRequest"/>
+      <wsdl:output message="tns2:createCategoryResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getAccount">
+      <wsdl:input message="tns2:getAccountRequest"/>
+      <wsdl:output message="tns2:getAccountResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getCategory">
+      <wsdl:input message="tns2:getCategoryRequest"/>
+      <wsdl:output message="tns2:getCategoryResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getAccounts">
+      <wsdl:input message="tns2:getAccountsRequest"/>
+      <wsdl:output message="tns2:getAccountsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getCategories">
+      <wsdl:input message="tns2:getCategoriesRequest"/>
+      <wsdl:output message="tns2:getCategoriesResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getBalance">
+      <wsdl:input message="tns2:getBalanceRequest"/>
+      <wsdl:output message="tns2:getBalanceResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getAccountsTotal">
+      <wsdl:input message="tns2:getAccountsTotalRequest"/>
+      <wsdl:output message="tns2:getAccountsTotalResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getCategoriesTotal">
+      <wsdl:input message="tns2:getCategoriesTotalRequest"/>
+      <wsdl:output message="tns2:getCategoriesTotalResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="modifyAccount">
+      <wsdl:input message="tns2:modifyAccountRequest"/>
+      <wsdl:output message="tns2:modifyAccountResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="modifyCategory">
+      <wsdl:input message="tns2:modifyCategoryRequest"/>
+      <wsdl:output message="tns2:modifyCategoryResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="deleteLedgerAccount">
+      <wsdl:input message="tns2:deleteLedgerAccountRequest"/>
+      <wsdl:output message="tns2:deleteLedgerAccountResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="createBeginningAccount">
+      <wsdl:input message="tns2:createBeginningAccountRequest"/>
+      <wsdl:output message="tns2:createBeginningAccountResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LedgerAccountServiceBinding" type="tns2:LedgerAccountServicePortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="createAccount">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createCategory">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccount">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getCategory">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccounts">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getCategories">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBalance">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccountsTotal">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getCategoriesTotal">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="modifyAccount">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="modifyCategory">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteLedgerAccount">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createBeginningAccount">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LedgerAccountServiceService">
+    <wsdl:port name="LedgerAccountServicePort" binding="tns2:LedgerAccountServiceBinding">
+      <soap:address location="http://localhost:8080/server/LedgerAccountService.php"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
+
+<!-- this line identifies this file as WSDL generated by SCA for PHP. Do not remove -->

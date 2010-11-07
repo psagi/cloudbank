@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:tns2="http://EventService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="http://EventService">
+  <wsdl:types>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+      xmlns:ns0="http://pety.homelinux.org/CloudBank/EventService"
+      targetNamespace="http://EventService"
+      elementFormDefault="qualified">
+      <xs:import schemaLocation="../lib/EventService.xsd" namespace="http://pety.homelinux.org/CloudBank/EventService"/>
+      <xs:element name="createEvent">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_date" type="xs:string"/>
+            <xs:element name="p_description" type="xs:string"/>
+            <xs:element name="p_accountID" type="xs:string"/>
+            <xs:element name="p_otherAccountID" type="xs:string"/>
+            <xs:element name="p_amount" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createEventResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="createEventReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getEvent">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_eventID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getEventResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getEventReturn" type="ns0:Event"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getEvents">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+            <xs:element name="p_limitDate" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getEventsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getEventsReturn" type="ns0:EventSet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="modifyEvent">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+            <xs:element name="p_oldEvent" type="ns0:Event"/>
+            <xs:element name="p_newEvent" type="ns0:Event"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="modifyEventResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="modifyEventReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="deleteEvent">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_eventID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="deleteEventResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="deleteEventReturn" type="xs:bool"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createOrUpdateEvent">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="createOrUpdateEventResponse">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="deleteAllEvents">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="deleteAllEventsResponse">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+
+  <wsdl:message name="createEventRequest">
+    <wsdl:part name="createEventRequest" element="tns2:createEvent"/>
+  </wsdl:message>
+  <wsdl:message name="createEventResponse">
+    <wsdl:part name="return" element="tns2:createEventResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getEventRequest">
+    <wsdl:part name="getEventRequest" element="tns2:getEvent"/>
+  </wsdl:message>
+  <wsdl:message name="getEventResponse">
+    <wsdl:part name="return" element="tns2:getEventResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getEventsRequest">
+    <wsdl:part name="getEventsRequest" element="tns2:getEvents"/>
+  </wsdl:message>
+  <wsdl:message name="getEventsResponse">
+    <wsdl:part name="return" element="tns2:getEventsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="modifyEventRequest">
+    <wsdl:part name="modifyEventRequest" element="tns2:modifyEvent"/>
+  </wsdl:message>
+  <wsdl:message name="modifyEventResponse">
+    <wsdl:part name="return" element="tns2:modifyEventResponse"/>
+  </wsdl:message>
+  <wsdl:message name="deleteEventRequest">
+    <wsdl:part name="deleteEventRequest" element="tns2:deleteEvent"/>
+  </wsdl:message>
+  <wsdl:message name="deleteEventResponse">
+    <wsdl:part name="return" element="tns2:deleteEventResponse"/>
+  </wsdl:message>
+  <wsdl:message name="createOrUpdateEventRequest">
+    <wsdl:part name="createOrUpdateEventRequest" element="tns2:createOrUpdateEvent"/>
+  </wsdl:message>
+  <wsdl:message name="createOrUpdateEventResponse">
+    <wsdl:part name="return" element="tns2:createOrUpdateEventResponse"/>
+  </wsdl:message>
+  <wsdl:message name="deleteAllEventsRequest">
+    <wsdl:part name="deleteAllEventsRequest" element="tns2:deleteAllEvents"/>
+  </wsdl:message>
+  <wsdl:message name="deleteAllEventsResponse">
+    <wsdl:part name="return" element="tns2:deleteAllEventsResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="EventServicePortType">
+    <wsdl:operation name="createEvent">
+      <wsdl:input message="tns2:createEventRequest"/>
+      <wsdl:output message="tns2:createEventResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getEvent">
+      <wsdl:input message="tns2:getEventRequest"/>
+      <wsdl:output message="tns2:getEventResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getEvents">
+      <wsdl:input message="tns2:getEventsRequest"/>
+      <wsdl:output message="tns2:getEventsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="modifyEvent">
+      <wsdl:input message="tns2:modifyEventRequest"/>
+      <wsdl:output message="tns2:modifyEventResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="deleteEvent">
+      <wsdl:input message="tns2:deleteEventRequest"/>
+      <wsdl:output message="tns2:deleteEventResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="createOrUpdateEvent">
+      <wsdl:input message="tns2:createOrUpdateEventRequest"/>
+      <wsdl:output message="tns2:createOrUpdateEventResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="deleteAllEvents">
+      <wsdl:input message="tns2:deleteAllEventsRequest"/>
+      <wsdl:output message="tns2:deleteAllEventsResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="EventServiceBinding" type="tns2:EventServicePortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="createEvent">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEvent">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEvents">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="modifyEvent">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteEvent">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createOrUpdateEvent">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteAllEvents">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="EventServiceService">
+    <wsdl:port name="EventServicePort" binding="tns2:EventServiceBinding">
+      <soap:address location="http://localhost:8080/server/EventService.php"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
+
+<!-- this line identifies this file as WSDL generated by SCA for PHP. Do not remove -->
