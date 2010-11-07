@@ -1,0 +1,12 @@
+; CloudBank server ini file
+
+; dsn of the database as understood by PDO - must be specified
+;dsn = "sqlite:/home/pety/work/CloudBank/db/dev.db"
+
+; user name and password for the database - must be specified
+;user = "cloud_bank"
+;passwd = "forgetit"
+
+; debug switch (on/off) and debug log file
+debug = "off"
+;log_file = "/tmp/php5/debug.log"
