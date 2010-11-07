@@ -1,6 +1,6 @@
 <?php 
    require_once(dirname(__FILE__) . '/SchemaDef.php');
-   require_once(dirname(__FILE__) . '/../lib/Debug.php');
+   require_once('Debug.php');
 
    class CloudBankServer {
       public static function Singleton() {

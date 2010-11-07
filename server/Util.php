@@ -1,5 +1,5 @@
 <?php
-   require_once(dirname(__FILE__) . '/Debug.php');
+   require_once('Debug.php');
 
    class Util {
       public static function ToSDO(

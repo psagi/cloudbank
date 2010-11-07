@@ -1,14 +1,14 @@
 <?php
    require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
-   require_once(dirname(__FILE__) . '/../lib/Debug.php');
-   require_once(dirname(__FILE__) . '/../lib/Util.php');
+   require_once('Debug.php');
+   require_once('Util.php');
    require_once('CloudBankServer.php');
    include('SCA/SCA.php');
 
    /**
       @service
       @binding.soap
-      @types http://pety.homelinux.org/CloudBank/LedgerAccountService LedgerAccountService.xsd
+      @types http://pety.homelinux.org/CloudBank/LedgerAccountService ../lib/LedgerAccountService.xsd
    */
       // Note that annotations can not contain linebreaks.
    class LedgerAccountService {

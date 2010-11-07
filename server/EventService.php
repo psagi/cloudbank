@@ -1,13 +1,13 @@
 <?php
    require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
-   require_once(dirname(__FILE__) . '/../lib/Util.php');
+   require_once('Util.php');
    require_once('CloudBankServer.php');
    include('SCA/SCA.php');
 
    /**
       @service
       @binding.soap
-      @types http://pety.homelinux.org/CloudBank/EventService EventService.xsd
+      @types http://pety.homelinux.org/CloudBank/EventService ../lib/EventService.xsd
    */
    class EventService {
       private static function ToSDO(
