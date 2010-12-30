@@ -331,10 +331,26 @@
 	 $this->r_eventService->deleteEvent($p_event_id);
       }
       private function __construct() {
+	 global $conf;
+	 $v_cloudBankServerLocation = $conf['cloudbank_server_location'] . '/';
 	 $this->r_ledgerAccountService = (
-	    SCA::getService('LedgerAccountService.wsdl')
+	    SCA::getService(
+	       'wsdl/LedgerAccountService.wsdl', 'soap',
+	       array(
+		  'location' => (
+		     $v_cloudBankServerLocation . 'LedgerAccountService.php'
+		  )
+	       )
+	    )
 	 );
-	 $this->r_eventService = (SCA::getService('EventService.wsdl'));
+	 $this->r_eventService = (
+	    SCA::getService(
+	       'wsdl/EventService.wsdl', 'soap',
+	       array(
+		  'location' => $v_cloudBankServerLocation . 'EventService.php'
+	       )
+	    )
+	 );
       }
       private function getAccounts() {
 	 $v_accounts_SDO = $this->r_ledgerAccountService->getAccounts();
