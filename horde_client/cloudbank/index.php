@@ -11,13 +11,13 @@
  */
 
 @define('CLOUDBANK_BASE', dirname(__FILE__));
-$cloudbank_configured = (is_readable(CLOUDBANK_BASE . '/config/conf.php') &&
-                        is_readable(CLOUDBANK_BASE . '/config/prefs.php'));
+$cloudbank_configured = is_readable(CLOUDBANK_BASE . '/config/conf.php');
 
 if (!$cloudbank_configured) {
     require CLOUDBANK_BASE . '/../lib/Test.php';
-    Horde_Test::configFilesMissing('Cloudbank', CLOUDBANK_BASE,
-                                   array('conf.php', 'prefs.php'));
+    Horde_Test::configFilesMissing(
+      'Cloudbank', CLOUDBANK_BASE, array('conf.php')
+   );
 }
 
 require CLOUDBANK_BASE . '/accounts.php';
