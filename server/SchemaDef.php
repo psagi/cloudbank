@@ -29,29 +29,41 @@
 	       CHECK (debit_ledger_account_id <> credit_ledger_account_id)
 	    )
 	 ', 
+	 'event_idx_debit_ledger_account_id' => '
+	    CREATE INDEX event_idx_debit_ledger_account_id ON event(
+	       debit_ledger_account_id
+	    )
+	 ',
+	 'event_idx_credit_ledger_account_id' => '
+	    CREATE INDEX event_idx_credit_ledger_account_id ON event(
+	       credit_ledger_account_id
+	    )
+	 ',
 	 'account_events' => '
 	    CREATE VIEW account_events AS 
 	       SELECT 
 		  la.id AS ledger_account_id, la.name AS ledger_account_name,
 		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
-		  e.description AS description,
-                  (
-                     CASE la.id
-                        WHEN e.debit_ledger_account_id THEN e.amount
-                        ELSE -e.amount
-                     END
-                  ) AS amount, o_la.id AS other_ledger_account_id,
+		  e.description AS description, e.amount AS amount,
+		  o_la.id AS other_ledger_account_id,
 		  o_la.name AS other_ledger_account_name,
 		  o_la.type AS other_ledger_account_type
-	       FROM ledger_account la, event e, ledger_account o_la
+	       FROM event e, ledger_account la, ledger_account o_la
 	       WHERE 
-		  (
-                     e.debit_ledger_account_id = la.id AND
-                     e.credit_ledger_account_id = o_la.id
-		  ) OR (
-                     e.credit_ledger_account_id = la.id AND
-                     e.debit_ledger_account_id = o_la.id
-                  )
+                  e.debit_ledger_account_id = la.id AND
+                  e.credit_ledger_account_id = o_la.id
+	       UNION ALL
+	       SELECT 
+		  la.id AS ledger_account_id, la.name AS ledger_account_name,
+		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
+		  e.description AS description, -e.amount AS amount,
+		  o_la.id AS other_ledger_account_id,
+		  o_la.name AS other_ledger_account_name,
+		  o_la.type AS other_ledger_account_type
+	       FROM event e, ledger_account la, ledger_account o_la
+	       WHERE 
+                  e.credit_ledger_account_id = la.id AND
+                  e.debit_ledger_account_id = o_la.id
 	 '
       );
 
