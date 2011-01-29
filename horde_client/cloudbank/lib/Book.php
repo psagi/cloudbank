@@ -96,6 +96,12 @@
 	    );
 	 }
       }
+      private static function GetBalance($p_balances, $p_id) {
+	 foreach($p_balances as $v_balance) {
+	    if ($v_balance['id'] == $p_id) return $v_balance['balance'];
+	 }      
+	 return NULL;
+      }
       
       public function getAccountOrCategoryBalance($p_id) {
 	 return (
@@ -109,6 +115,7 @@
 	       $this->getAccounts() :
 	       $this->getCategories()
 	 );
+	 $v_balances = $this->getBalances($p_type);
 	 $v_edit_icon = (
 	    Horde::img(
 	       'edit.png', 'Edit', '', $registry->getImageDir('cloudbank')
@@ -121,7 +128,9 @@
 	 );
 	 foreach ($v_accountsOrCategories as &$v_accountOrCategory) {
 	    $v_accountOrCategory['balance'] = (
-	       $this->getAccountOrCategoryBalance($v_accountOrCategory['id'])
+	       self::FormatAmount(
+		  self::GetBalance($v_balances, $v_accountOrCategory['id'])
+	       )
 	    );
 	    $v_accountOrCategory['type'] = $p_type;
 	    $v_accountOrCategory['edit_icon'] = $v_edit_icon;
@@ -359,6 +368,10 @@
 	       $v_accounts_SDO[CloudBankConsts::LedgerAccountType_Account]
 	    )
 	 );
+      }
+      private function getBalances($p_type) {
+	 $v_accounts_SDO = $this->r_ledgerAccountService->getBalances($p_type);
+	 return self::CopyArray($v_accounts_SDO['Balance']);
       }
       private function getCategories() {
 	 $v_categories_SDO = $this->r_ledgerAccountService->getCategories();
