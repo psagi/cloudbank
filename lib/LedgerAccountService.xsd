@@ -33,4 +33,18 @@
       <xsd:attribute name="id" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
    </xsd:complexType>
+   <xsd:element name="BalanceSet" type="LedgerAccountService:BalanceSet"/>
+   <xsd:complexType name="BalanceSet">
+      <xsd:sequence>
+	 <xsd:element
+	    name="Balance" type="LedgerAccountService:Balance" minOccurs="0"
+	    maxOccurs="unbounded"
+	 />
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:element name="Balance" type="LedgerAccountService:Balance"/>
+   <xsd:complexType name="Balance">
+      <xsd:attribute name="id" type="xsd:string"/>
+      <xsd:attribute name="balance" type="xsd:string"/>
+   </xsd:complexType>
 </xsd:schema>
