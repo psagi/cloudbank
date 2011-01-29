@@ -180,6 +180,32 @@ throw $v_exception;
       }
 
       /**
+	 @param string $p_ledgerAccountType	Either Account or Category
+	 @return BalanceSet http://pety.homelinux.org/CloudBank/LedgerAccountService
+	 NOTE that this operation is redundant, however needed for having
+	 satisfactory performance when building an Account/Category overview
+	 screen.
+      */
+      public function getBalances($p_ledgerAccountType) {
+	 $v_balances = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT ledger_account_id AS id, SUM(amount) AS balance
+		  FROM account_events
+		  WHERE ledger_account_type = :ledgerAccountType
+		  GROUP BY ledger_account_id
+	       ', array(':ledgerAccountType' => $p_ledgerAccountType)
+	    )
+	 );
+	 return (
+	    self::ToSDO(
+	       $v_balances, 'BalanceSet', 'Balance',
+	       array('id' => 'id', 'balance' => 'balance')
+	    )
+	 );
+      }
+
+      /**
 	 @return string	The total balance of the Accounts
       */
       public function getAccountsTotal() {
