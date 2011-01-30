@@ -104,6 +104,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getBalances">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_ledgerAccountType" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getBalancesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getBalancesReturn" type="ns0:BalanceSet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getAccountsTotal">
         <xs:complexType>
           <xs:sequence>
@@ -231,6 +245,12 @@
   <wsdl:message name="getBalanceResponse">
     <wsdl:part name="return" element="tns2:getBalanceResponse"/>
   </wsdl:message>
+  <wsdl:message name="getBalancesRequest">
+    <wsdl:part name="getBalancesRequest" element="tns2:getBalances"/>
+  </wsdl:message>
+  <wsdl:message name="getBalancesResponse">
+    <wsdl:part name="return" element="tns2:getBalancesResponse"/>
+  </wsdl:message>
   <wsdl:message name="getAccountsTotalRequest">
     <wsdl:part name="getAccountsTotalRequest" element="tns2:getAccountsTotal"/>
   </wsdl:message>
@@ -295,6 +315,10 @@
     <wsdl:operation name="getBalance">
       <wsdl:input message="tns2:getBalanceRequest"/>
       <wsdl:output message="tns2:getBalanceResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getBalances">
+      <wsdl:input message="tns2:getBalancesRequest"/>
+      <wsdl:output message="tns2:getBalancesResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getAccountsTotal">
       <wsdl:input message="tns2:getAccountsTotalRequest"/>
@@ -378,6 +402,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="getBalance">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBalances">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>
