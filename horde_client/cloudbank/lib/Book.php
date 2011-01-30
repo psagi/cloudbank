@@ -29,6 +29,10 @@
 	 return $p_rootDO;
       }
       public static function PopulateAccountForm(&$p_variables) {
+	 $p_variables->set(
+	    'beginning_balance',
+	    self::FormatNumber($p_variables->get('beginning_balance'))
+	 );
 	 self::CopyToOldVars($p_variables, array('name', 'beginning_balance'));
       }
       public static function PopulateEventForm(&$p_variables) {
@@ -42,7 +46,9 @@
 	       )
 	    )
 	 );
-	 $p_variables->set('amount', abs($p_variables->get('amount')));
+	 $p_variables->set(
+	    'amount', self::FormatNumber(abs($p_variables->get('amount')))
+	 );
 	 self::CopyToOldVars(
 	    $p_variables,  
 	    array(
@@ -70,6 +76,9 @@
 	 }
 	 return $v_colValues;
       }
+      private static function FormatNumber($p_amount) {
+	 return money_format('%!^.2n', $p_amount);
+      }
       private static function FormatAmount($p_amount) {
 	 return money_format('%!.2n', $p_amount);
       }
@@ -77,6 +86,10 @@
 	 foreach ($p_resultSet as &$v_record) {
 	    $v_record['amount_fmt'] = self::FormatAmount($v_record['amount']);
 	 }
+      }
+      private static function ReformatNumber2CLocale($p_number) {
+	 $v_localeconv = localeconv();
+	 return str_replace($v_localeconv['decimal_point'], '.', $p_number);
       }
       private static function FixAmount(
 	 &$p_variables, $p_amountVarName, $p_isIncomeVarName
@@ -204,10 +217,16 @@
       public function createAccount($p_variables) {
 	 $this->r_ledgerAccountService->createAccount(
 	    $p_variables->get('name'), strftime('%Y-%m-%d'),
-	    $p_variables->get('beginning_balance')
+	    self::ReformatNumber2CLocale($p_variables->get('beginning_balance'))
 	 );
       }
       public function modifyAccount($p_variables) {
+	 $p_variables->set(
+	    'old_beginning_balance',
+	    self::ReformatNumber2CLocale(
+	       $p_variables->get('old_beginning_balance')
+	    )
+	 );
 	 $v_oldAccount_SDO = (
 	    self::VariablesToSDO(
 	       $p_variables,
@@ -220,6 +239,10 @@
 		  'old_beginning_balance' => 'beginning_balance',
 	       )
 	    )
+	 );
+	 $p_variables->set(
+	    'beginning_balance',
+	    self::ReformatNumber2CLocale($p_variables->get('beginning_balance'))
 	 );
 	 $v_newAccount_SDO = (
 	    self::VariablesToSDO(
@@ -290,7 +313,13 @@
 	 return $v_events;
       }
       public function createEvent($p_variables) {
+	 $p_variables->set(
+	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
+	 );
 	 self::FixAmount($p_variables, 'amount', 'is_income');
+	 $p_variables->set(
+	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
+	 );
 	 $this->r_eventService->createEvent(
 	    $p_variables->get('date'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
@@ -298,7 +327,15 @@
 	 );
       }
       public function modifyEvent($p_variables) {
+	 $p_variables->set(
+	    'old_amount',
+	    self::ReformatNumber2CLocale($p_variables->get('old_amount'))
+	 );
 	 self::FixAmount($p_variables, 'old_amount', 'old_is_income');
+	 $p_variables->set(
+	    'old_amount',
+	    self::ReformatNumber2CLocale($p_variables->get('old_amount'))
+	 );
 	 $v_oldEvent_SDO = (
 	    self::VariablesToSDO(
 	       $p_variables,
@@ -315,7 +352,13 @@
 	       )
 	    )
 	 );
+	 $p_variables->set(
+	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
+	 );
 	 self::FixAmount($p_variables, 'amount', 'is_income');
+	 $p_variables->set(
+	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
+	 );
 	 $v_newEvent_SDO = (
 	    self::VariablesToSDO(
 	       $p_variables,
