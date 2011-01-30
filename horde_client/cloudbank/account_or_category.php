@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: account_or_category.php,v 1.1 2010/10/24 10:10:46 pety Exp pety $
+ * $Id: account_or_category.php,v 1.2 2010/11/02 21:49:42 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -38,9 +38,9 @@ $g_form = &new Horde_Form(
 $g_form->addVariable('Name', 'name', 'text', true);
 if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
    $g_form->addVariable(
-      'Beginning balance', 'beginning_balance', 'number', true, false, '', 2
+      'Beginning balance', 'beginning_balance', 'text', true
    );
-   $g_form->addHidden('', 'old_beginning_balance', 'number', false);
+   $g_form->addHidden('', 'old_beginning_balance', 'text', false);
 }
 $g_form->addHidden('', 'account_id', 'text', false);
 $g_form->addHidden('', 'account_type', 'text', false);

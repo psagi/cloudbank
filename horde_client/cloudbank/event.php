@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: event.php,v 1.2 2010/10/23 19:30:31 pety Exp pety $
+ * $Id: event.php,v 1.3 2010/10/24 10:10:06 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -42,13 +42,13 @@ $g_form->addVariable(
    'To/From', 'other_account_id', 'enum', true, false, '',
    array($g_accountsAndCategories, true)
 );
-$g_form->addVariable('Amount', 'amount', 'number', true, false, '', 2);
+$g_form->addVariable('Amount', 'amount', 'text', true);
 $g_form->addHidden('', 'event_id', 'text', false);
 $g_form->addHidden('', 'old_date', 'date', false);
 $g_form->addHidden('', 'old_description', 'text', false);
 $g_form->addHidden('', 'old_is_income', 'boolean', false);
 $g_form->addHidden('', 'old_other_account_id', 'text', false);
-$g_form->addHidden('', 'old_amount', 'number', false);
+$g_form->addHidden('', 'old_amount', 'text', false);
 
 //print $g_form->isSubmitted();
 if ($g_form->validate($g_variables)) {	// submitted -> process
