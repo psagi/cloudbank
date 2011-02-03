@@ -4,21 +4,7 @@
    require_once(dirname(__FILE__) . '/../server/SchemaDef.php');
    require_once('SCA/SCA.php');
 
-   function tryQuery($p_sQLStatement) {
-      try {
-	 CloudBankServer::Singleton()->execQuery($p_sQLStatement);
-      }
-      catch (PDOException $v_exception) {
-	 exit(
-	    "Execution of SQL statement failed: " . $v_exception->getMessage() .
-	       "\n"
-	 );
-      }
-   }
-
-   /*** MAIN ***/
-
-   tryQuery('DROP VIEW account_events');
+   CloudBankServer::Singleton()->tryQuery('DROP VIEW account_events');
    $g_createSchemaStatements = SchemaDef::CreateSchemaStatements();
    foreach (
       array(
@@ -26,6 +12,8 @@
 	 'event_idx_credit_ledger_account_id'
       ) as $v_dBObject 
    ) {
-      tryQuery($g_createSchemaStatements[$v_dBObject]);
+      CloudBankServer::Singleton()->tryQuery(
+	 $g_createSchemaStatements[$v_dBObject]
+      );
    }
 ?>
