@@ -29,11 +29,13 @@ Upgrade instructions for CloudBank server
 ----------------------------------------------
 
 Steps:
-   1. Remove the previous CloudBank Server code: rm -r cloudbank-server
-   2. tar xvzf cloudbank-server-v.w.tar.gz
-   3. mv cloudbank-server.v.w cloudbank-server
-   4. Make sure that the database is accessible (rw) by the HTTP server (e.g. in case of sqlite3) AND by the user doing the upgrade.
-   5. cd cloudbank-server
-   6. install_server/upgrade_schema_x_y-v_w.php
+   1. Backup cloudbank-server/conf/cloudbank.ini to somewhere outside cloudbank-server.
+   2. Remove the previous CloudBank Server code: rm -rf cloudbank-server
+   3. tar xvzf cloudbank-server-v.w.tar.gz
+   4. mv cloudbank-server.v.w cloudbank-server
+   5. Restore cloudbank-server/conf/cloudbank.ini using the backup copy created in step #1.
+   6. Make sure that the database is accessible (rw) by the HTTP server (e.g. in case of sqlite3) AND by the user doing the upgrade.
+   7. cd cloudbank-server
+   8. install_server/upgrade_schema_x_y-v_w.php
 
 Basic testing can be done the same way as in case of first installation.
