@@ -82,6 +82,17 @@
 	 );
 	 return $v_resultSet;
       }
+      public function tryQuery($p_sQLStatement) {
+	 try {
+	    $this->execQuery($p_sQLStatement);
+	 }
+	 catch (PDOException $v_exception) {
+	    exit(
+	       "Execution of SQL statement failed: " .
+		  $v_exception->getMessage() .  "\n"
+	    );
+	 }
+      }
       public function beginTransaction() {
 	 $this->r_dBConnection->beginTransaction();
       }
