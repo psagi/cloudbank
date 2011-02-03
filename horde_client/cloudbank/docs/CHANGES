@@ -1,4 +1,12 @@
 ---
+0.2
+---
+
+[Peter Sagi] Speedup of Accounts and Categories screens.
+[Peter Sagi] Fix floating point number handling in locales other than C (tested w/ hu_HU).
+[Peter Sagi] Number fields of edit forms are now empty by default.
+
+---
 0.1
 ---
 
