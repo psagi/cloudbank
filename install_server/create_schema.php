@@ -7,15 +7,7 @@
    foreach (
       SchemaDef::CreateSchemaStatements() as $v_dBObject => $v_sQLStatement
    ) {
-      try {
-	 CloudBankServer::Singleton()->execQuery($v_sQLStatement);
-      }
-      catch (PDOException $v_exception) {
-	 exit(
-	    "Execution of SQL statement for creation of '$v_dBObject' " .
-	       "failed: " . $v_exception->getMessage() . "\n"
-	 );
-      }
+      CloudBankServer::Singleton()->tryQuery($v_sQLStatement);
    }
    $v_ledgerAccountService = (
       SCA::getService(dirname(__FILE__) . '/../server/LedgerAccountService.php')
