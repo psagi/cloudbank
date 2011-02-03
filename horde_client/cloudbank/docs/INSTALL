@@ -2,8 +2,8 @@
  Installing Cloudbank 0.1
 =========================
 
-:Last update:   $Date: 2010/12/30 11:10:58 $
-:Revision:      $Revision: 1.1 $
+:Last update:   $Date: 2010/12/30 12:21:13 $
+:Revision:      $Revision: 1.2 $
 
 This document contains instructions for installing the Cloudbank Horde client
 
@@ -38,12 +38,14 @@ To function properly, Cloudbank **requires** the following:
                   installing Cloudbank.
 
 
-1. The following PECL modules:
+2. The following PECL modules:
    (See `horde/docs/INSTALL` for instructions on installing PECL modules)
 
    a. SCA_SDO
 
       SCA_SDO is required to communicate with the CloudBank server (via HTTP/SOAP)
+
+3. A CloudBank server. See the RELEASE_NOTES for matching server and client versions.
 
 
 Installing Cloudbank
@@ -58,11 +60,11 @@ Since Cloudbank is written in PHP, there is no compilation necessary; simply
 expand the distribution where you want it to reside and rename the root
 directory of the distribution to whatever you wish to appear in the URL. For
 example, with the Apache web server's default document root of
-``/usr/local/apache/htdocs``, you would type::
+``/usr/local/apache/htdocs``, you would type:
 
    cd /usr/local/apache/htdocs/horde
-   tar zxvf /path/to/cloudbank-h3-x.y.z.tar.gz
-   mv cloudbank-h3-x.y.z cloudbank
+   tar zxvf /path/to/cloudbank-horde-client-x.y.tar.gz
+   mv cloudbank-horde-client-x.y cloudbank
 
 and would then find Cloudbank at the URL::
 
@@ -111,6 +113,22 @@ Configuring Cloudbank
 3. Testing Cloudbank
 
    Use Cloudbank to list the Accounts. If it succeeds it means that you have proper connection to the CloudBank server.
+
+
+Upgrading Cloudbank
+===================
+
+Go to the document root of the web server. For example, with the Apache web server's default document root of ``/usr/local/apache/htdocs``, you would type:
+
+   cd /usr/local/apache/htdocs/horde
+
+Backup cloudbank/config/conf.php to somewhere outside the cloudbank directory.
+
+   rm -rf cloudbank
+   tar zxvf /path/to/cloudbank-horde-client-x.y.tar.gz
+   mv cloudbank-horde-client-x.y cloudbank
+
+Restore cloudbank/config/conf.php using the backup copy created before.
 
 
 Known Problems
