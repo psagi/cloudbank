@@ -1,1 +1,1 @@
-<?php define('CLOUDBANK_VERSION', '0.1') ?>
+<?php define('CLOUDBANK_VERSION', '0.2') ?>
