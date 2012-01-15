@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: events.php,v 1.6 2010/11/06 16:47:29 pety Exp pety $
+ * $Id: events.php,v 1.7 2012/01/15 08:37:53 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -23,6 +23,9 @@ $g_variables = &Variables::getDefaultVariables();
 $g_id = $g_variables->get('ledger_account_id');
 $g_type = $g_variables->get('ledger_account_type');
 $g_limitMonth = $g_variables->get('limit_month');
+if (!$g_limitMonth) {
+   $g_limitMonth = Book::PreviousMonth(NULL);
+}
 
 $g_isError = FALSE;
 try {
