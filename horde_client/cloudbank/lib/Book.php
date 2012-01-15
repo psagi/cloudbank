@@ -61,6 +61,25 @@
 	 $v_month->modify('-1 month');
 	 return $v_month->format(self::MonthFormat);
       }
+      public static function XtractMessage($p_cloudBankException) {
+	 /* This is a work around to get the error message from the exception
+	    coming from the seriously broken SOAPFault implementation of SCA_SDO
+	 */
+	 $v_exceptionMessage = $p_cloudBankException->getMessage();
+	 $v_soapFaultXML = (
+	    new
+	       SimpleXMLElement(
+		  substr(
+		     $v_exceptionMessage, strpos($v_exceptionMessage, '<?xml')
+		  )
+	       )
+	 );
+	 $v_soapFaultXMLNamespaces = $v_soapFaultXML->getNameSpaces();
+	 return (string)(
+	    $v_soapFaultXML->children($v_soapFaultXMLNamespaces['SOAP-ENV'])->
+	       Body->Fault->children()->faultstring
+	 );
+      }
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
 	 else {
