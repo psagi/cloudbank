@@ -7,6 +7,7 @@
 ;user = "cloud_bank"
 ;passwd = "forgetit"
 
-; debug switch (on/off) and debug log file
+; debug switch (on/off)
 debug = "off"
+; debug log file - must be specified (even if debugging is turned off)
 ;log_file = "/tmp/php5/debug.log"
