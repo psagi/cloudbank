@@ -2,10 +2,9 @@
  Cloudbank Development TODO List
 ================================
 
-:Last update:   $Date: 2010/11/06 21:58:38 $
-:Revision:      $Revision: 1.1 $
+:Last update:   $Date: 2012/01/15 08:40:14 $
+:Revision:      $Revision: 1.2 $
 
-- Feedback on errors
 - Localization
 - Known bug: re-submit will not correct the error in case the record has been modified by another session, user has to go back to the list view (accounts or events) and retry from there
 - Many features...
