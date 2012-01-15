@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: account_or_category.php,v 1.2 2010/11/02 21:49:42 pety Exp pety $
+ * $Id: account_or_category.php,v 1.3 2011/01/30 21:29:23 pety Exp pety $
  *
  * Copyright 2007-2009 The Horde Project (http://www.horde.org/)
  *
@@ -31,6 +31,7 @@ $g_objectName = (
       'Account' :
       'Category'
 );   
+$g_isRetry = FALSE;
 // build the form
 $g_form = &new Horde_Form(
    $g_variables, $g_objectName, strtolower($g_objectName)
@@ -48,42 +49,47 @@ $g_form->addHidden('', 'old_name', 'text', false);
 
 //print $g_form->isSubmitted();
 if ($g_form->validate($g_variables)) {	// submitted -> process
-   if ($g_isEdit) {
-      if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
-	 Book::Singleton()->modifyAccount($g_variables);
-      }
+   try {
+      if ($g_isEdit) {
+	 if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
+   	    Book::Singleton()->modifyAccount($g_variables);
+     	 }
+       	 else {
+   	    Book::Singleton()->modifyCategory($g_variables);
+     	 }
+      } 
       else {
-	 Book::Singleton()->modifyCategory($g_variables);
+	 if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
+	    Book::Singleton()->createAccount($g_variables);
+	 }
+	 else {
+	    Book::Singleton()->createCategory($g_variables);
+	 }
       }
-   } 
-   else {
-      if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
-	 Book::Singleton()->createAccount($g_variables);
-      }
-      else {
-	 Book::Singleton()->createCategory($g_variables);
-      }
+      header(
+	 'Location: ' .
+   	    Horde::applicationUrl(
+   	       $g_account_type == CloudBankConsts::LedgerAccountType_Account ?
+   		  'accounts.php' :
+   		  'categories.php'
+   	    ), true
+      );
+      exit;
    }
-   header(
-      'Location: ' .
-	 Horde::applicationUrl(
-	    $g_account_type == CloudBankConsts::LedgerAccountType_Account ?
-	       'accounts.php' :
-	       'categories.php'
-	 ), true
-   );
-   exit;
-}
-else {	// render
-//print 'Validation failed';
-   if ($g_isEdit) {
-      Book::PopulateAccountForm($g_variables);
+   catch (Exception $v_exception) {
+      Cloudbank::PushError(Book::XtractMessage($v_exception));
+      $g_isRetry = TRUE;
    }
-   $title = ($g_isEdit ? 'Edit' : 'Add') . ' ' . $g_objectName;
-   require CLOUDBANK_TEMPLATES . '/common-header.inc';
-   require CLOUDBANK_TEMPLATES . '/menu.inc';
-   $g_form->renderActive(
-      new Horde_Form_Renderer(), $g_variables, 'account_or_category.php', 'post'
-   );
-   require $registry->get('templates', 'horde') . '/common-footer.inc';
 }
+
+// render
+if ($g_isEdit && !$g_isRetry) {
+   Book::PopulateAccountForm($g_variables);
+}
+$title = ($g_isEdit ? 'Edit' : 'Add') . ' ' . $g_objectName;
+require CLOUDBANK_TEMPLATES . '/common-header.inc';
+require CLOUDBANK_TEMPLATES . '/menu.inc';
+$g_form->renderActive(
+   new Horde_Form_Renderer(), $g_variables, 'account_or_category.php', 'post'
+);
+require $registry->get('templates', 'horde') . '/common-footer.inc';
