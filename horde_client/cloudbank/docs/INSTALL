@@ -2,8 +2,8 @@
  Installing Cloudbank 0.1
 =========================
 
-:Last update:   $Date: 2010/12/30 12:21:13 $
-:Revision:      $Revision: 1.2 $
+:Last update:   $Date: 2011/02/03 21:40:05 $
+:Revision:      $Revision: 1.3 $
 
 This document contains instructions for installing the Cloudbank Horde client
 
@@ -134,7 +134,7 @@ Restore cloudbank/config/conf.php using the backup copy created before.
 Known Problems
 ==============
 
-Error messages are not displayed. In case of any (even user!) error a blank page appears. Please consult the web-server logs in such cases.
+See docs/TODO.
 
 
 Obtaining Support
