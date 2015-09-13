@@ -1,0 +1,10 @@
+/**
+ * $Horde: cloudbank/themes/screen.css,v 1.1 2004-11-25 02:22:34 chuck Exp $
+ */
+
+.cloudbank-account {
+   background-image: url("graphics/account.png");
+}
+.cloudbank-category {
+   background-image: url("graphics/category.png");
+}

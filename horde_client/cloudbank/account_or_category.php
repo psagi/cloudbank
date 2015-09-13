@@ -10,19 +10,16 @@
  * @author Peter Sagi <psagi@freemail.hu>
  */
 
-@define('CLOUDBANK_BASE', dirname(__FILE__));
-require_once CLOUDBANK_BASE . '/lib/base.php';
+require_once __DIR__ . '/lib/Application.php';
+Horde_Registry::appInit('cloudbank');
 
-require_once HORDE_BASE . '/lib/Horde/Variables.php';
-require_once HORDE_BASE . '/lib/Horde/Form.php';
-require_once HORDE_BASE . '/lib/Horde/Form/Renderer.php';
+require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
 /* main() */
 
-$g_variables = &Variables::getDefaultVariables();
+$g_variables = &Horde_Variables::getDefaultVariables();
 $g_account_id = $g_variables->get('account_id');
-//$g_account_name = $g_variables->get('account_name');
 $g_account_type = $g_variables->get('account_type');
 
 $g_isEdit = !empty($g_account_id);
@@ -47,7 +44,6 @@ $g_form->addHidden('', 'account_id', 'text', false);
 $g_form->addHidden('', 'account_type', 'text', false);
 $g_form->addHidden('', 'old_name', 'text', false);
 
-//print $g_form->isSubmitted();
 if ($g_form->validate($g_variables)) {	// submitted -> process
    try {
       if ($g_isEdit) {
@@ -68,7 +64,7 @@ if ($g_form->validate($g_variables)) {	// submitted -> process
       }
       header(
 	 'Location: ' .
-   	    Horde::applicationUrl(
+   	    Horde::url(
    	       $g_account_type == CloudBankConsts::LedgerAccountType_Account ?
    		  'accounts.php' :
    		  'categories.php'
@@ -87,9 +83,9 @@ if ($g_isEdit && !$g_isRetry) {
    Book::PopulateAccountForm($g_variables);
 }
 $title = ($g_isEdit ? 'Edit' : 'Add') . ' ' . $g_objectName;
-require CLOUDBANK_TEMPLATES . '/common-header.inc';
-require CLOUDBANK_TEMPLATES . '/menu.inc';
+$page_output->header();
+$notification->notify(array('listeners' => 'status'));
 $g_form->renderActive(
    new Horde_Form_Renderer(), $g_variables, 'account_or_category.php', 'post'
 );
-require $registry->get('templates', 'horde') . '/common-footer.inc';
+$page_output->footer();

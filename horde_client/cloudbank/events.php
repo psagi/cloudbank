@@ -10,16 +10,15 @@
  * @author Peter Sagi <psagi@freemail.hu>
  */
 
-@define('CLOUDBANK_BASE', dirname(__FILE__));
-require_once CLOUDBANK_BASE . '/lib/base.php';
+require_once __DIR__ . '/lib/Application.php';
+Horde_Registry::appInit('cloudbank');
 
-require_once HORDE_BASE . '/lib/Horde/Template.php';
-require_once HORDE_BASE . '/lib/Horde/Variables.php';
+require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
 /* main() */
 
-$g_variables = &Variables::getDefaultVariables();
+$g_variables = &Horde_Variables::getDefaultVariables();
 $g_id = $g_variables->get('ledger_account_id');
 $g_type = $g_variables->get('ledger_account_type');
 $g_limitMonth = $g_variables->get('limit_month');
@@ -88,7 +87,7 @@ try {
       )
    );
    CloudBank::AddIcons(
-      $g_events, 'right_arrow.png', 'cloudbank',
+      $g_events, 'right_arrow.png', 
       array('other_account_type' => CloudBankConsts::LedgerAccountType_Account)
    );
    Book::SortResultSet($g_events, 'date', TRUE);
@@ -96,11 +95,10 @@ try {
 
    $g_template = &new Horde_Template;
    $g_template->set(
-      'new_event.link', (
+      'new_event_link', (
 	 $g_type == CloudBankConsts::LedgerAccountType_Account ? (
 	    Horde::link(
-	       Util::addParameter(
-		  Horde::applicationUrl('event.php'),
+	       Horde::url('event.php')->add(
 		  array(
 		     'account_id' => $g_id,
 		     'account_name' => $g_accountOrCategoryName
@@ -117,10 +115,9 @@ try {
    $g_template->set('events', $g_events);
    $g_template->set('total', $g_total);
    $g_template->set(
-      'more_events.link', (
+      'more_events_link', (
 	 Horde::link(
-	    Util::addParameter(
-	       Horde::applicationUrl('events.php'),
+	    Horde::url('events.php')->add(
 	       array(
 		  'ledger_account_id' => $g_id,
 		  'ledger_account_type' => $g_type,
@@ -138,9 +135,9 @@ catch (Exception $v_exception) {
    $g_isError = TRUE;
 }
 
-require CLOUDBANK_TEMPLATES . '/common-header.inc';
-require CLOUDBANK_TEMPLATES . '/menu.inc';
+$page_output->header();
+$notification->notify(array('listeners' => 'status'));
 if (!$g_isError) {
    echo $g_template->fetch(CLOUDBANK_TEMPLATES . '/events.html');
 }
-require $registry->get('templates', 'horde') . '/common-footer.inc';
+$page_output->footer();

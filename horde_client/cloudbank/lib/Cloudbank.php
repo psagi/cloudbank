@@ -22,7 +22,7 @@ class Cloudbank {
       exlusion occurs if ANY of the fields match the provided value. */
       foreach ($p_recordSet as &$v_record) {
 	 $v_isExcluded = false;
-	 $v_showURL = Horde::applicationUrl($p_phpScript);
+	 $v_showURL = Horde::url($p_phpScript);
 	 foreach ($p_key AS $v_iDName => $v_fieldName) {
 	    if (
 	       !is_null($p_exclusionFilter) && (
@@ -32,11 +32,7 @@ class Cloudbank {
 	       $v_isExcluded = true;
 	    }
 	    else {
-	       $v_showURL = (
-		  Util::addParameter(
-		     $v_showURL, array($v_iDName => $v_record[$v_fieldName])
-		  )
-	       );
+	       $v_showURL->add(array($v_iDName => $v_record[$v_fieldName]));
 	    }
 	 }
 	 $v_record[$p_linkField] = (
@@ -51,15 +47,12 @@ class Cloudbank {
       }
    }
    public static function AddIcons(
-      &$p_recordSet, $p_iconFile, $p_imagePool, $p_conditionFilter
+      &$p_recordSet, $p_iconFile, $p_conditionFilter
    ) {
    /* Please note that inclusion occurs if EVERY field of the record included in
       p_conditionFilter match the provided value */
-      global $registry;
       $v_icon = (
-	 Horde::img(
-	    $p_iconFile, 'Transfer', '', $registry->getImageDir($p_imagePool)
-	 )
+	 Horde_Themes_Image::tag($p_iconFile, array('alt' => 'Transfer'))
       );
       foreach ($p_recordSet as &$v_record) {
 	 $v_isIncluded = true;
@@ -75,31 +68,4 @@ class Cloudbank {
       global $notification;
       $notification->push($p_message, 'horde.error');
    }
-
-    /**
-     * Build Cloudbank's list of menu items.
-     */
-    function getMenu($returnType = 'object')
-    {
-        global $conf, $registry, $browser, $print_link;
-
-        require_once 'Horde/Menu.php';
-
-        $menu = new Menu(HORDE_MENU_MASK_ALL);
-        $menu->add(
-	 Horde::applicationUrl('accounts.php'), _("Accounts"), 'account.png',
-	 $registry->getImageDir('cloudbank')
-        );
-        $menu->add(
-	 Horde::applicationUrl('categories.php'), _("Categories"),
-	 'category.png', $registry->getImageDir('cloudbank')
-        );
-
-        if ($returnType == 'object') {
-            return $menu;
-        } else {
-            return $menu->render();
-        }
-    }
-
 }

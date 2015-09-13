@@ -66,19 +66,22 @@
 	    coming from the seriously broken SOAPFault implementation of SCA_SDO
 	 */
 	 $v_exceptionMessage = $p_cloudBankException->getMessage();
-	 $v_soapFaultXML = (
-	    new
-	       SimpleXMLElement(
-		  substr(
-		     $v_exceptionMessage, strpos($v_exceptionMessage, '<?xml')
+	 if ($v_xmlOpeningTagPos = strpos($v_exceptionMessage, '<?xml')) {
+	    $v_soapFaultXML = (
+	       new
+		  SimpleXMLElement(
+	   	     substr($v_exceptionMessage, $v_xmlOpeningTagPos)
 		  )
-	       )
-	 );
-	 $v_soapFaultXMLNamespaces = $v_soapFaultXML->getNameSpaces();
-	 return (string)(
-	    $v_soapFaultXML->children($v_soapFaultXMLNamespaces['SOAP-ENV'])->
-	       Body->Fault->children()->faultstring
-	 );
+	       );
+	    $v_soapFaultXMLNamespaces = $v_soapFaultXML->getNameSpaces();
+	    $v_message = (string)(
+	       $v_soapFaultXML->
+		  children($v_soapFaultXMLNamespaces['SOAP-ENV'])->Body->Fault->
+		  children()->faultstring
+	    );
+	 }
+	 else $v_message = $v_exceptionMessage;
+	 return $v_message;
       }
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
@@ -141,7 +144,6 @@
 	 );
       }
       public function getAccountsOrCategoriesWBalance($p_type) {
-	 global $registry;
 	 $v_accountsOrCategories = (
 	    $p_type == CloudBankConsts::LedgerAccountType_Account ? 
 	       $this->getAccounts() :
@@ -149,14 +151,10 @@
 	 );
 	 $v_balances = $this->getBalances($p_type);
 	 $v_edit_icon = (
-	    Horde::img(
-	       'edit.png', 'Edit', '', $registry->getImageDir('cloudbank')
-	    )
+	    Horde_Themes_Image::tag('edit.png', array('alt' => 'Edit'))
 	 );
 	 $v_delete_icon = (
-	    Horde::img(
-	       'delete.png', 'Delete', '', $registry->getImageDir('cloudbank')
-	    )
+	    Horde_Themes_Image::tag('delete.png', array('alt' => 'Delete'))
 	 );
 	 foreach ($v_accountsOrCategories as &$v_accountOrCategory) {
 	    $v_accountOrCategory['balance'] = (
@@ -215,7 +213,6 @@
 	 return $v_accountOrCategory['name'];
       }
       public function getAccountOrCategoryIcon($p_type) {
-	 global $registry;
 	 switch ($p_type) {
 	    case CloudBankConsts::LedgerAccountType_Account :
 	       $v_iconFile = 'account.png';
@@ -227,11 +224,7 @@
 	       throw new Exception("Invalid type ($p_type)");
 	       break;
 	 }
-	 return (
-	    Horde::img(
-	       $v_iconFile, $p_type, '', $registry->getImageDir('cloudbank')
-	    )
-	 );
+	 return Horde_Themes_Image::tag($v_iconFile, array('alt' => $p_type));
       }
       public function createAccount($p_variables) {
 	 $this->r_ledgerAccountService->createAccount(
@@ -312,16 +305,13 @@
 	 );
       }
       public function getEvents($p_id, $p_type, $p_name, $p_limitMonth) {
-	 global $registry;
 	 $v_events_SDO = (
 	    $this->r_eventService->getEvents($p_id, $p_limitMonth . '-01')
 	 );
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
 	 self::FormatAmounts($v_events);
 	 $v_delete_icon = (
-	    Horde::img(
-	       'delete.png', 'Delete', '', $registry->getImageDir('cloudbank')
-	    )
+	    Horde_Themes_Image::tag('delete.png', array('alt' => 'Delete'))
 	 );
 	 foreach ($v_events as &$v_event) {
 	    $v_event['account_id'] = $p_id;

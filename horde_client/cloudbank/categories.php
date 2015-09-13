@@ -10,7 +10,8 @@
  * @author Peter Sagi <psagi@freemail.hu>
  */
 
-@define('CLOUDBANK_BASE', dirname(__FILE__));
+require_once __DIR__ . '/lib/Application.php';
+Horde_Registry::appInit('cloudbank');
 
 require_once CLOUDBANK_BASE . '/lib/lib/CloudBankConsts.php';
 $g_account_type = CloudBankConsts::LedgerAccountType_Category;

@@ -10,19 +10,15 @@
  * @author Peter Sagi <psagi@freemail.hu>
  */
 
-@define('CLOUDBANK_BASE', dirname(__FILE__));
-require_once CLOUDBANK_BASE . '/lib/base.php';
+require_once __DIR__ . '/lib/Application.php';
+Horde_Registry::appInit('cloudbank');
 
-require_once HORDE_BASE . '/lib/Horde/Variables.php';
-require_once HORDE_BASE . '/lib/Horde/Form.php';
-require_once HORDE_BASE . '/lib/Horde/Form/Renderer.php';
+require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
-
-//require_once HORDE_BASE . '/lib/Horde/Template.php';
 
 /* main() */
 
-$g_variables = &Variables::getDefaultVariables();
+$g_variables = &Horde_Variables::getDefaultVariables();
 $g_event_id = $g_variables->get('event_id');
 $g_account_id = $g_variables->get('account_id');
 $g_account_name = $g_variables->get('account_name');
@@ -51,7 +47,6 @@ $g_form->addHidden('', 'old_is_income', 'boolean', false);
 $g_form->addHidden('', 'old_other_account_id', 'text', false);
 $g_form->addHidden('', 'old_amount', 'text', false);
 
-//print $g_form->isSubmitted();
 if ($g_form->validate($g_variables)) {	// submitted -> process
    try {
       if ($g_isEdit) {
@@ -62,8 +57,7 @@ if ($g_form->validate($g_variables)) {	// submitted -> process
       }
       header(
 	 'Location: ' .
-	    Util::addParameter(
-	       Horde::applicationUrl('events.php', true),
+	    Horde::url('events.php', true)->add(
 	       array(
 		  'ledger_account_id' => $g_account_id,
 		  'ledger_account_type' => (
@@ -81,7 +75,6 @@ if ($g_form->validate($g_variables)) {	// submitted -> process
 }
 
 // render
-//print 'Validation failed';
 if (!$g_isEdit) {
    $g_variables->set('date', strftime('%Y-%m-%d'));
 }
@@ -91,9 +84,9 @@ else {
    }
 }
 $title = ($g_isEdit ? 'Edit Event' : 'Add Event');
-require CLOUDBANK_TEMPLATES . '/common-header.inc';
-require CLOUDBANK_TEMPLATES . '/menu.inc';
+$page_output->header();
+$notification->notify(array('listeners' => 'status'));
 $g_form->renderActive(
    new Horde_Form_Renderer(), $g_variables, 'event.php', 'post'
 );
-require $registry->get('templates', 'horde') . '/common-footer.inc';
+$page_output->footer();

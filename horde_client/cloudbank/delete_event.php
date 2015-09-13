@@ -10,15 +10,15 @@
  * @author Peter Sagi <psagi@freemail.hu>
  */
 
-@define('CLOUDBANK_BASE', dirname(__FILE__));
-require_once CLOUDBANK_BASE . '/lib/base.php';
+require_once __DIR__ . '/lib/Application.php';
+Horde_Registry::appInit('cloudbank');
 
-require_once HORDE_BASE . '/lib/Horde/Variables.php';
+require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
 /* main() */
 
-$g_variables = &Variables::getDefaultVariables();
+$g_variables = &Horde_Variables::getDefaultVariables();
 $g_account_id = $g_variables->get('account_id');
 $g_event_id = $g_variables->get('event_id');
 
@@ -26,8 +26,7 @@ try {
    Book::Singleton()->deleteEvent($g_event_id);
    header(
       'Location: ' .
-	 Util::addParameter(
-	    Horde::applicationUrl('events.php', true),
+	 Horde::url('events.php', true)->add(
 	    array(
 	       'ledger_account_id' => $g_account_id,
 	       'ledger_account_type' => (
@@ -40,7 +39,7 @@ try {
 catch (Exception $v_exception) {
    Cloudbank::PushError(Book::XtractMessage($v_exception));
 
-   require CLOUDBANK_TEMPLATES . '/common-header.inc';
-   require CLOUDBANK_TEMPLATES . '/menu.inc';
-   require $registry->get('templates', 'horde') . '/common-footer.inc';
+   $page_output->header();
+   $notification->notify(array('listeners' => 'status'));
+   $page_output->footer();
 }

@@ -11,9 +11,8 @@
  */
 
 @define('CLOUDBANK_BASE', dirname(__FILE__));
-require_once CLOUDBANK_BASE . '/lib/base.php';
 
-require_once HORDE_BASE . '/lib/Horde/Template.php';
+require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
 /* main() */
@@ -56,12 +55,11 @@ try {
 	 Book::Singleton()->getAccountsTotal() :
 	 Book::Singleton()->getCategoriesTotal()
    );
-   $g_template = &new Horde_Template;
+   $g_template = new Horde_Template;
    $g_template->set(
-      'new_account.link', 
+      'new_account_link', 
       Horde::link(
-	 Util::addParameter(
-	    Horde::applicationUrl('account_or_category.php'),
+	 Horde::url('account_or_category.php')->add(
 	    array('account_type' => $g_account_type)
 	 )
       ) . 'New</a>'
@@ -80,9 +78,10 @@ catch (Exception $v_exception) {
    $g_isError = TRUE;
 }
 
-require CLOUDBANK_TEMPLATES . '/common-header.inc';
-require CLOUDBANK_TEMPLATES . '/menu.inc';
+$page_output->header();
+$notification->notify(array('listeners' => 'status'));
 if (!$g_isError) {
+//$g_template->setOption('debug', true);
    echo $g_template->fetch(CLOUDBANK_TEMPLATES . '/accounts.html');
 }
-require $registry->get('templates', 'horde') . '/common-footer.inc';
+$page_output->footer();

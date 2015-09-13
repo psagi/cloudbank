@@ -16,10 +16,10 @@ $this->notes['fm']['focus'] = 4;
 
 /* Mailing list release notes. */
 $this->notes['ml']['changes'] = <<<ML
-The Horde Team is pleased to announce the release of the Cloudbank Application version H3 (0.3).
+The Horde Team is pleased to announce the release of the Cloudbank Application version H5 (0.4).
 
 The Cloudbank Application is web client for the Cloudbank Server. It can be used for keeping track of personal finance matters. The incomes/expenses are organized into Accounts and Categories.
-Cloudbank Horde Client v0.3 works with CloudBank Server v0.2.
+Cloudbank Horde Client v0.4 works with CloudBank Server v0.2.
 
 This is a preview version that should not be used on production systems.  This
 version is not considered feature complete and there might still be a few bugs.
@@ -33,7 +33,7 @@ ML;
 /* Freshmeat release notes, not more than 600 characters. */
 $this->notes['fm']['changes'] = <<<FM
 The Cloudbank Application is web client for the Cloudbank Server. It can be used for keeping track of personal finance matters. The incomes/expenses are organized into Accounts and Categories.
-Cloudbank Horde Client v0.3 works with CloudBank Server v0.2.
+Cloudbank Horde Client v0.4 works with CloudBank Server v0.2.
 FM;
 
 $this->notes['name'] = 'Cloudbank';
