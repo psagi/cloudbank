@@ -25,6 +25,8 @@
 	       credit_ledger_account_id VARCHAR(39)
 		  NOT NULL REFERENCES ledger_account,
 	       amount NUMERIC(16,2) NOT NULL,
+	       statement_item_id VARCHAR(16),
+	       is_cleared BOOLEAN NOT NULL,
 	       CHECK (amount >= 0), 
 	       CHECK (debit_ledger_account_id <> credit_ledger_account_id)
 	    )

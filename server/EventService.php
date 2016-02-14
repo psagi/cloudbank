@@ -205,10 +205,10 @@
 		  INSERT 
 		     INTO event(
 		     	id, date, description, credit_ledger_account_id,
-		       	debit_ledger_account_id, amount
+		       	debit_ledger_account_id, amount, is_cleared
 		     ) VALUES (
 		      	:id, :date, :description, :credit_ledger_account_id,
-			:debit_ledger_account_id, :amount
+			:debit_ledger_account_id, :amount, 0
 		     )
 	       ' :
 	       '
