@@ -40,12 +40,16 @@ $g_form->addVariable(
    array($g_accountsAndCategories, true)
 );
 $g_form->addVariable('Amount', 'amount', 'text', true);
+$g_form->addVariable('Is it cleared?', 'is_cleared', 'boolean', true);
+$g_form->addVariable('Statement reference', 'statement_item_id', 'text', false);
 $g_form->addHidden('', 'event_id', 'text', false);
 $g_form->addHidden('', 'old_date', 'date', false);
 $g_form->addHidden('', 'old_description', 'text', false);
 $g_form->addHidden('', 'old_is_income', 'boolean', false);
 $g_form->addHidden('', 'old_other_account_id', 'text', false);
 $g_form->addHidden('', 'old_amount', 'text', false);
+$g_form->addHidden('', 'old_is_cleared', 'boolean', false);
+$g_form->addHidden('', 'old_statement_item_id', 'text', false);
 
 if ($g_form->validate($g_variables)) {	// submitted -> process
    try {

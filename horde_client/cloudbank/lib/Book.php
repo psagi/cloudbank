@@ -52,7 +52,8 @@
 	 self::CopyToOldVars(
 	    $p_variables,  
 	    array(
-	       'date', 'description', 'is_income', 'other_account_id', 'amount'
+	       'date', 'description', 'is_income', 'other_account_id', 'amount',
+	       'is_cleared', 'statement_item_id'
 	    )
 	 );
       }
@@ -332,7 +333,8 @@
 	 $this->r_eventService->createEvent(
 	    $p_variables->get('date'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
-	    $p_variables->get('other_account_id'), $p_variables->get('amount')
+	    $p_variables->get('other_account_id'), $p_variables->get('amount'),
+	    $p_variables->get('statement_item_id'), $p_variables->get('is_cleared') 
 	 );
       }
       public function modifyEvent($p_variables) {
@@ -357,7 +359,8 @@
 		  'old_other_account_id' => 'other_account_id',
 		  'old_other_account_name' => 'other_account_name',
 		  'old_other_account_type' => 'other_account_type',
-		  'old_amount' => 'amount'
+		  'old_amount' => 'amount', 'old_is_cleared' => 'is_cleared',
+		  'old_statement_item_id' => 'statement_item_id'
 	       )
 	    )
 	 );
@@ -380,7 +383,8 @@
 		  'other_account_id' => 'other_account_id',
 		  'other_account_name' => 'other_account_name',
 		  'other_account_type' => 'other_account_type',
-		  'amount' => 'amount'
+		  'amount' => 'amount', 'is_cleared' => 'is_cleared',
+		  'statement_item_id' => 'statement_item_id'
 	       )
 	    )
 	 );

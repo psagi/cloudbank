@@ -48,7 +48,8 @@ try {
       array(
 	 'date' => 'date', 'description' => 'description', 
 	 'account_id' => 'account_id', 'other_account_id' => 'other_account_id',
-	 'amount' => 'amount', 'event_id' => 'id',
+	 'amount' => 'amount', 'is_cleared' => 'is_cleared',
+	 'statement_item_id' => 'statement_item_id', 'event_id' => 'id',
 	 'account_type' => 'account_type', 'account_name' => 'account_name',
 	 'other_account_type' => 'other_account_type'
 	    /* Note that this field is not required in the link, but needed for
@@ -56,7 +57,8 @@ try {
       ), 'description', 'description_link',
       array(
 	 'date' => NULL, 'description' => NULL, 'account_id' => NULL,
-	 'other_account_id' => NULL, 'amount' => NULL, 'id' => NULL,
+	 'other_account_id' => NULL, 'amount' => NULL, 'is_cleared' => NULL,
+	 'statement_item_id' => NULL, 'id' => NULL,
 	 'account_type' => CloudBankConsts::LedgerAccountType_Category,
 	 'account_name' => NULL,
 	 'other_account_type' => CloudBankConsts::LedgerAccountType_Beginning
