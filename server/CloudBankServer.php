@@ -38,6 +38,28 @@
 	 }
 	 return $v_result;
       }
+      
+      private static function BindValues(&$p_statement, $p_bindArray) {
+	 Debug::Singleton()->log(
+	    'CloudBankServer::BindValues(' . var_export($p_statement, true) .
+	    ', ' .  var_export($p_bindArray, true) . ')'
+	 );
+	 if (empty($p_bindArray)) return;
+	 foreach($p_bindArray as $v_parameter => $v_value) {
+	    Debug::Singleton()->log(
+	       'CloudBankServer::BindValues: $v_parameter = ' . $v_parameter .
+	       ', $v_value = ' . $v_value . ', is_bool($v_value) = ' .
+	       (is_bool($v_value) ? 'true' : 'false')
+	    );
+	    $v_isSuccess = $p_statement->bindValue(
+	       $v_parameter, $v_value,
+	       is_bool($v_value) ? PDO::PARAM_BOOL : PDO::PARAM_STR
+	    );
+	    Debug::Singleton()->log(
+	       'CloudBankServer::BindValues: $v_isSuccess = ' . $v_isSuccess
+	    );
+	 }
+      }
 
       private function __construct() {
 	 date_default_timezone_set(@date_default_timezone_get());
@@ -69,7 +91,16 @@
 	    'CloudBankServer::execQuery(): $p_bindArray = ' .
 	       var_export($p_bindArray, true)
 	 );
-	 $v_statement->execute($p_bindArray);
+	 self::BindValues($v_statement, $p_bindArray);
+	 Debug::Singleton()->log(
+	    'CloudBankServer::execQuery(): $v_statement = ' .
+	       var_export($v_statement, true)
+	 );
+	 $v_isSuccess = $v_statement->execute();
+	 Debug::Singleton()->log(
+	    'CloudBankServer::execQuery(): $v_isSuccess = ' .
+	    ($v_isSuccess ? 'true' : 'false')
+	 );
 	 $v_resultSet = $v_statement->fetchAll();
 	 Debug::Singleton()->log(
 	    'CloudBankServer::execQuery(): $v_resultSet = ' .

@@ -1,5 +1,6 @@
 <?php
    require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
+   require_once('Debug.php');
    require_once('Util.php');
    require_once('CloudBankServer.php');
    include('SCA/SCA.php');
@@ -24,6 +25,13 @@
 	    )
 	 );
       }
+      /*
+	 PHP SDO XML does not implement the default attribute of the XSD. This
+	 is to fix this behaviour
+      */
+      private static function ApplyDefaults(&$p_event) {
+	 if (!isset($p_event['is_cleared'])) $p_event['is_cleared'] = false;
+      }
 
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
@@ -39,14 +47,21 @@
 	 @param string $p_amount	
 	    The amount (negative if the starting account's balance is to be
 	    decreased)
+	 @param string $p_statement_item_id
+	    Reference to the corresponding statement item (optional)
+	 @param bool $p_is_cleared
+	    Flag for indicating the cleared status of the event. Mandatory, 
+	    defaults to false.
 	 @return bool		Success
       */
       public function createEvent(
-	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount
+	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount,
+	 $p_statement_item_id, $p_is_cleared = false
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->createOrUpdateEvent(
-	    $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount
+	    $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount,
+	    $p_statement_item_id, $p_is_cleared
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -66,7 +81,7 @@
 		  SELECT
 		     id, date, description, other_ledger_account_id,
 		     other_ledger_account_name, other_ledger_account_type,
-		     amount
+		     amount, statement_item_id, is_cleared
 		  FROM account_events
 		  WHERE id = :iD AND ledger_account_type = :ledgerAccountType
 	       ',
@@ -87,7 +102,9 @@
 		  'other_ledger_account_id' => 'other_account_id',
 		  'other_ledger_account_name' => 'other_account_name',
 		  'other_ledger_account_type' => 'other_account_type',
-		  'amount' => 'amount'
+		  'amount' => 'amount',
+		  'statement_item_id' => 'statement_item_id',
+		  'is_cleared' => 'is_cleared'
 	       )
 	    )
 	 );
@@ -111,7 +128,7 @@
 		  SELECT
 		     id, date, description, other_ledger_account_id,
 		     other_ledger_account_name, other_ledger_account_type,
-		     amount
+		     amount, statement_item_id, is_cleared
 		  FROM account_events
 		  WHERE ledger_account_id = :accountID
 	       ' . (empty($p_limitDate) ? '' : 'AND date >= :limitDate'),
@@ -128,7 +145,9 @@
 		  'other_ledger_account_id' => 'other_account_id',
 		  'other_ledger_account_name' => 'other_account_name',
 		  'other_ledger_account_type' => 'other_account_type',
-		  'amount' => 'amount'
+		  'amount' => 'amount',
+		  'statement_item_id' => 'statement_item_id',
+		  'is_cleared' => 'is_cleared'
 	       )
 	    )
 	 );
@@ -141,13 +160,28 @@
 	 @return bool		Success
       */
       public function modifyEvent($p_accountID, $p_oldEvent, $p_newEvent) {
+	 Debug::Singleton()->log(
+	    'modifyEvent(' . var_export($p_accountID, true) . ', ' .
+	    var_export($p_oldEvent, true) . ', ' .
+	    var_export($p_newEvent, true) . ')'
+	 );
 	 CloudBankServer::AssertIDsMatch($p_newEvent['id'], $p_oldEvent['id']);
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->assertSameAsCurrent($p_accountID, $p_oldEvent);
+	 $v_oldEvent = $p_oldEvent;
+	 self::ApplyDefaults($v_oldEvent);
+	 $this->assertSameAsCurrent($p_accountID, $v_oldEvent);
+	 $v_newEvent = $p_newEvent;
+	 self::ApplyDefaults($v_newEvent);
 	 $this->createOrUpdateEvent(
-	    $p_newEvent['date'], $p_newEvent['description'],
-	    $p_accountID, $p_newEvent['other_account_id'],
-	    $p_newEvent['amount'], $p_newEvent['id']
+	    $v_newEvent['date'], $v_newEvent['description'],
+	    $p_accountID, $v_newEvent['other_account_id'],
+	    $v_newEvent['amount'],
+	    (
+	       isset($v_newEvent['statement_item_id']) ?
+	       $v_newEvent['statement_item_id'] :
+	       NULL
+	    ),
+	    $v_newEvent['is_cleared'], $v_newEvent['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -168,7 +202,8 @@
       }
 
       public function createOrUpdateEvent(
-	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount,
+	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount, 
+	 $p_statement_item_id, $p_is_cleared,
 	 $p_id = NULL
       ) {
 	 if (!SchemaDef::IsValidDate($p_date)) {
@@ -205,10 +240,12 @@
 		  INSERT 
 		     INTO event(
 		     	id, date, description, credit_ledger_account_id,
-		       	debit_ledger_account_id, amount, is_cleared
+		       	debit_ledger_account_id, amount, statement_item_id,
+			is_cleared
 		     ) VALUES (
 		      	:id, :date, :description, :credit_ledger_account_id,
-			:debit_ledger_account_id, :amount, 0
+			:debit_ledger_account_id, :amount, :statement_item_id,
+			:is_cleared
 		     )
 	       ' :
 	       '
@@ -217,7 +254,8 @@
 		     date = :date, description = :description,
 		     credit_ledger_account_id = :credit_ledger_account_id,
 		     debit_ledger_account_id = :debit_ledger_account_id,
-		     amount = :amount
+		     amount = :amount, statement_item_id = :statement_item_id,
+		     is_cleared = :is_cleared
 		  WHERE id = :id
 	       '
 	    ),
@@ -227,7 +265,9 @@
 	       ':description' => $p_description,
 	       ':credit_ledger_account_id' => $v_creditLedgerAccountID,
 	       ':debit_ledger_account_id' => $v_debitLedgerAccountID,
-	       ':amount' => $v_amount
+	       ':amount' => $v_amount,
+	       ':statement_item_id' => $p_statement_item_id,
+	       ':is_cleared' => $p_is_cleared
 	    )
 	 );
       }
@@ -293,24 +333,36 @@
 	 }
       }
       private function assertSameAsCurrent($p_accountID, $p_oldEvent) {
+	 Debug::Singleton()->log(
+	    'assertSameAsCurrent(' . var_export($p_accountID, true) . ', ' .
+	    var_export($p_oldEvent, true) . ')'
+	 );
 	 $v_currentEvent = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT date, description, other_ledger_account_id, amount
+		  SELECT
+		     date, description, other_ledger_account_id, amount,
+		     statement_item_id, is_cleared
 		  FROM account_events
 		  WHERE ledger_account_id = :account_id AND id = :id
 	       ',
 	       array(':account_id' => $p_accountID, ':id' => $p_oldEvent['id'])
 	    )
 	 );
+	 $v_mapping = (
+	    array(
+	       'date' => 'date', 'description' => 'description',
+	       'other_account_id' => 'other_ledger_account_id',
+	       'amount' => 'amount',
+	       'is_cleared' => 'is_cleared'
+	    )
+	 );
+	 if (isset($p_oldEvent['statement_item_id'])) {
+	    $v_mapping['is_cleared'] = 'is_cleared';
+	 }
 	 if (
 	    !CloudBankServer::IsEqual(
-	       $p_oldEvent, $v_currentEvent[0],
-	       array(
-		  'date' => 'date', 'description' => 'description',
-		  'other_account_id' => 'other_ledger_account_id',
-		  'amount' => 'amount'
-	       )
+	       $p_oldEvent, $v_currentEvent[0], $v_mapping
 	    )
 	 ) {
 	    throw new Exception(

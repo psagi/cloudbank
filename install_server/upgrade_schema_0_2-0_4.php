@@ -10,17 +10,9 @@
    CloudBankServer::Singleton()->tryQuery('
       ALTER TABLE event ADD is_cleared BOOLEAN DEFAULT 0
    ');
-/*
+   CloudBankServer::Singleton()->tryQuery('DROP VIEW account_events');
    $g_createSchemaStatements = SchemaDef::CreateSchemaStatements();
-   foreach (
-      array(
-	 'account_events', 'event_idx_debit_ledger_account_id',
-	 'event_idx_credit_ledger_account_id'
-      ) as $v_dBObject 
-   ) {
-      CloudBankServer::Singleton()->tryQuery(
-	 $g_createSchemaStatements[$v_dBObject]
-      );
-   }
-*/
+   CloudBankServer::Singleton()->tryQuery(
+      $g_createSchemaStatements['account_events']
+   );
 ?>

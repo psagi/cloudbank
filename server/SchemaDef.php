@@ -47,6 +47,8 @@
 		  la.id AS ledger_account_id, la.name AS ledger_account_name,
 		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
 		  e.description AS description, e.amount AS amount,
+		  e.statement_item_id AS statement_item_id,
+		  e.is_cleared AS is_cleared,
 		  o_la.id AS other_ledger_account_id,
 		  o_la.name AS other_ledger_account_name,
 		  o_la.type AS other_ledger_account_type
@@ -59,6 +61,8 @@
 		  la.id AS ledger_account_id, la.name AS ledger_account_name,
 		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
 		  e.description AS description, -e.amount AS amount,
+		  e.statement_item_id AS statement_item_id,
+		  e.is_cleared AS is_cleared,
 		  o_la.id AS other_ledger_account_id,
 		  o_la.name AS other_ledger_account_name,
 		  o_la.type AS other_ledger_account_type
