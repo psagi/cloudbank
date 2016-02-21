@@ -233,6 +233,9 @@
 		  "be the same"
 	    );
 	 }
+	 if (!SchemaDef::IsValidStatementItemID($p_statement_item_id)) {
+	    throw new Exception("Invalid statement reference ($p_statement_item_id)");
+	 }
 	 $this->r_cloudBankServer->execQuery(
 	    (
 	       is_null($p_id) ?

@@ -101,6 +101,9 @@
       ) {
 	 return ($p_debitLedgerAccountID <> $p_creditLedgerAccountID);
       }
+      public static function IsValidStatementItemID($p_statement_item_id) {
+	 return self::CheckStrLength($p_statement_item_id, 0, 16);
+      }
 
       private function __construct() { } // to prevent creating an instance
    }
