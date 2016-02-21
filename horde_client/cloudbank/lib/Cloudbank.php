@@ -47,12 +47,12 @@ class Cloudbank {
       }
    }
    public static function AddIcons(
-      &$p_recordSet, $p_iconFile, $p_conditionFilter
+      &$p_recordSet, $p_iconFile, $p_altText, $p_fieldName, $p_conditionFilter
    ) {
    /* Please note that inclusion occurs if EVERY field of the record included in
       p_conditionFilter match the provided value */
       $v_icon = (
-	 Horde_Themes_Image::tag($p_iconFile, array('alt' => 'Transfer'))
+	 Horde_Themes_Image::tag($p_iconFile, array('alt' => $p_altText))
       );
       foreach ($p_recordSet as &$v_record) {
 	 $v_isIncluded = true;
@@ -61,7 +61,7 @@ class Cloudbank {
 	       $v_isIncluded = false;
 	    }
 	 }
-	 $v_record['account_icon'] = ($v_isIncluded ? $v_icon : NULL);
+	 $v_record[$p_fieldName] = ($v_isIncluded ? $v_icon : NULL);
       }
    }
    public static function PushError($p_message) {

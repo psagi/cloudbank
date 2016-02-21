@@ -87,8 +87,11 @@ try {
       )
    );
    CloudBank::AddIcons(
-      $g_events, 'right_arrow.png', 
+      $g_events, 'right_arrow.png', 'Transfer', 'account_icon',
       array('other_account_type' => CloudBankConsts::LedgerAccountType_Account)
+   );
+   CloudBank::AddIcons(
+      $g_events, 'checkmark.png', 'Cleared', 'cleared_icon', array('is_cleared' => true)
    );
    Book::SortResultSet($g_events, 'date', TRUE);
    $g_total = Book::Singleton()->getAccountOrCategoryBalance($g_id);

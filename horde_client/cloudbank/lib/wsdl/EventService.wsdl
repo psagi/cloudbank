@@ -14,6 +14,8 @@
             <xs:element name="p_accountID" type="xs:string"/>
             <xs:element name="p_otherAccountID" type="xs:string"/>
             <xs:element name="p_amount" type="xs:string"/>
+            <xs:element name="p_statement_item_id" type="xs:string"/>
+            <xs:element name="p_is_cleared" type="xs:bool"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

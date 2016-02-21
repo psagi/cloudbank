@@ -10,7 +10,7 @@
 </div>
 <table class="item" width="100%" cellspacing="1">
    <tr class="control" align="left">
-      <th colspan=6><tag:new_event_link /></th>
+      <th colspan=7><tag:new_event_link /></th>
    </tr>
    <tr class="item">
       <th align="left">Date</th>
@@ -18,6 +18,8 @@
       <th align="left"></th>
       <th align="left">To/From</th>
       <th align="left">Amount</th>
+      <th align="left"></th>
+      <th align="left">Reference</th>
    </tr>
    <loop:events>
       <tr class="linedRow">
@@ -28,6 +30,8 @@
 	    <tag:events.account_icon /><tag:events.account_link />
 	 </td>
 	 <td align="right"><tag:events.amount_fmt /></td>
+	 <td><tag:events.cleared_icon /></td>
+	 <td><tag:events.statement_item_id /></td>
       </tr>
    </loop:events>
    <tr class="item">
