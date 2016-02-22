@@ -212,7 +212,7 @@
 	 if (!SchemaDef::IsValidEventDescription($p_description)) {
 	    throw new Exception("Invalid Event description ($p_description)");
 	 }
-	 if (!(is_numeric($p_amount) && (strpos($p_amount, 'x') === FALSE))) {
+	 if (!SchemaDef::IsValidAmount($p_amount)) {
 	    throw new Exception(
 	       "Invalid amount ($p_amount). Must be a floating point number."
 	    );
@@ -233,7 +233,7 @@
 		  "be the same"
 	    );
 	 }
-	 if (!SchemaDef::IsValidStatementItemID($p_statement_item_id)) {
+	 if (!SchemaDef::IsValidStatementItemIDInEvent($p_statement_item_id)) {
 	    throw new Exception("Invalid statement reference ($p_statement_item_id)");
 	 }
 	 $this->r_cloudBankServer->execQuery(

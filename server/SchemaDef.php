@@ -31,6 +31,15 @@
 	       CHECK (debit_ledger_account_id <> credit_ledger_account_id)
 	    )
 	 ', 
+	 'statement_item' => '
+	    CREATE TABLE statement_item (
+	       id VARCHAR(16) NOT NULL PRIMARY KEY,
+	       ledger_account_name VARCHAR(32) NOT NULL,
+	       item_type CHARACTER(1) NOT NULL, date DATE NOT NULL,
+	       description VARCHAR(256), amount NUMERIC(16,2) NOT NULL,
+	       CHECK (item_type IN (\'O\', \'E\', \'C\'))
+	    )
+	 ', 
 	 'event_idx_debit_ledger_account_id' => '
 	    CREATE INDEX event_idx_debit_ledger_account_id ON event(
 	       debit_ledger_account_id
@@ -96,13 +105,25 @@
       public static function IsValidEventDescription($p_description) {
 	 return self::CheckStrLength($p_description, 1, 32);
       }
+      public static function IsValidAmount($p_amount) {
+	 return (is_numeric($p_amount) && (strpos($p_amount, 'x') === FALSE));
+      }
       public static function IsValidLedgerAccountPair(
 	 $p_debitLedgerAccountID, $p_creditLedgerAccountID
       ) {
 	 return ($p_debitLedgerAccountID <> $p_creditLedgerAccountID);
       }
-      public static function IsValidStatementItemID($p_statement_item_id) {
+      public static function IsValidStatementItemIDInEvent($p_statement_item_id) {
 	 return self::CheckStrLength($p_statement_item_id, 0, 16);
+      }
+      public static function IsValidStatementItemID($p_statement_item_id) {
+	 return self::CheckStrLength($p_statement_item_id, 1, 16);
+      }
+      public static function IsValidStatementItemType($p_item_type) {
+	 return ($p_item_type == 'O' || $p_item_type == 'E' || $p_item_type == 'C');
+      }
+      public static function IsValidStatementItemDescription($p_item_description) {
+	 return self::CheckStrLength($p_item_description, 0, 256);
       }
 
       private function __construct() { } // to prevent creating an instance

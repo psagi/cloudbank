@@ -12,7 +12,7 @@
    ');
    CloudBankServer::Singleton()->tryQuery('DROP VIEW account_events');
    $g_createSchemaStatements = SchemaDef::CreateSchemaStatements();
-   CloudBankServer::Singleton()->tryQuery(
-      $g_createSchemaStatements['account_events']
-   );
+   foreach (array('account_events', 'statement_item') as $v_dBObject) {
+      CloudBankServer::Singleton()->tryQuery($g_createSchemaStatements[$v_dBObject]);
+   }
 ?>
