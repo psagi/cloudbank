@@ -334,7 +334,8 @@
 	    $p_variables->get('date'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
 	    $p_variables->get('other_account_id'), $p_variables->get('amount'),
-	    $p_variables->get('statement_item_id'), $p_variables->get('is_cleared') 
+	    $p_variables->get('statement_item_id'),
+	    ($p_variables->get('is_cleared') ? true : false)
 	 );
       }
       public function modifyEvent($p_variables) {
