@@ -54,7 +54,7 @@
 	 );
 	 $this->r_eventService->createOrUpdateEvent(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
-	    self::GetBeginningAccountID(), $p_beginningBalance
+	    self::GetBeginningAccountID(), $p_beginningBalance, NULL, true
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
