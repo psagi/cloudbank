@@ -234,7 +234,8 @@ throw $v_exception;
 	 $this->r_eventService->createOrUpdateEvent(
 	    $v_beginningEvent['date'], $v_beginningEvent['description'],
 	    $p_newAccount['id'], $v_beginningEvent['other_account_id'],
-	    $p_newAccount['beginning_balance'], $v_beginningEvent['id']
+	    $p_newAccount['beginning_balance'], $v_beginningEvent['statement_item_id'], 
+	    $v_beginningEvent['is_cleared'], $v_beginningEvent['id'] 
 	 );
 	 $this->createOrUpdateLedgerAccount(
 	    $p_newAccount['name'], CloudBankConsts::LedgerAccountType_Account,
@@ -283,8 +284,8 @@ throw $v_exception;
 	 return true;
       }
       
-      /* Note that although this method is not annotated, SCA generates an
-	 operation for it in the WSDL. However this operation is probably
+      /* Note that although these methods are not annotated, SCA generates an
+	 operation for them in the WSDL. However these operations are probably
 	 unusable due to the missing annotations - and so type definitions in
 	 the WSDL.
       */
@@ -296,18 +297,8 @@ throw $v_exception;
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
       }
-
-      private function getBeginningAccountID() {
-	 $v_result = (
-	    $this->r_cloudBankServer->execQuery(
-	       'SELECT id FROM ledger_account WHERE type = :type',
-	       array(':type' => CloudBankConsts::LedgerAccountType_Beginning)
-	    )
-	 );
-	 return $v_result[0]['id'];
-      }
-
-      private function doesExistAndNotThis($p_name, $p_type, $p_id) {
+      
+      public function doesExistAndNotThis($p_name, $p_type, $p_id = NULL) {
 	 $v_queryStr = (
 	    '
 	       SELECT 1
@@ -325,6 +316,17 @@ throw $v_exception;
 	       $this->r_cloudBankServer->execQuery($v_queryStr, $v_bindArray)
 	    ) > 0
 	 );
+      }
+
+
+      private function getBeginningAccountID() {
+	 $v_result = (
+	    $this->r_cloudBankServer->execQuery(
+	       'SELECT id FROM ledger_account WHERE type = :type',
+	       array(':type' => CloudBankConsts::LedgerAccountType_Beginning)
+	    )
+	 );
+	 return $v_result[0]['id'];
       }
 
       private function createOrUpdateLedgerAccount(
@@ -446,7 +448,8 @@ throw $v_exception;
 	       '
 		  SELECT
 		     id, date, description,
-		     other_ledger_account_id AS other_account_id
+		     other_ledger_account_id AS other_account_id,
+		     statement_item_id AS statement_item_id, is_cleared AS is_cleared
 		  FROM account_events
 		  WHERE
 		     ledger_account_id = :accountID AND
