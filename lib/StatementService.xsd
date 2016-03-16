@@ -1,0 +1,34 @@
+<xsd:schema  
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:StatementService="http://pety.dynu.net/CloudBank/StatementService"
+   targetNamespace="http://pety.dynu.net/CloudBank/StatementService"
+>
+   <xsd:element name="Statement" type="StatementService:Statement"/>
+   <xsd:complexType name="Statement">
+      <xsd:sequence> 
+	 <xsd:element
+	    name="StatementLine" type="xsd:LimitedString" minOccurs="0"
+	    maxOccurs="2048"
+	 />
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:simpleType name="LimitedString">
+      <xsd:restriction base="xsd:string">
+	 <xsd:maxLength value="512" />
+      </xsd:restriction>
+   </xsd:simpleType>
+<!--
+   <xsd:element name="Event" type="EventService:Event"/>
+   <xsd:complexType name="Event">
+      <xsd:attribute name="id" type="xsd:string"/>
+      <xsd:attribute name="date" type="xsd:string"/>
+      <xsd:attribute name="description" type="xsd:string"/>
+      <xsd:attribute name="other_account_id" type="xsd:string"/>
+      <xsd:attribute name="other_account_name" type="xsd:string"/>
+      <xsd:attribute name="other_account_type" type="xsd:string"/>
+      <xsd:attribute name="amount" type="xsd:string"/>
+      <xsd:attribute name="statement_item_id" type="xsd:string" minOccurs="0" />
+      <xsd:attribute name="is_cleared" type="xsd:boolean" default="false"/>
+   </xsd:complexType>
+-->
+</xsd:schema>
