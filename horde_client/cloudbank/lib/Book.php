@@ -396,6 +396,25 @@
       public function deleteEvent($p_event_id) {
 	 $this->r_eventService->deleteEvent($p_event_id);
       }
+      public function importStatement($p_filename) {
+	 Horde::log("Book::importStatement($p_filename)", 'DEBUG');
+	 if (!($v_file = fopen($p_filename, 'r'))) return FALSE;
+	 $v_statement = (
+	    $this->r_statementService->createDataObject(
+	       'http://pety.dynu.net/CloudBank/StatementService', 'Statement'
+	    )
+	 );
+	 while ($v_line = fgets($v_file)) {
+	    $v_statement->StatementLine->insert($v_line);
+	 }
+	 fclose($v_file);
+	 $this->r_statementService->importStatement($v_statement);
+	 return TRUE;
+      }
+      public function purgeStatement() {
+	 $this->r_statementService->purge();
+      }
+
       private function __construct() {
 	 global $conf;
 	 $v_cloudBankServerLocation = $conf['cloudbank_server_location'] . '/';
@@ -414,6 +433,16 @@
 	       'wsdl/EventService.wsdl', 'soap',
 	       array(
 		  'location' => $v_cloudBankServerLocation . 'EventService.php'
+	       )
+	    )
+	 );
+	 $this->r_statementService = (
+	    SCA::getService(
+	       'wsdl/StatementService.wsdl', 'soap',
+	       array(
+		  'location' => (
+		     $v_cloudBankServerLocation . 'StatementService.php'
+		  )
 	       )
 	    )
 	 );
@@ -441,6 +470,7 @@
 
       private $r_ledgerAccountService;
       private $r_eventService;
+      private $r_statementService;
    }
 ?>
       

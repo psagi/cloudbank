@@ -55,5 +55,9 @@ class Cloudbank_Application extends Horde_Registry_Application
         $menu->add(
 	 Horde::url('categories.php'), _("Categories"), 'cloudbank-category'
 	);
+        $menu->add(
+	 Horde::url('statement.php'), _("Statement"),
+	 'cloudbank-statement'
+	);
     }
 }
