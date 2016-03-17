@@ -487,8 +487,20 @@ throw $v_exception;
 			ledger_account_id AS id, ledger_account_name AS name,
 			amount
 		     FROM account_events
-		     WHERE ledger_account_id = :id
+		     WHERE
+			ledger_account_id = :id AND
+			other_ledger_account_id = :beginning_account_id
 		  '
+	       );
+	       $v_ledgerAccounts = (
+		  $this->r_cloudBankServer->execQuery(
+		     $v_queryStr,
+		     array(':id' => $p_id,
+			':beginning_account_id' => (
+			   $this->getBeginningAccountID($p_id)
+			)
+		     )
+		  )
 	       );
 	       $v_map['amount'] = 'beginning_balance';
 	       break;
@@ -496,13 +508,13 @@ throw $v_exception;
 	       $v_queryStr = (
 		  'SELECT id, name FROM ledger_account WHERE id = :id'
 	       );
+	       $v_ledgerAccounts = (
+		  $this->r_cloudBankServer->execQuery(
+		     $v_queryStr, array(':id' => $p_id)
+		  )
+	       );
 	       break;
 	 }
-	 $v_ledgerAccounts = (
-	    $this->r_cloudBankServer->execQuery(
-	       $v_queryStr, array(':id' => $p_id)
-	    )
-	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return self::ToSDO($v_ledgerAccounts, NULL, $p_type, $v_map);
       }
