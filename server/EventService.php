@@ -49,10 +49,10 @@
 	    decreased)
 	 @param string $p_statement_item_id
 	    Reference to the corresponding statement item (optional)
-	 @param bool $p_is_cleared
+	 @param boolean $p_is_cleared
 	    Flag for indicating the cleared status of the event. Mandatory, 
 	    defaults to false.
-	 @return bool		Success
+	 @return boolean		Success
       */
       public function createEvent(
 	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount,
@@ -157,7 +157,7 @@
 	 @param string $p_accountID	The account the event is started from
 	 @param Event $p_oldEvent http://pety.homelinux.org/CloudBank/EventService
 	 @param Event $p_newEvent http://pety.homelinux.org/CloudBank/EventService
-	 @return bool		Success
+	 @return boolean		Success
       */
       public function modifyEvent($p_accountID, $p_oldEvent, $p_newEvent) {
 	 Debug::Singleton()->log(
@@ -189,7 +189,7 @@
 
       /**
 	 @param string $p_eventID	The Event to be deleted
-	 @return bool			Success
+	 @return boolean			Success
       */
       public function deleteEvent($p_eventID) {
 	 $this->r_cloudBankServer->beginTransaction();

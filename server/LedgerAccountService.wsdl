@@ -18,7 +18,7 @@
       <xs:element name="createAccountResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="createAccountReturn" type="xs:bool"/>
+            <xs:element name="createAccountReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -32,7 +32,7 @@
       <xs:element name="createCategoryResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="createCategoryReturn" type="xs:bool"/>
+            <xs:element name="createCategoryReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -74,6 +74,18 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element name="getAccountsReturn" type="ns0:AccountSet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="findAccounts">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="findAccountsResponse">
+        <xs:complexType>
+          <xs:sequence>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -155,7 +167,7 @@
       <xs:element name="modifyAccountResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="modifyAccountReturn" type="xs:bool"/>
+            <xs:element name="modifyAccountReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -170,7 +182,7 @@
       <xs:element name="modifyCategoryResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="modifyCategoryReturn" type="xs:bool"/>
+            <xs:element name="modifyCategoryReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -184,7 +196,7 @@
       <xs:element name="deleteLedgerAccountResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="deleteLedgerAccountReturn" type="xs:bool"/>
+            <xs:element name="deleteLedgerAccountReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -195,6 +207,18 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="createBeginningAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="doesExistAndNotThis">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="doesExistAndNotThisResponse">
         <xs:complexType>
           <xs:sequence>
           </xs:sequence>
@@ -232,6 +256,12 @@
   </wsdl:message>
   <wsdl:message name="getAccountsResponse">
     <wsdl:part name="return" element="tns2:getAccountsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="findAccountsRequest">
+    <wsdl:part name="findAccountsRequest" element="tns2:findAccounts"/>
+  </wsdl:message>
+  <wsdl:message name="findAccountsResponse">
+    <wsdl:part name="return" element="tns2:findAccountsResponse"/>
   </wsdl:message>
   <wsdl:message name="getCategoriesRequest">
     <wsdl:part name="getCategoriesRequest" element="tns2:getCategories"/>
@@ -287,6 +317,12 @@
   <wsdl:message name="createBeginningAccountResponse">
     <wsdl:part name="return" element="tns2:createBeginningAccountResponse"/>
   </wsdl:message>
+  <wsdl:message name="doesExistAndNotThisRequest">
+    <wsdl:part name="doesExistAndNotThisRequest" element="tns2:doesExistAndNotThis"/>
+  </wsdl:message>
+  <wsdl:message name="doesExistAndNotThisResponse">
+    <wsdl:part name="return" element="tns2:doesExistAndNotThisResponse"/>
+  </wsdl:message>
   <wsdl:portType name="LedgerAccountServicePortType">
     <wsdl:operation name="createAccount">
       <wsdl:input message="tns2:createAccountRequest"/>
@@ -307,6 +343,10 @@
     <wsdl:operation name="getAccounts">
       <wsdl:input message="tns2:getAccountsRequest"/>
       <wsdl:output message="tns2:getAccountsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="findAccounts">
+      <wsdl:input message="tns2:findAccountsRequest"/>
+      <wsdl:output message="tns2:findAccountsResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getCategories">
       <wsdl:input message="tns2:getCategoriesRequest"/>
@@ -343,6 +383,10 @@
     <wsdl:operation name="createBeginningAccount">
       <wsdl:input message="tns2:createBeginningAccountRequest"/>
       <wsdl:output message="tns2:createBeginningAccountResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="doesExistAndNotThis">
+      <wsdl:input message="tns2:doesExistAndNotThisRequest"/>
+      <wsdl:output message="tns2:doesExistAndNotThisResponse"/>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="LedgerAccountServiceBinding" type="tns2:LedgerAccountServicePortType">
@@ -392,6 +436,15 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="findAccounts">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getCategories">
       <soap:operation soapAction=""/>
       <wsdl:input>
@@ -465,6 +518,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="createBeginningAccount">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="doesExistAndNotThis">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>

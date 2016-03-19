@@ -15,14 +15,14 @@
             <xs:element name="p_otherAccountID" type="xs:string"/>
             <xs:element name="p_amount" type="xs:string"/>
             <xs:element name="p_statement_item_id" type="xs:string"/>
-            <xs:element name="p_is_cleared" type="xs:bool"/>
+            <xs:element name="p_is_cleared" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
       <xs:element name="createEventResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="createEventReturn" type="xs:bool"/>
+            <xs:element name="createEventReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -67,7 +67,7 @@
       <xs:element name="modifyEventResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="modifyEventReturn" type="xs:bool"/>
+            <xs:element name="modifyEventReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -81,7 +81,7 @@
       <xs:element name="deleteEventResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="deleteEventReturn" type="xs:bool"/>
+            <xs:element name="deleteEventReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

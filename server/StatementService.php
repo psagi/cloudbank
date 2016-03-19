@@ -36,7 +36,7 @@
 
       /**
 	 @param Statement $p_statement http://pety.dynu.net/CloudBank/StatementService
-	 @return bool		Success
+	 @return boolean	Success
       */
       public function importStatement($p_statement) {
 	 Debug::Singleton()->log(
@@ -146,7 +146,7 @@
 */      
 
       /**
-	 @return bool			Success
+	 @return boolean	Success
       */ 
       public function purge() {
 	 $this->r_cloudBankServer->beginTransaction();

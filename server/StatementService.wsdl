@@ -18,7 +18,7 @@
       <xs:element name="importStatementResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="importStatementReturn" type="xs:bool"/>
+            <xs:element name="importStatementReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -31,7 +31,7 @@
       <xs:element name="purgeResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="purgeReturn" type="xs:bool"/>
+            <xs:element name="purgeReturn" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

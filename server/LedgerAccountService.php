@@ -43,7 +43,7 @@
 	 @param string $p_date	The date of creation of the account (YYYY-MM-DD)
 	 @param string $p_beginningBalance	\
 	    The beginning balance of the account 
-	 @return bool		Success
+	 @return boolean	Success
       */
       public function createAccount(
 	 $p_name, $p_date, $p_beginningBalance
@@ -62,7 +62,7 @@
 
       /**
 	 @param string $p_name	The name of the category
-	 @return bool		Success
+	 @return boolean	Success
       */
       public function createCategory($p_name) {
 try {
@@ -235,7 +235,7 @@ throw $v_exception;
       /**
 	 @param Account $p_oldAccount http://pety.homelinux.org/CloudBank/LedgerAccountService
 	 @param Account $p_newAccount http://pety.homelinux.org/CloudBank/LedgerAccountService
-	 @return bool		Success
+	 @return boolean	Success
       */
       public function modifyAccount($p_oldAccount, $p_newAccount) {
 	 CloudBankServer::AssertIDsMatch(
@@ -261,7 +261,7 @@ throw $v_exception;
       /**
 	 @param Category $p_oldCategory http://pety.homelinux.org/CloudBank/LedgerAccountService
 	 @param Category $p_newCategory http://pety.homelinux.org/CloudBank/LedgerAccountService
-	 @return bool		Success
+	 @return boolean	Success
       */
       public function modifyCategory($p_oldCategory, $p_newCategory) {
 	 CloudBankServer::AssertIDsMatch(
@@ -280,7 +280,7 @@ throw $v_exception;
       /**
 	 @param string $p_ledgerAccountID
 	    The ID of the Category/Account to be deleted
-	 @return bool		Success
+	 @return boolean	Success
 	 
 	 WARNING! This operation also deletes all events related to the
 	 Category/Account.
