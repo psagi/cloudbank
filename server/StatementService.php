@@ -10,6 +10,7 @@
       @service
       @binding.soap
       @types http://pety.dynu.net/CloudBank/StatementService ../lib/StatementService.xsd
+      @types http://pety.homelinux.org/CloudBank/LedgerAccountService ../lib/LedgerAccountService.xsd
    */
    class StatementService {
 /*
@@ -153,6 +154,15 @@
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
       }
+
+      /**
+	 @return AccountSet http://pety.homelinux.org/CloudBank/LedgerAccountService
+	     Set of Accounts
+      */
+      public function findAccountsForStatement() {
+	 return $this->r_ledgerAccountService->findAccounts(true);
+      }
+
 
       private function __clone() { }
       private function assertTableIsEmpty() {

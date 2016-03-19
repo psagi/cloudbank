@@ -109,16 +109,29 @@ throw $v_exception;
 	    Set of Accounts
       */
       public function getAccounts() {
+	 return $this->findAccounts();
+      }
+
+      public function findAccounts($p_is4StatementOnly = FALSE) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $v_accounts = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT ledger_account_id, ledger_account_name, amount
-		  FROM account_events
+		  SELECT 
+		     DISTINCT
+		     ae.ledger_account_id, ae.ledger_account_name, ae.amount
+		  FROM account_events ae
+	       ' . ($p_is4StatementOnly ? ', statement_item si' : '') .
+	       '
 		  WHERE
-		     ledger_account_type = :type AND
-		     other_ledger_account_id = :beginningAccountID
-	       ', 
+		     ae.ledger_account_type = :type AND
+		     ae.other_ledger_account_id = :beginningAccountID
+	       ' . 
+	       (
+   		  $p_is4StatementOnly ?
+  		  ' AND ae.ledger_account_name = si.ledger_account_name' :
+   		  ''
+  	       ), 
 	       array(
 		  ':type' => CloudBankConsts::LedgerAccountType_Account,
 		  ':beginningAccountID' => $this->getBeginningAccountID()

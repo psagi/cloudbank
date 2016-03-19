@@ -3,9 +3,11 @@
   <wsdl:types>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
       xmlns:ns0="http://pety.dynu.net/CloudBank/StatementService"
+      xmlns:ns1="http://pety.homelinux.org/CloudBank/LedgerAccountService"
       targetNamespace="http://StatementService"
       elementFormDefault="qualified">
       <xs:import schemaLocation="../lib/StatementService.xsd" namespace="http://pety.dynu.net/CloudBank/StatementService"/>
+      <xs:import schemaLocation="../lib/LedgerAccountService.xsd" namespace="http://pety.homelinux.org/CloudBank/LedgerAccountService"/>
       <xs:element name="importStatement">
         <xs:complexType>
           <xs:sequence>
@@ -33,6 +35,19 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="findAccountsForStatement">
+        <xs:complexType>
+          <xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="findAccountsForStatementResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="findAccountsForStatementReturn" type="ns1:AccountSet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:schema>
   </wsdl:types>
 
@@ -48,6 +63,12 @@
   <wsdl:message name="purgeResponse">
     <wsdl:part name="return" element="tns2:purgeResponse"/>
   </wsdl:message>
+  <wsdl:message name="findAccountsForStatementRequest">
+    <wsdl:part name="findAccountsForStatementRequest" element="tns2:findAccountsForStatement"/>
+  </wsdl:message>
+  <wsdl:message name="findAccountsForStatementResponse">
+    <wsdl:part name="return" element="tns2:findAccountsForStatementResponse"/>
+  </wsdl:message>
   <wsdl:portType name="StatementServicePortType">
     <wsdl:operation name="importStatement">
       <wsdl:input message="tns2:importStatementRequest"/>
@@ -56,6 +77,10 @@
     <wsdl:operation name="purge">
       <wsdl:input message="tns2:purgeRequest"/>
       <wsdl:output message="tns2:purgeResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="findAccountsForStatement">
+      <wsdl:input message="tns2:findAccountsForStatementRequest"/>
+      <wsdl:output message="tns2:findAccountsForStatementResponse"/>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="StatementServiceBinding" type="tns2:StatementServicePortType">
@@ -70,6 +95,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="purge">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findAccountsForStatement">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>
