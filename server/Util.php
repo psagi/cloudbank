@@ -29,7 +29,11 @@
 	    if (is_null($p_elementTypeName)) break;
 	 }
 //echo('CloudBankServer::ToSDO(): $p_rootDO = '); var_dump($p_rootDO);
-	 return $p_rootDO;
+	 return (
+	    count($p_resultSet) ?
+	    $p_rootDO :
+	    (is_null($p_elementTypeName) ? NULL : $p_rootDO)
+	 );
       }
    }
 ?>
