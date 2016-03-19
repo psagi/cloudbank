@@ -404,15 +404,32 @@
 	       'http://pety.dynu.net/CloudBank/StatementService', 'Statement'
 	    )
 	 );
-	 while ($v_line = fgets($v_file)) {
+	 while ($v_line = preg_replace('/\n/', '', fgets($v_file))) {
+	    /* SCA can not properly handle non-printable characters when
+	       composing the SOAP request so validation must be done here */
+	    if (
+	       !mb_check_encoding($v_line, 'UTF-8') ||
+	       preg_match('/\p{C}/u', $v_line)
+	    ) return FALSE;
 	    $v_statement->StatementLine->insert($v_line);
 	 }
 	 fclose($v_file);
+//var_dump($v_statement);
 	 $this->r_statementService->importStatement($v_statement);
 	 return TRUE;
       }
       public function purgeStatement() {
 	 $this->r_statementService->purge();
+      }
+      public function getAccountsForStatement() {
+	 $v_accounts_SDO = (
+	    $this->r_statementService->findAccountsForStatement()
+	 );
+	 return (
+	    self::CopyArray(
+	       $v_accounts_SDO[CloudBankConsts::LedgerAccountType_Account]
+	    )
+	 );
       }
 
       private function __construct() {
