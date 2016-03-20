@@ -16,6 +16,18 @@ Horde_Registry::appInit('cloudbank');
 require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
+function populateStatementItemsTemplateIf($p_account_id) {
+   $v_statementItems = (
+      Book::Singleton()->getUnmatchedStatementItems($p_account_id)
+   );
+   if ($v_statementItems == NULL) return NULL;
+   Book::SortResultSet($v_statementItems, 'date', TRUE);
+   $v_template = new Horde_Template;
+   $v_template->set('statement_items', $v_statementItems);
+   return $v_template;
+}
+
+
 /* main() */
 
 $g_variables = &Horde_Variables::getDefaultVariables();
@@ -134,6 +146,11 @@ try {
    );
 
    $title = $g_accountOrCategoryName;
+
+   $g_statementItemsTemplate = NULL;
+   if ($g_type == CloudBankConsts::LedgerAccountType_Account) {
+      $g_statementItemsTemplate = populateStatementItemsTemplateIf($g_id);
+   }
 }
 catch (Exception $v_exception) {
    Cloudbank::PushError(Book::XtractMessage($v_exception));
@@ -144,5 +161,14 @@ $page_output->header();
 $notification->notify(array('listeners' => 'status'));
 if (!$g_isError) {
    echo $g_template->fetch(CLOUDBANK_TEMPLATES . '/events.html');
+   if ($g_statementItemsTemplate) {
+//var_dump($g_statementItemsTemplate);
+//$g_statementItemsTemplate->setOption('debug', true);
+      echo(
+	 $g_statementItemsTemplate->fetch(
+	    CLOUDBANK_TEMPLATES . '/statement_items.html'
+	 )
+      );
+   }
 }
 $page_output->footer();

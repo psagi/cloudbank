@@ -1,0 +1,22 @@
+<div class="header">
+   <span class="leftFloat">
+      <span dir="ltr">Unmatched statement items</span>
+   </span>
+   <br class="clear"/>
+</div>
+<table class="item" width="100%" cellspacing="1">
+   <tr class="item">
+      <th align="left">Date</th>
+      <th align="left">Description</th>
+      <th align="left">Amount</th>
+      <th align="left">ID</th>
+   </tr>
+   <loop:statement_items>
+      <tr class="linedRow">
+	 <td><tag:statement_items.date /></td>
+	 <td><tag:statement_items.description /></td>
+	 <td align="right"><tag:statement_items.amount_fmt /></td>
+	 <td><tag:statement_items.id /></td>
+      </tr>
+   </loop:statement_items>
+</table>

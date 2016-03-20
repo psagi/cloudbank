@@ -431,6 +431,16 @@
 	    )
 	 );
       }
+      public function getUnmatchedStatementItems($p_id) {
+	 $v_statementItems_SDO = (
+	    $this->r_statementService->findUnmatchedItems($p_id)
+	 );
+	 $v_statementItems = (
+	    self::CopyArray($v_statementItems_SDO['StatementItem'])
+	 );
+	 self::FormatAmounts($v_statementItems);
+	 return $v_statementItems;
+      }
 
       private function __construct() {
 	 global $conf;
