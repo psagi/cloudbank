@@ -17,18 +17,30 @@
 	 <xsd:maxLength value="512" />
       </xsd:restriction>
    </xsd:simpleType>
-<!--
-   <xsd:element name="Event" type="EventService:Event"/>
-   <xsd:complexType name="Event">
+   <xsd:element name="StatementItem" type="StatementService:StatementItem"/>
+   <xsd:complexType name="StatementItem">
       <xsd:attribute name="id" type="xsd:string"/>
+      <xsd:attribute name="ledger_account_name" type="xsd:string"/>
+      <xsd:attribute name="item_type" type="xsd:Character"/>
       <xsd:attribute name="date" type="xsd:string"/>
       <xsd:attribute name="description" type="xsd:string"/>
-      <xsd:attribute name="other_account_id" type="xsd:string"/>
-      <xsd:attribute name="other_account_name" type="xsd:string"/>
-      <xsd:attribute name="other_account_type" type="xsd:string"/>
       <xsd:attribute name="amount" type="xsd:string"/>
-      <xsd:attribute name="statement_item_id" type="xsd:string" minOccurs="0" />
-      <xsd:attribute name="is_cleared" type="xsd:boolean" default="false"/>
    </xsd:complexType>
--->
+   <xsd:simpleType name="Character">
+      <xsd:restriction base="xsd:string">
+	 <xsd:maxLength value="1" />
+	 <xsd:minLength value="1" />
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:element
+      name="StatementItemSet" type="StatementItemService:StatementItemSet"
+   />
+   <xsd:complexType name="StatementItemSet">
+      <xsd:sequence>
+         <xsd:element
+            name="StatementItem" type="StatementItemService:StatementItem"
+	    minOccurs="0" maxOccurs="unbounded"
+         />
+      </xsd:sequence>
+   </xsd:complexType>
 </xsd:schema>

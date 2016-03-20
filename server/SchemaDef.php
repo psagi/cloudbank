@@ -31,15 +31,6 @@
 	       CHECK (debit_ledger_account_id <> credit_ledger_account_id)
 	    )
 	 ', 
-	 'statement_item' => '
-	    CREATE TABLE statement_item (
-	       id VARCHAR(16) NOT NULL PRIMARY KEY,
-	       ledger_account_name VARCHAR(32) NOT NULL,
-	       item_type CHARACTER(1) NOT NULL, date DATE NOT NULL,
-	       description VARCHAR(256), amount NUMERIC(16,2) NOT NULL,
-	       CHECK (item_type IN (\'O\', \'E\', \'C\'))
-	    )
-	 ', 
 	 'event_idx_debit_ledger_account_id' => '
 	    CREATE INDEX event_idx_debit_ledger_account_id ON event(
 	       debit_ledger_account_id
@@ -50,6 +41,15 @@
 	       credit_ledger_account_id
 	    )
 	 ',
+	 'statement_item' => '
+	    CREATE TABLE statement_item (
+	       id VARCHAR(16) NOT NULL PRIMARY KEY,
+	       ledger_account_name VARCHAR(32) NOT NULL,
+	       item_type CHARACTER(1) NOT NULL, date DATE NOT NULL,
+	       description VARCHAR(256), amount NUMERIC(16,2) NOT NULL,
+	       CHECK (item_type IN (\'O\', \'E\', \'C\'))
+	    )
+	 ', 
 	 'account_events' => '
 	    CREATE VIEW account_events AS 
 	       SELECT 
@@ -79,6 +79,25 @@
 	       WHERE 
                   e.credit_ledger_account_id = la.id AND
                   e.debit_ledger_account_id = o_la.id
+	 ',
+	 'statement_item_unmatched' => '
+	    CREATE VIEW statement_item_unmatched AS
+	       SELECT
+		  si.id, si.ledger_account_name, la.id as ledger_account_id,
+		  si.item_type, si.date, si.description, si.amount
+	       FROM statement_item si, ledger_account la
+	       WHERE
+		  si.item_type = "E" AND
+		  la.name = si.ledger_account_name AND
+		  NOT EXISTS (
+		     SELECT 1
+		     FROM account_events ae
+		     WHERE
+			ae.is_cleared = 0 AND
+			si.ledger_account_name = ae.ledger_account_name AND
+			ae.ledger_account_type = "Account" AND
+			si.id = ae.statement_item_id
+		  )
 	 '
       );
 

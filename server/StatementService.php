@@ -13,7 +13,6 @@
       @types http://pety.homelinux.org/CloudBank/LedgerAccountService ../lib/LedgerAccountService.xsd
    */
    class StatementService {
-/*
       private static function ToSDO(
          $p_resultSet, $p_setTypeName, $p_elementTypeName, $p_mapping
       ) {
@@ -21,14 +20,13 @@
 	    Util::ToSDO(
 	       $p_resultSet,
 	       SCA::createDataObject(
-		  'http://pety.homelinux.org/CloudBank/EventService',
+		  'http://pety.dynu.net/CloudBank/StatementService',
 		  is_null($p_setTypeName) ? $p_elementTypeName : $p_setTypeName
 	       ), // the root DO has to be created inside the SCA component
 	       is_null($p_setTypeName) ? NULL : $p_elementTypeName, $p_mapping
 	    )
 	 );
       }
-*/
 
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
@@ -103,47 +101,39 @@
 
       /**
 	 @param string $p_accountID	\
-	    The LedgerAccount the related events to be returned for
-	 @param string $p_limitDate					\
-	    The oldest date thats Events are returned. If NULL all	\
-	    Events are returned for the LedgerAccount
-	 @return EventSet http://pety.homelinux.org/CloudBank/EventService
-	     Set of Events
-      */ /*
-      public function getEvents($p_accountID, $p_limitDate = NULL) {
+	    The LedgerAccount the related items to be returned for
+	 @return StatementItemSet http://pety.dynu.net/CloudBank/StatementService
+	     Set of Statement Items
+      */ 
+      public function findUnmatchedItems($p_accountID) {
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->assertLedgerAccountExists($p_accountID);
-	 $v_events = (
+	 $this->r_ledgerAccountService->assertAccountOrCategoryExists(
+	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
+	 );
+	 $v_statementItems = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
 		  SELECT
-		     id, date, description, other_ledger_account_id,
-		     other_ledger_account_name, other_ledger_account_type,
-		     amount, statement_item_id, is_cleared
-		  FROM account_events
+		     id, ledger_account_name, item_type, date, description,
+		     amount
+		  FROM statement_item_unmatched
 		  WHERE ledger_account_id = :accountID
-	       ' . (empty($p_limitDate) ? '' : 'AND date >= :limitDate'),
-	       array(':accountID' => $p_accountID, ':limitDate' => $p_limitDate)
+	       ',
+	       array(':accountID' => $p_accountID)
 	    )
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return (
 	    self::ToSDO(
-	       $v_events, 'EventSet', 'Event',
+	       $v_statementItems, 'StatementItemSet', 'StatementItem',
 	       array(
-		  'id' => 'id', 'date' => 'date',
-		  'description' => 'description',
-		  'other_ledger_account_id' => 'other_account_id',
-		  'other_ledger_account_name' => 'other_account_name',
-		  'other_ledger_account_type' => 'other_account_type',
-		  'amount' => 'amount',
-		  'statement_item_id' => 'statement_item_id',
-		  'is_cleared' => 'is_cleared'
+		  'id' => 'id', 'ledger_account_name' => 'ledger_account_name',
+		  'item_type' => 'item_type', 'date' => 'date',
+		  'description' => 'description', 'amount' => 'amount'
 	       )
 	    )
 	 );
       }
-*/      
 
       /**
 	 @return boolean	Success

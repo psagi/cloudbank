@@ -330,6 +330,39 @@ throw $v_exception;
 	    ) > 0
 	 );
       }
+      public function assertAccountOrCategoryExists(
+	 $p_id, $p_ledgerAccountType = NULL
+      ) {
+	 $v_bindArray[':id'] = $p_id;
+	 if (is_null($p_ledgerAccountType)) {
+	    $v_typeWhereClause = 'type IN (:account, :category)';
+	    $v_bindArray[':account'] = (
+	       CloudBankConsts::LedgerAccountType_Account
+	    );
+	    $v_bindArray[':category'] = (
+	       CloudBankConsts::LedgerAccountType_Category
+	    );
+	 }
+	 else {
+	    $v_typeWhereClause = 'type = :type';
+	    $v_bindArray[':type'] = $p_ledgerAccountType;
+	 }
+	 if (
+	    count(
+	       $this->r_cloudBankServer->execQuery(
+		  '
+		     SELECT 1
+			FROM ledger_account
+			WHERE id = :id AND ' . $v_typeWhereClause . '
+		  ', $v_bindArray
+	       )
+	    ) == 0
+	 ) {
+	    throw new Exception(
+	       "Referenced Account or Category ($p_id) does not exist."
+	    );
+	 }
+      }
 
 
       private function getBeginningAccountID() {
@@ -370,39 +403,6 @@ throw $v_exception;
 	    ), $v_bindArray
 	 );
 	 return $v_accountID;
-      }
-      private function assertAccountOrCategoryExists(
-	 $p_id, $p_ledgerAccountType = NULL
-      ) {
-	 $v_bindArray[':id'] = $p_id;
-	 if (is_null($p_ledgerAccountType)) {
-	    $v_typeWhereClause = 'type IN (:account, :category)';
-	    $v_bindArray[':account'] = (
-	       CloudBankConsts::LedgerAccountType_Account
-	    );
-	    $v_bindArray[':category'] = (
-	       CloudBankConsts::LedgerAccountType_Category
-	    );
-	 }
-	 else {
-	    $v_typeWhereClause = 'type = :type';
-	    $v_bindArray[':type'] = $p_ledgerAccountType;
-	 }
-	 if (
-	    count(
-	       $this->r_cloudBankServer->execQuery(
-		  '
-		     SELECT 1
-			FROM ledger_account
-			WHERE id = :id AND ' . $v_typeWhereClause . '
-		  ', $v_bindArray
-	       )
-	    ) == 0
-	 ) {
-	    throw new Exception(
-	       "Referenced Account or Category ($p_id) does not exist."
-	    );
-	 }
       }
       private function assertSameAccountAsCurrent($p_oldAccount) {
 	 $v_currentAccount = (
