@@ -174,21 +174,34 @@ throw $v_exception;
 
       /**
 	 @param string $p_ledgerAccountID	The ID of the Account/Category
+	 @param boolean $p_isClearedOrReferencedOnly
+	    If set only the cleared events or those that have the statement
+	    reference filled in are counted. Defaults to false.
 	 @return string				Its balance
       */
-      public function getBalance($p_ledgerAccountID) {
+      public function getBalance(
+	 $p_ledgerAccountID, $p_isClearedOrReferencedOnly = FALSE
+      ) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->assertAccountOrCategoryExists($p_ledgerAccountID);
 	 $v_balance = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
 		  SELECT SUM(amount) AS balance
 		  FROM account_events
 		  WHERE ledger_account_id = :ledgerAccountID
-	       ', 
+	       ' .
+	       (
+		  $p_isClearedOrReferencedOnly ?
+		  'AND (is_cleared = 1 OR LENGTH(statement_item_id) > 0)' :
+		  ''
+	       ),
 	       array(
 		  ':ledgerAccountID' => $p_ledgerAccountID
 	       )
 	    )
 	 );
+	 $this->r_cloudBankServer->commitTransaction();
 	 return $v_balance[0]['balance'];
       }
 

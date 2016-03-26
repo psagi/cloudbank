@@ -36,6 +36,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="findClosingBalance">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="findClosingBalanceResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="findClosingBalanceReturn" type="ns0:StatementItem"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="purge">
         <xs:complexType>
           <xs:sequence>
@@ -77,6 +91,12 @@
   <wsdl:message name="findUnmatchedItemsResponse">
     <wsdl:part name="return" element="tns2:findUnmatchedItemsResponse"/>
   </wsdl:message>
+  <wsdl:message name="findClosingBalanceRequest">
+    <wsdl:part name="findClosingBalanceRequest" element="tns2:findClosingBalance"/>
+  </wsdl:message>
+  <wsdl:message name="findClosingBalanceResponse">
+    <wsdl:part name="return" element="tns2:findClosingBalanceResponse"/>
+  </wsdl:message>
   <wsdl:message name="purgeRequest">
     <wsdl:part name="purgeRequest" element="tns2:purge"/>
   </wsdl:message>
@@ -97,6 +117,10 @@
     <wsdl:operation name="findUnmatchedItems">
       <wsdl:input message="tns2:findUnmatchedItemsRequest"/>
       <wsdl:output message="tns2:findUnmatchedItemsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="findClosingBalance">
+      <wsdl:input message="tns2:findClosingBalanceRequest"/>
+      <wsdl:output message="tns2:findClosingBalanceResponse"/>
     </wsdl:operation>
     <wsdl:operation name="purge">
       <wsdl:input message="tns2:purgeRequest"/>
@@ -119,6 +143,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="findUnmatchedItems">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findClosingBalance">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>
