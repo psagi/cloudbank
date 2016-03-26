@@ -84,6 +84,9 @@
 	 else $v_message = $v_exceptionMessage;
 	 return $v_message;
       }
+      public static function FormatAmount($p_amount) {
+	 return money_format('%!.2n', $p_amount);
+      }
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
 	 else {
@@ -101,9 +104,6 @@
       }
       private static function FormatNumber($p_amount) {
 	 return money_format('%!^.2n', $p_amount);
-      }
-      private static function FormatAmount($p_amount) {
-	 return money_format('%!.2n', $p_amount);
       }
       private static function FormatAmounts(&$p_resultSet) {
 	 foreach ($p_resultSet as &$v_record) {
@@ -143,6 +143,9 @@
 	 return (
 	    self::FormatAmount($this->r_ledgerAccountService->getBalance($p_id))
 	 );
+      }
+      public function getClearedOrMatchedBalance($p_id) {
+	 return $this->r_ledgerAccountService->getBalance($p_id, TRUE);
       }
       public function getAccountsOrCategoriesWBalance($p_type) {
 	 $v_accountsOrCategories = (
@@ -431,6 +434,12 @@
 	    )
 	 );
       }
+      public function isThereStatementForAccount($p_id) {
+	 foreach($this->getAccountsForStatement($p_id) as $v_account) {
+	    if ($v_account['id'] == $p_id) return TRUE;
+	 }
+	 return FALSE;
+      }
       public function getUnmatchedStatementItems($p_id) {
 	 $v_statementItems_SDO = (
 	    $this->r_statementService->findUnmatchedItems($p_id)
@@ -440,6 +449,17 @@
 	 );
 	 self::FormatAmounts($v_statementItems);
 	 return $v_statementItems;
+      }
+      public function getClosingBalance($p_id) {
+	 $v_statementItem_SDO = (
+	    $this->r_statementService->findClosingBalance($p_id)
+	 );
+	 $v_statementItem = self::CopyArray($v_statementItem_SDO);
+//var_dump($v_statementItem);
+	 $v_statementItem['amount_fmt'] = (
+	    self::FormatAmount($v_statementItem['amount'])
+	 );
+	 return $v_statementItem;
       }
 
       private function __construct() {

@@ -17,13 +17,33 @@ require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
 function populateStatementItemsTemplateIf($p_account_id) {
+   if (!Book::Singleton()->isThereStatementForAccount($p_account_id)) {
+      return NULL;
+   }
    $v_statementItems = (
       Book::Singleton()->getUnmatchedStatementItems($p_account_id)
    );
-   if ($v_statementItems == NULL) return NULL;
    Book::SortResultSet($v_statementItems, 'date', TRUE);
+   $v_clearedOrMatchedBalance = (
+      Book::Singleton()->getClearedOrMatchedBalance($p_account_id)
+   );
+   $v_closingStatementItem = (
+      Book::Singleton()->getClosingBalance($p_account_id)
+   );
    $v_template = new Horde_Template;
    $v_template->set('statement_items', $v_statementItems);
+   $v_template->set(
+      'cleared_or_matched_balance',
+      Book::FormatAmount($v_clearedOrMatchedBalance)
+   );
+   $v_template->set('statement_closing', $v_closingStatementItem);
+   $v_template->set(
+      'amount_left',
+      Book::FormatAmount(
+	 $v_clearedOrMatchedBalance - $v_closingStatementItem['amount']
+      )
+   );
+//var_dump($v_template);
    return $v_template;
 }
 
