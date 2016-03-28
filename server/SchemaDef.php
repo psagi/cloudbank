@@ -114,6 +114,12 @@
 		     date(si.date, "+2 days")
 		  ) AND
 		  si.item_type = "E" AND ae.is_cleared = 0
+	 ',
+	 'event_matched' => '
+	    CREATE VIEW event_matched AS
+	       SELECT ledger_account_id, id, statement_item_id 
+	       FROM account_events
+	       WHERE is_cleared = 0 AND LENGTH(statement_item_id) > 0
 	 '
       );
 

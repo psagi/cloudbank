@@ -50,6 +50,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="clearAllMatchedEvents">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="clearAllMatchedEventsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="clearAllMatchedEventsReturn" type="xs:boolean"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="findClosingBalance">
         <xs:complexType>
           <xs:sequence>
@@ -111,6 +125,12 @@
   <wsdl:message name="matchResponse">
     <wsdl:part name="return" element="tns2:matchResponse"/>
   </wsdl:message>
+  <wsdl:message name="clearAllMatchedEventsRequest">
+    <wsdl:part name="clearAllMatchedEventsRequest" element="tns2:clearAllMatchedEvents"/>
+  </wsdl:message>
+  <wsdl:message name="clearAllMatchedEventsResponse">
+    <wsdl:part name="return" element="tns2:clearAllMatchedEventsResponse"/>
+  </wsdl:message>
   <wsdl:message name="findClosingBalanceRequest">
     <wsdl:part name="findClosingBalanceRequest" element="tns2:findClosingBalance"/>
   </wsdl:message>
@@ -141,6 +161,10 @@
     <wsdl:operation name="match">
       <wsdl:input message="tns2:matchRequest"/>
       <wsdl:output message="tns2:matchResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="clearAllMatchedEvents">
+      <wsdl:input message="tns2:clearAllMatchedEventsRequest"/>
+      <wsdl:output message="tns2:clearAllMatchedEventsResponse"/>
     </wsdl:operation>
     <wsdl:operation name="findClosingBalance">
       <wsdl:input message="tns2:findClosingBalanceRequest"/>
@@ -176,6 +200,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="match">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="clearAllMatchedEvents">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>

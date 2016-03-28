@@ -15,7 +15,7 @@
    foreach (
       array(
 	 'account_events', 'statement_item', 'statement_item_unmatched',
-	 'event_statement_item_match'
+	 'event_statement_item_match', 'event_matched'
       ) as
       $v_dBObject
    ) {

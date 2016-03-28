@@ -149,9 +149,9 @@
 	       '
 		  SELECT event_id, statement_item_id
 		  FROM event_statement_item_match
-		  WHERE ledger_account_id = :accountID
+		  WHERE ledger_account_id = :account_id
 	       ',
-	       array(':accountID' => $p_accountID)
+	       array(':account_id' => $p_accountID)
 	    )
 	 );
 	 foreach($v_matches as $v_match_record) {
@@ -169,6 +169,44 @@
 	    /* if there are multiple matches for a Statement Item then an
 	       arbitrary one of them will prevail */
 	 }
+	 $this->r_cloudBankServer->commitTransaction();
+	 return TRUE;
+      }
+      /**
+	 @param string $p_accountID	\
+	    The LedgerAccount the clearing to be run for
+	 @return boolean	Success
+      */ 
+      public function clearAllMatchedEvents($p_accountID) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->r_ledgerAccountService->assertAccountOrCategoryExists(
+	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
+	 );
+	 $this->r_cloudBankServer->execQuery(
+     	    '
+     	       DELETE FROM statement_item
+	       WHERE
+		  id IN (
+		     SELECT statement_item_id
+		     FROM event_matched
+		     WHERE ledger_account_id = :account_id
+		  )
+	    ',
+	    array(':account_id' => $p_accountID)
+	 );
+	 $this->r_cloudBankServer->execQuery(
+     	    '
+	       UPDATE event
+	       SET is_cleared = 1
+	       WHERE
+		  id IN (
+		     SELECT id
+		     FROM event_matched
+		     WHERE ledger_account_id = :account_id
+		  )
+	    ',
+	    array(':account_id' => $p_accountID)
+	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return TRUE;
       }
