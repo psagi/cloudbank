@@ -136,6 +136,44 @@
       }
       /**
 	 @param string $p_accountID	\
+	    The LedgerAccount the matching to be run for
+	 @return boolean	Success
+      */ 
+      public function match($p_accountID) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->r_ledgerAccountService->assertAccountOrCategoryExists(
+	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
+	 );
+	 $v_matches = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT event_id, statement_item_id
+		  FROM event_statement_item_match
+		  WHERE ledger_account_id = :accountID
+	       ',
+	       array(':accountID' => $p_accountID)
+	    )
+	 );
+	 foreach($v_matches as $v_match_record) {
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  UPDATE event
+		  SET statement_item_id = :statement_item_id
+		  WHERE is_cleared = 0 AND id = :event_id
+	       ',
+	       array(
+		  ':statement_item_id' => $v_match_record['statement_item_id'],
+		  ':event_id' => $v_match_record['event_id']
+	       )
+	    );
+	    /* if there are multiple matches for a Statement Item then an
+	       arbitrary one of them will prevail */
+	 }
+	 $this->r_cloudBankServer->commitTransaction();
+	 return TRUE;
+      }
+      /**
+	 @param string $p_accountID	\
 	    The LedgerAccount the related statement balance to be returned for
 	 @return StatementItem http://pety.dynu.net/CloudBank/StatementService
 	     Statement closing balance

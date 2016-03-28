@@ -98,6 +98,22 @@
 			ae.ledger_account_type = "Account" AND
 			si.id = ae.statement_item_id
 		  )
+	 ',
+	 'event_statement_item_match' => '
+	    CREATE VIEW event_statement_item_match AS
+	       SELECT
+		  ae.ledger_account_id AS ledger_account_id, ae.id AS event_id,
+		  si.id AS statement_item_id
+	       FROM statement_item si, account_events ae
+	       WHERE
+		  si.ledger_account_name = ae.ledger_account_name AND
+		  si.amount = ae.amount AND
+		  (
+		     si.date BETWEEN
+		     date(ae.date, "-2 days") AND
+		     date(si.date, "+2 days")
+		  ) AND
+		  si.item_type = "E" AND ae.is_cleared = 0
 	 '
       );
 

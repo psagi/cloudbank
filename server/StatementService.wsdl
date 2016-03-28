@@ -36,6 +36,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="match">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="matchResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="matchReturn" type="xs:boolean"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="findClosingBalance">
         <xs:complexType>
           <xs:sequence>
@@ -91,6 +105,12 @@
   <wsdl:message name="findUnmatchedItemsResponse">
     <wsdl:part name="return" element="tns2:findUnmatchedItemsResponse"/>
   </wsdl:message>
+  <wsdl:message name="matchRequest">
+    <wsdl:part name="matchRequest" element="tns2:match"/>
+  </wsdl:message>
+  <wsdl:message name="matchResponse">
+    <wsdl:part name="return" element="tns2:matchResponse"/>
+  </wsdl:message>
   <wsdl:message name="findClosingBalanceRequest">
     <wsdl:part name="findClosingBalanceRequest" element="tns2:findClosingBalance"/>
   </wsdl:message>
@@ -118,6 +138,10 @@
       <wsdl:input message="tns2:findUnmatchedItemsRequest"/>
       <wsdl:output message="tns2:findUnmatchedItemsResponse"/>
     </wsdl:operation>
+    <wsdl:operation name="match">
+      <wsdl:input message="tns2:matchRequest"/>
+      <wsdl:output message="tns2:matchResponse"/>
+    </wsdl:operation>
     <wsdl:operation name="findClosingBalance">
       <wsdl:input message="tns2:findClosingBalanceRequest"/>
       <wsdl:output message="tns2:findClosingBalanceResponse"/>
@@ -143,6 +167,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="findUnmatchedItems">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="match">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>

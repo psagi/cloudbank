@@ -5,13 +5,14 @@ Prerequisites:
    + HTTP server with PHP support
    + PHP command-line runtime (for installation)
    + SCA_SDO extension for PHP (available via PECL)
+   + SQLite3
 
 Steps:
    1. Create a suitable directory for the server, cd into it.
    2. tar xvzf cloudbank-server-x.y.tar.gz
    3. mv cloudbank-server.x.y cloudbank-server
-   4. Create the database and a database user (if necessary for the specific DB engine) for cloudbank-server. The database has to be supported by PHP's PDO extension.
-   5. Make sure that the database is accessible (rw) by the HTTP server (e.g. in case of sqlite3).
+   4. Create the SQLite3 database.
+   5. Make sure that the database is accessible (rw) by the HTTP server.
    6. cd cloudbank-server/conf
    7. cp cloudbank.ini.dist cloudbank.ini
    8. Configure the dsn and the username/password for the database in cloudbank.ini using you favourite text editor. If the chosen database engine does not need/have access control features (like e.g. sqlite3) provide some fake username/password.
@@ -34,8 +35,9 @@ Steps:
    3. tar xvzf cloudbank-server-v.w.tar.gz
    4. mv cloudbank-server.v.w cloudbank-server
    5. Restore cloudbank-server/conf/cloudbank.ini using the backup copy created in step #1.
-   6. Make sure that the database is accessible (rw) by the HTTP server (e.g. in case of sqlite3) AND by the user doing the upgrade.
-   7. cd cloudbank-server
-   8. install_server/upgrade_schema_x_y-v_w.php
+   6. If the database is not SQLite3, convert/migrate it. (From v0.4 on CloudBank server supports only SQLite3.)
+   7. Make sure that the database is accessible (rw) by the HTTP server AND by the user doing the upgrade.
+   8. cd cloudbank-server
+   9. install_server/upgrade_schema_x_y-v_w.php
 
 Basic testing can be done the same way as in case of first installation.
