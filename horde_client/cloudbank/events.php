@@ -31,6 +31,25 @@ function populateStatementItemsTemplateIf($p_account_id) {
       Book::Singleton()->getClosingBalance($p_account_id)
    );
    $v_template = new Horde_Template;
+   $v_template->set(
+      'match_link', (
+	 Horde::link(
+	    Horde::url('statement_item_match.php')->add(
+               array('account_id' => $p_account_id)
+            ), 'Update matching Events with Statement Item ID reference'
+         ) . 'Match</a>'
+      )
+   );
+   $v_template->set(
+      'clear_all_matched_link', (
+	 Horde::link(
+	    Horde::url('clear_all_matched_events.php')->add(
+               array('account_id' => $p_account_id)
+            ),
+	    'Clear all matched Events and PURGE corresponding STATEMENT ITEMS'
+         ) . 'Clear all matched</a>'
+      )
+   );
    $v_template->set('statement_items', $v_statementItems);
    $v_template->set(
       'cleared_or_matched_balance',

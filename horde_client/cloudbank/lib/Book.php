@@ -450,6 +450,12 @@
 	 self::FormatAmounts($v_statementItems);
 	 return $v_statementItems;
       }
+      public function matchStatementItems($p_account_id) {
+	 $this->r_statementService->match($p_account_id);
+      }
+      public function clearAllMatchedEvents($p_account_id) {
+	 $this->r_statementService->clearAllMatchedEvents($p_account_id);
+      }
       public function getClosingBalance($p_id) {
 	 $v_statementItem_SDO = (
 	    $this->r_statementService->findClosingBalance($p_id)
