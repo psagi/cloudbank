@@ -35,5 +35,20 @@
 	    (is_null($p_elementTypeName) ? NULL : $p_rootDO)
 	 );
       }
+      /* This is a wrapper for PHP builtin str_getcsv() as it has a bug
+	 (https://bugs.php.net/bug.php?id=55507) of removing the first character
+	 of the field if it is invalid in the current locale */
+      public static function ParseCSVLine($p_line) {
+      	 Debug::Singleton()->log("Util::ParseCSVLine($p_line)");
+	 $v_line = preg_replace('/,/', ',_', $p_line);
+	    /* ugly workaround to make the first character of the fields
+	       non-vulnerable */
+      	 Debug::Singleton()->log("Util::ParseCSVLine(): \$v_line = $v_line");
+	 $v_csv_record_arr = str_getcsv($v_line);
+	 foreach($v_csv_record_arr as &$v_field) {
+	    $v_field = preg_replace('/^_/', '', $v_field);
+	 }
+	 return $v_csv_record_arr;
+      }
    }
 ?>

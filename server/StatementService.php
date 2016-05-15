@@ -45,7 +45,14 @@
 	 $v_line_no = 0;
 	 foreach($p_statement->StatementLine as $v_statement_line) {
 	    ++$v_line_no;
-	    $v_statement_item_arr = str_getcsv($v_statement_line);
+	    Debug::Singleton()->log(
+	       "importStatement: $v_line_no: $v_statement_line"
+	    );
+	    $v_statement_item_arr = Util::ParseCSVLine($v_statement_line);
+	    Debug::Singleton()->log(
+	       "importStatement: $v_line_no: " .
+	       var_export($v_statement_item_arr, true)
+	    );
 	    if (count($v_statement_item_arr) == 0) continue;
 	    $this->assertStatementItemIsValid(
 	       $v_statement_item_arr, $v_line_no, $v_statement_line
