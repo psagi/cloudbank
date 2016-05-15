@@ -1,4 +1,6 @@
 <?php
+   require_once(dirname(__FILE__) . '/../lib/CloudBankConsts.php');
+
    /* Hardcoded description of the DB schema. These should be generated from a
       common description. */
    class SchemaDef {
@@ -127,7 +129,17 @@
 	 return self::$r_createSchemaStatements;
       } 
       private static function CheckStrLength($p_str, $p_minLen, $p_maxLen) {
-	 $v_length = strlen($p_str);
+	 Debug::Singleton()->log(
+	    "SchemaDef::CheckStrLength($p_str, $p_minLen, $p_maxLen)"
+	 ); 
+	 $v_length = mb_strlen($p_str, 'UTF-8');
+	 Debug::Singleton()->log(
+	    "SchemaDef::CheckStrLength(): \$v_length = $v_length"
+	 ); 
+	 Debug::Singleton()->log(
+	    "SchemaDef::CheckStrLength(): mb_internal_encoding() = " .
+	    mb_internal_encoding()
+	 ); 
 	 return ($v_length >= $p_minLen && $v_length <= $p_maxLen);
       }
       public static function IsValidLedgerAccountName($p_name) {
@@ -144,7 +156,11 @@
 	 );
       }
       public static function IsValidEventDescription($p_description) {
-	 return self::CheckStrLength($p_description, 1, 32);
+	 return (
+	    self::CheckStrLength(
+	       $p_description, 1, CloudBankConsts::EventDescriptionLength
+	    )
+	 );
       }
       public static function IsValidAmount($p_amount) {
 	 return (is_numeric($p_amount) && (strpos($p_amount, 'x') === FALSE));
