@@ -39,5 +39,7 @@ Steps:
    7. Make sure that the database is accessible (rw) by the HTTP server AND by the user doing the upgrade.
    8. cd cloudbank-server
    9. install_server/upgrade_schema_x_y-v_w.php
+   10. If upgrading to v0.4 and before starting to use the Statement Reconciliation feature mass clearing of older Events might be useful. A script is available for this: util/clear_until.php
 
 Basic testing can be done the same way as in case of first installation.
+
