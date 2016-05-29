@@ -115,13 +115,13 @@
 	 return str_replace($v_localeconv['decimal_point'], '.', $p_number);
       }
       private static function FixAmount(
-	 &$p_variables, $p_amountVarName, $p_isIncomeVarName
+	 $p_variables, $p_amountVarName, $p_isIncomeVarName
       ) {
-	 $p_variables->set(
-	    $p_amountVarName,
-	    (
-	       $p_variables->get($p_amountVarName) *
-	       ($p_variables->get($p_isIncomeVarName) ? 1 : -1)
+	 return (
+	    self::ReformatNumber2CLocale(
+	       self::ReformatNumber2CLocale(
+		  $p_variables->get($p_amountVarName)
+	       ) * ($p_variables->get($p_isIncomeVarName) ? 1 : -1)
 	    )
 	 );
       }
@@ -326,31 +326,16 @@
 	 return $v_events;
       }
       public function createEvent($p_variables) {
-	 $p_variables->set(
-	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
-	 );
-	 self::FixAmount($p_variables, 'amount', 'is_income');
-	 $p_variables->set(
-	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
-	 );
+	 $v_amount = self::FixAmount($p_variables, 'amount', 'is_income');
 	 $this->r_eventService->createEvent(
 	    $p_variables->get('date'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
-	    $p_variables->get('other_account_id'), $p_variables->get('amount'),
+	    $p_variables->get('other_account_id'), $v_amount,
 	    $p_variables->get('statement_item_id'),
 	    ($p_variables->get('is_cleared') ? true : false)
 	 );
       }
       public function modifyEvent($p_variables) {
-	 $p_variables->set(
-	    'old_amount',
-	    self::ReformatNumber2CLocale($p_variables->get('old_amount'))
-	 );
-	 self::FixAmount($p_variables, 'old_amount', 'old_is_income');
-	 $p_variables->set(
-	    'old_amount',
-	    self::ReformatNumber2CLocale($p_variables->get('old_amount'))
-	 );
 	 $v_oldEvent_SDO = (
 	    self::VariablesToSDO(
 	       $p_variables,
@@ -368,13 +353,10 @@
 	       )
 	    )
 	 );
-	 $p_variables->set(
-	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
+	 $v_oldAmount = (
+	    self::FixAmount($p_variables, 'old_amount', 'old_is_income')
 	 );
-	 self::FixAmount($p_variables, 'amount', 'is_income');
-	 $p_variables->set(
-	    'amount', self::ReformatNumber2CLocale($p_variables->get('amount'))
-	 );
+	 $v_oldEvent_SDO->amount = $v_oldAmount;
 	 $v_newEvent_SDO = (
 	    self::VariablesToSDO(
 	       $p_variables,
@@ -392,6 +374,8 @@
 	       )
 	    )
 	 );
+	 $v_amount = self::FixAmount($p_variables, 'amount', 'is_income');
+	 $v_newEvent_SDO->amount = $v_amount;
 	 $this->r_eventService->modifyEvent(
 	    $p_variables->get('account_id'), $v_oldEvent_SDO, $v_newEvent_SDO
 	 );
@@ -440,7 +424,7 @@
 	 }
 	 return FALSE;
       }
-      public function getUnmatchedStatementItems($p_id) {
+      public function getUnmatchedStatementItems($p_id, $p_accountName) {
 	 $v_statementItems_SDO = (
 	    $this->r_statementService->findUnmatchedItems($p_id)
 	 );
@@ -448,6 +432,19 @@
 	    self::CopyArray($v_statementItems_SDO['StatementItem'])
 	 );
 	 self::FormatAmounts($v_statementItems);
+	 foreach ($v_statementItems as &$v_statementItem) {
+	    $v_statementItem['description_short'] = (
+	       mb_substr(
+		  $v_statementItem['description'], 0,
+		  CloudBankConsts::EventDescriptionLength
+	       )
+	    );
+	    $v_statementItem['account_id'] = $p_id;
+	    $v_statementItem['account_name'] = $p_accountName;
+	    $v_statementItem['account_type'] = (
+	       CloudBankConsts::LedgerAccountType_Account
+	    );
+	 }
 	 return $v_statementItems;
       }
       public function matchStatementItems($p_account_id) {

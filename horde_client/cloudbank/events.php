@@ -16,12 +16,24 @@ Horde_Registry::appInit('cloudbank');
 require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
-function populateStatementItemsTemplateIf($p_account_id) {
+function populateStatementItemsTemplateIf($p_account_id, $p_accountName) {
    if (!Book::Singleton()->isThereStatementForAccount($p_account_id)) {
       return NULL;
    }
    $v_statementItems = (
-      Book::Singleton()->getUnmatchedStatementItems($p_account_id)
+      Book::Singleton()->getUnmatchedStatementItems(
+	 $p_account_id, $p_accountName
+      )
+   );
+   CloudBank::AddLinks(
+      $v_statementItems, 'event.php',
+      array(
+	 'date' => 'date', 'description' => 'description_short', 
+	 'amount' => 'amount',
+	 'statement_item_id' => 'id', 'account_id' => 'account_id',
+	 'account_type' => 'account_type',
+	 'account_name' => 'account_name'
+      ), 'description', 'description_link'
    );
    Book::SortResultSet($v_statementItems, 'date', TRUE);
    $v_clearedOrMatchedBalance = (
@@ -188,7 +200,9 @@ try {
 
    $g_statementItemsTemplate = NULL;
    if ($g_type == CloudBankConsts::LedgerAccountType_Account) {
-      $g_statementItemsTemplate = populateStatementItemsTemplateIf($g_id);
+      $g_statementItemsTemplate = (
+	 populateStatementItemsTemplateIf($g_id, $g_accountOrCategoryName)
+      );
    }
 }
 catch (Exception $v_exception) {
