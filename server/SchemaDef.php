@@ -85,20 +85,18 @@
 	 'statement_item_unmatched' => '
 	    CREATE VIEW statement_item_unmatched AS
 	       SELECT
-		  si.id, si.ledger_account_name, la.id as ledger_account_id,
+		  si.id, si.ledger_account_name, la_si.id as ledger_account_id,
 		  si.item_type, si.date, si.description, si.amount
-	       FROM statement_item si, ledger_account la
+	       FROM statement_item si, ledger_account la_si
 	       WHERE
-		  si.item_type = "E" AND
-		  la.name = si.ledger_account_name AND
+		  si.item_type = "E" AND la_si.type = "Account" AND
+		  la_si.name = si.ledger_account_name AND
 		  NOT EXISTS (
 		     SELECT 1
-		     FROM account_events ae
+		     FROM event e, ledger_account la_e
 		     WHERE
-			ae.is_cleared = 0 AND
-			si.ledger_account_name = ae.ledger_account_name AND
-			ae.ledger_account_type = "Account" AND
-			si.id = ae.statement_item_id
+			e.is_cleared = 0 AND la_si.id = la_e.id AND
+			si.id = e.statement_item_id
 		  )
 	 ',
 	 'event_statement_item_match' => '
@@ -113,7 +111,7 @@
 		  (
 		     si.date BETWEEN
 		     date(ae.date, "-2 days") AND
-		     date(si.date, "+2 days")
+		     date(ae.date, "+2 days")
 		  ) AND
 		  si.item_type = "E" AND ae.is_cleared = 0
 	 ',
