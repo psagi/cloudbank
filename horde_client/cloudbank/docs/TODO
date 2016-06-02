@@ -7,4 +7,5 @@
 
 - Localization
 - Known bug: re-submit will not correct the error in case the record has been modified by another session, user has to go back to the list view (accounts or events) and retry from there
+- Known bug: Error ('Referenced ... does not exist') when deleting event from category screen
 - Many features...
