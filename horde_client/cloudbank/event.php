@@ -95,7 +95,7 @@ function processActions(&$p_variables, &$p_form) {
 //print "submitted/after create/modifyEvent(): " . $p_variables->get('amount');
    }
    else {
-      $v_isEmpty = empty($p_variables->get('date'));
+      $v_isEmpty = !($p_variables->get('date'));
 //print "not submitted/before PopulateEventForm():" . $p_variables->get('amount');
       if ($v_isEmpty) setDefaultValues($p_variables);
       else Book::Singleton()->PopulateEventForm($p_variables);
