@@ -111,7 +111,7 @@
 		  (
 		     si.date BETWEEN
 		     date(ae.date, "-2 days") AND
-		     date(ae.date, "+2 days")
+		     date(ae.date, "+3 days")
 		  ) AND
 		  si.item_type = "E" AND ae.is_cleared = 0
 	 ',
