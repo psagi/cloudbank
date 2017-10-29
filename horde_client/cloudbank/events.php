@@ -16,12 +16,14 @@ Horde_Registry::appInit('cloudbank');
 require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
-function populateStatementItemsTemplateIf($p_account_id, $p_accountName) {
+function populateStatementItemsTemplateIf(
+   $p_account_id, $p_accountName, $p_limitMonth
+) {
    $v_template = new Horde_Template;
    if (Book::Singleton()->isThereStatementForAccount($p_account_id)) {
       $v_statementItems = (
 	 Book::Singleton()->getUnmatchedStatementItems(
-   	    $p_account_id, $p_accountName
+   	    $p_account_id, $p_accountName, $p_limitMonth
 	 )
       );
       CloudBank::AddLinks(
@@ -30,7 +32,8 @@ function populateStatementItemsTemplateIf($p_account_id, $p_accountName) {
 	    'date' => 'date', 'description' => 'description_short', 
 	    'amount' => 'amount',
 	    'statement_item_id' => 'id', 'account_id' => 'account_id',
-	    'account_type' => 'account_type', 'account_name' => 'account_name'
+	    'account_type' => 'account_type', 'account_name' => 'account_name',
+	    'limit_month' => 'limit_month',
 	 ), 'description', 'description_link'
       );
       Book::SortResultSet($v_statementItems, 'date', TRUE);
@@ -110,7 +113,8 @@ try {
       $g_events, 'event.php',
       array(
 	 'date' => 'date', 'description' => 'description', 
-	 'account_id' => 'account_id', 'other_account_id' => 'other_account_id',
+	 'account_id' => 'account_id', 'limit_month' => 'limit_month',
+	 'other_account_id' => 'other_account_id',
 	 'amount' => 'amount', 'is_cleared' => 'is_cleared',
 	 'statement_item_id' => 'statement_item_id', 'event_id' => 'id',
 	 'account_type' => 'account_type', 'account_name' => 'account_name',
@@ -120,6 +124,7 @@ try {
       ), 'description', 'description_link',
       array(
 	 'date' => NULL, 'description' => NULL, 'account_id' => NULL,
+	 'limit_month' => NULL,
 	 'other_account_id' => NULL, 'amount' => NULL, 'is_cleared' => NULL,
 	 'statement_item_id' => NULL, 'id' => NULL,
 	 'account_type' => CloudBankConsts::LedgerAccountType_Category,
@@ -131,12 +136,13 @@ try {
       $g_events, 'delete_event.php',
       array(
 	 'event_id' => 'id', 'account_id' => 'account_id',
+	 'limit_month' => 'limit_month',
 	 'other_account_type' => 'other_account_type'
 	    /* Note that this field is not required in the link, but needed for
 	    the exclusion filter to work */
       ), 'delete_icon', 'delete_icon_link',
       array(
-	 'id' => NULL, 'account_id' => NULL,
+	 'id' => NULL, 'account_id' => NULL, 'limit_month' => NULL,
 	 'other_account_type' => CloudBankConsts::LedgerAccountType_Beginning
       ), 'Delete'
    );
@@ -169,7 +175,8 @@ try {
 	       Horde::url('event.php')->add(
 		  array(
 		     'account_id' => $g_id,
-		     'account_name' => $g_accountOrCategoryName
+		     'account_name' => $g_accountOrCategoryName,
+		     'limit_month' => $g_limitMonth
 		  )
 	       ), 'New'
 	    ) . 'New</a>'
@@ -214,7 +221,9 @@ try {
    $g_statementItemsTemplate = NULL;
    if ($g_type == CloudBankConsts::LedgerAccountType_Account) {
       $g_statementItemsTemplate = (
-	 populateStatementItemsTemplateIf($g_id, $g_accountOrCategoryName)
+	 populateStatementItemsTemplateIf(
+	    $g_id, $g_accountOrCategoryName, $g_limitMonth
+	 )
       );
    }
 }

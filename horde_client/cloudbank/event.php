@@ -23,6 +23,7 @@ function prepareForm($p_variables) {
    $v_form->addVariable('Description', 'description', 'text', true);
    $v_form->addHidden('', 'account_id', 'text', false);
    $v_form->addHidden('', 'account_name', 'text', false);
+   $v_form->addHidden('', 'limit_month', 'text', false);
    $v_form->addVariable('Is it income?', 'is_income', 'boolean', true);
    $v_accountsAndCategories = Book::Singleton()->getAccountsAndCategories();
    $v_form->addVariable(
@@ -68,6 +69,7 @@ function processActions(&$p_variables, &$p_form) {
    $v_isEdit = !empty($v_event_id);
    if ($p_form->validate($p_variables)) {	// submitted -> process
       $v_account_id = $p_variables->get('account_id');
+      $v_limitMonth = $p_variables->get('limit_month');
       try {
 	 if ($v_isEdit) {
 	    Book::Singleton()->modifyEvent($p_variables);
@@ -83,7 +85,7 @@ function processActions(&$p_variables, &$p_form) {
 		     'ledger_account_id' => $v_account_id,
 		     'ledger_account_type' => (
 		       	CloudBankConsts::LedgerAccountType_Account
-		     )
+		     ), 'limit_month' => $v_limitMonth
 		  ), NULL, false
 	       )
 	 );

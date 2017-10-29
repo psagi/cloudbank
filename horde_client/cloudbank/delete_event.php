@@ -21,6 +21,7 @@ require_once CLOUDBANK_BASE . '/lib/Book.php';
 $g_variables = &Horde_Variables::getDefaultVariables();
 $g_account_id = $g_variables->get('account_id');
 $g_event_id = $g_variables->get('event_id');
+$g_limitMonth = $g_variables->get('limit_month');
 
 try {
    Book::Singleton()->deleteEvent($g_event_id);
@@ -31,7 +32,7 @@ try {
 	       'ledger_account_id' => $g_account_id,
 	       'ledger_account_type' => (
 		  CloudBankConsts::LedgerAccountType_Account
-	       )
+	       ), 'limit_month' => $g_limitMonth
 	    ), NULL, false
 	 )
    );

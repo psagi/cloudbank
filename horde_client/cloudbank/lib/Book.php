@@ -324,6 +324,7 @@
 	    $v_event['account_id'] = $p_id;
 	    $v_event['account_type'] = $p_type;
 	    $v_event['account_name'] = $p_name;
+	    $v_event['limit_month'] = $p_limitMonth;
 	    $v_event['delete_icon'] = $v_delete_icon;
 	 }
 	 return $v_events;
@@ -427,7 +428,9 @@
 	 }
 	 return FALSE;
       }
-      public function getUnmatchedStatementItems($p_id, $p_accountName) {
+      public function getUnmatchedStatementItems(
+	 $p_id, $p_accountName, $p_limitMonth
+      ) {
 	 $v_statementItems_SDO = (
 	    $this->r_statementService->findUnmatchedItems($p_id)
 	 );
@@ -447,6 +450,7 @@
 	    $v_statementItem['account_type'] = (
 	       CloudBankConsts::LedgerAccountType_Account
 	    );
+	    $v_statementItem['limit_month'] = $p_limitMonth;
 	 }
 	 return $v_statementItems;
       }
