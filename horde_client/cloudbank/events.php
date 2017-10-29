@@ -17,40 +17,51 @@ require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
 function populateStatementItemsTemplateIf($p_account_id, $p_accountName) {
-   if (!Book::Singleton()->isThereStatementForAccount($p_account_id)) {
-      return NULL;
+   $v_template = new Horde_Template;
+   if (Book::Singleton()->isThereStatementForAccount($p_account_id)) {
+      $v_statementItems = (
+	 Book::Singleton()->getUnmatchedStatementItems(
+   	    $p_account_id, $p_accountName
+	 )
+      );
+      CloudBank::AddLinks(
+	 $v_statementItems, 'event.php',
+	 array(
+	    'date' => 'date', 'description' => 'description_short', 
+	    'amount' => 'amount',
+	    'statement_item_id' => 'id', 'account_id' => 'account_id',
+	    'account_type' => 'account_type', 'account_name' => 'account_name'
+	 ), 'description', 'description_link'
+      );
+      Book::SortResultSet($v_statementItems, 'date', TRUE);
+      $v_closingStatementItem = (
+	 Book::Singleton()->getClosingBalance($p_account_id)
+      );
+      $v_template->set('is_there_statement', true, true);
+      $v_template->set(
+	 'match_link', (
+   	    Horde::link(
+   	       Horde::url('statement_item_match.php')->add(
+     		  array('account_id' => $p_account_id)
+       	       ), 'Update matching Events with Statement Item ID reference'
+	    ) . 'Match</a>'
+	 )
+      );
+      $v_template->set('statement_closing', $v_closingStatementItem);
+      $v_template->set(
+	 'amount_left',
+	 Book::FormatAmount(
+	    $v_clearedOrMatchedBalance - $v_closingStatementItem['amount']
+	 )
+      );
    }
-   $v_statementItems = (
-      Book::Singleton()->getUnmatchedStatementItems(
-	 $p_account_id, $p_accountName
-      )
-   );
-   CloudBank::AddLinks(
-      $v_statementItems, 'event.php',
-      array(
-	 'date' => 'date', 'description' => 'description_short', 
-	 'amount' => 'amount',
-	 'statement_item_id' => 'id', 'account_id' => 'account_id',
-	 'account_type' => 'account_type',
-	 'account_name' => 'account_name'
-      ), 'description', 'description_link'
-   );
-   Book::SortResultSet($v_statementItems, 'date', TRUE);
+   else $v_template->set('is_there_statement', false, true);
    $v_clearedOrMatchedBalance = (
       Book::Singleton()->getClearedOrMatchedBalance($p_account_id)
    );
-   $v_closingStatementItem = (
-      Book::Singleton()->getClosingBalance($p_account_id)
-   );
-   $v_template = new Horde_Template;
    $v_template->set(
-      'match_link', (
-	 Horde::link(
-	    Horde::url('statement_item_match.php')->add(
-               array('account_id' => $p_account_id)
-            ), 'Update matching Events with Statement Item ID reference'
-         ) . 'Match</a>'
-      )
+      'cleared_or_matched_balance',
+      Book::FormatAmount($v_clearedOrMatchedBalance)
    );
    $v_template->set(
       'clear_all_matched_link', (
@@ -63,17 +74,6 @@ function populateStatementItemsTemplateIf($p_account_id, $p_accountName) {
       )
    );
    $v_template->set('statement_items', $v_statementItems);
-   $v_template->set(
-      'cleared_or_matched_balance',
-      Book::FormatAmount($v_clearedOrMatchedBalance)
-   );
-   $v_template->set('statement_closing', $v_closingStatementItem);
-   $v_template->set(
-      'amount_left',
-      Book::FormatAmount(
-	 $v_clearedOrMatchedBalance - $v_closingStatementItem['amount']
-      )
-   );
 //var_dump($v_template);
    return $v_template;
 }

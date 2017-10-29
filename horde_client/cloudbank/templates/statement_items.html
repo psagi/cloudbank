@@ -9,33 +9,37 @@
       <th><tag:match_link /></th>
       <th colspan=3><tag:clear_all_matched_link /></th>
    </tr>
-   <tr class="item">
-      <th align="left">Date</th>
-      <th align="left">Description</th>
-      <th align="left">Amount</th>
-      <th align="left">ID</th>
-   </tr>
-   <loop:statement_items>
-      <tr class="linedRow">
-	 <td><tag:statement_items.date /></td>
-	 <td><tag:statement_items.description_link /></td>
-	 <td align="right"><tag:statement_items.amount_fmt /></td>
-	 <td><tag:statement_items.id /></td>
+   <if:is_there_statement>
+      <tr class="item">
+	 <th align="left">Date</th>
+	 <th align="left">Description</th>
+	 <th align="left">Amount</th>
+	 <th align="left">ID</th>
       </tr>
-   </loop:statement_items>
+      <loop:statement_items>
+	 <tr class="linedRow">
+	    <td><tag:statement_items.date /></td>
+	    <td><tag:statement_items.description_link /></td>
+	    <td align="right"><tag:statement_items.amount_fmt /></td>
+	    <td><tag:statement_items.id /></td>
+	 </tr>
+      </loop:statement_items>
+   </if:is_there_statement>
    <tr class="control">
       <td align="left"></td>
       <td align="left">Total cleared or matched</td>
       <td align="right"><tag:cleared_or_matched_balance /></td>
    </tr>
-   <tr class="control">
-      <td align="left"><tag:statement_closing.date /></td>
-      <td align="left">Statement closing balance</td>
-      <td align="right"><tag:statement_closing.amount_fmt /></td>
-   </tr>
-   <tr class="control">
-      <td align="left"></td>
-      <td align="left">Amount left to reconcile</td>
-      <td align="right"><tag:amount_left /></td>
-   </tr>
+   <if:is_there_statement>
+      <tr class="control">
+     	 <td align="left"><tag:statement_closing.date /></td>
+       	 <td align="left">Statement closing balance</td>
+	 <td align="right"><tag:statement_closing.amount_fmt /></td>
+      </tr>
+      <tr class="control">
+	 <td align="left"></td>
+	 <td align="left">Amount left to reconcile</td>
+	 <td align="right"><tag:amount_left /></td>
+      </tr>
+   </if:is_there_statement>
 </table>
