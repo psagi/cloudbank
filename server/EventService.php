@@ -122,6 +122,8 @@
       public function getEvents($p_accountID, $p_limitDate = NULL) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->assertLedgerAccountExists($p_accountID);
+	 $v_bindArray = array(':accountID' => $p_accountID);
+	 if ($p_limitDate) $v_bindArray[':limitDate'] = $p_limitDate;
 	 $v_events = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
@@ -132,7 +134,7 @@
 		  FROM account_events
 		  WHERE ledger_account_id = :accountID
 	       ' . (empty($p_limitDate) ? '' : 'AND date >= :limitDate'),
-	       array(':accountID' => $p_accountID, ':limitDate' => $p_limitDate)
+	       $v_bindArray
 	    )
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
