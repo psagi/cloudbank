@@ -195,6 +195,19 @@ try {
 	 ) . 'More...</a>'
       )
    );
+   $g_template->set(
+      'all_events_link', (
+	 Horde::link(
+	    Horde::url('events.php')->add(
+	       array(
+		  'ledger_account_id' => $g_id,
+		  'ledger_account_type' => $g_type,
+		  'limit_month' => 'all'
+	       )
+	    ), 'All'
+	 ) . 'All</a>'
+      )
+   );
 
    $title = $g_accountOrCategoryName;
 

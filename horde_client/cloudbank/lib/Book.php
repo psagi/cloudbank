@@ -58,6 +58,7 @@
 	 );
       }
       public static function PreviousMonth($p_month_str) {
+	 if ($p_month_str == 'all') return $p_month_str;
 	 $v_month = new DateTime($p_month_str);
 	 $v_month->modify('-1 month');
 	 return $v_month->format(self::MonthFormat);
@@ -310,7 +311,9 @@
       }
       public function getEvents($p_id, $p_type, $p_name, $p_limitMonth) {
 	 $v_events_SDO = (
-	    $this->r_eventService->getEvents($p_id, $p_limitMonth . '-01')
+	    $this->r_eventService->getEvents(
+	       $p_id, ($p_limitMonth == 'all' ? NULL : $p_limitMonth . '-01')
+	    )
 	 );
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
 	 self::FormatAmounts($v_events);
