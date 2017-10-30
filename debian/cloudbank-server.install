@@ -1,0 +1,5 @@
+server/* usr/share/cloudbank-server/server
+lib/* usr/share/cloudbank-server/lib
+install_server/* usr/share/cloudbank-server/install_server
+util/* usr/share/cloudbank-server/util
+conf/* etc/cloudbank-server

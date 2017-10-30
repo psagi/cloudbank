@@ -1,0 +1,31 @@
+Installation instructions for CloudBank server
+----------------------------------------------
+
+Steps after installing the cloudbank-server package:
+   1. Create the SQLite3 database for cloudbank-server.
+   2. Make sure that the database is accessible (rw) by the HTTP server.
+   3. cd /etc/cloudbank-server
+   4. cp cloudbank.ini.dist cloudbank.ini
+   5. Configure the dsn and the username/password for the database in cloudbank.ini using you favourite text editor. Provide some fake username/password.
+   6. Configure the debug log file. If you do not use debugging, provide some fake path/filename.
+   7. cd /usr/share/cloudbank-server
+   8. install_server/create_schema.php
+   9. Make the /usr/share/cloudbank-server/server directory accessible by the HTTP server. ATTENTION: Remember to properly secure the HTTP server setup. 
+
+Test:
+   wget <URL of the virtual dir>/EventService.php?wsdl
+   This should download the WSDL for the EventService.
+
+
+Upgrade instructions for CloudBank server
+----------------------------------------------
+
+Steps after installing the new cloudbank-server package:
+   1. Make sure that the database is accessible (rw) by the HTTP server (e.g. in case of sqlite3) AND by the user doing the upgrade.
+   2. If the database is not SQLite3, convert/migrate it. (From v0.4 on CloudBank server supports only SQLite3.)
+   3. Make sure that the database is accessible (rw) by the HTTP server AND by the user doing the upgrade.
+   3. cd /usr/share/cloudbank-server
+   4. install_server/upgrade_schema_x_y-v_w.php
+   5. If upgrading to v0.4 and before starting to use the Statement Reconciliation feature mass clearing of older Events might be useful. A script is available for this: util/clear_until.php
+
+Basic testing can be done the same way as in case of first installation.

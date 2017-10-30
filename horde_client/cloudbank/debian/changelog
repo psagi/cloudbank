@@ -1,0 +1,28 @@
+cloudbank-horde-client (0.5-1) UNRELEASED; urgency=low
+
+  * Statement Reconciliation feature added
+  * Event manipulation bugs fixed
+  * Minor fixes
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 05 Jun 2016 11:55:49 +0200
+
+cloudbank-horde-client (0.4-2) UNRELEASED; urgency=low
+
+  * Fixed lintian errors
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 25 Oct 2015 14:28:50 +0100
+
+cloudbank-horde-client (0.4-1) UNRELEASED; urgency=low
+
+  [ Peter Sági ]
+  * Dependencies, install location fixed for Debian Jessie
+  * Ported to Horde 5
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 20 Sep 2015 08:31:05 +0200
+
+cloudbank-horde-client (0.3-1) UNRELEASED; urgency=low
+
+  [ Peter Sagi ]
+  * Initial release. (Closes: #<ITP bug number>)
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 02 Aug 2015 15:42:50 -0400

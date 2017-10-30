@@ -1,0 +1,138 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# List all Files and directories here that should not be copied to
+COPY_EXCLUDE=^(build-stamp|configure-stamp|COPYING|debian|config|docs|po|README|LICENSE\.*|{arch})$
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+build: check-external-libs build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean build-stamp configure-stamp
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	# Add here commands to install the package into
+	# debian/cludbank-horde-client.
+	#### copy files ####
+	for i in $$(ls -1 | egrep -v "$(COPY_EXCLUDE)"); do \
+	 echo install $$i ; \
+	 cp -a $$i debian/cloudbank-horde-client/usr/share/horde/cloudbank ; \
+	done
+
+	#### copy configuration files ####
+#	for i in config/*.dist; do \
+		NAME=etc/horde/imp4/$$(basename $$i ".dist"); \
+		cp -a $$i debian/imp4/$$NAME; \
+	done
+	cp -a config/conf.xml debian/cloudbank-horde-client/etc/horde/cloudbank/
+#	touch debian/imp4/etc/horde/imp4/conf.php
+#	touch debian/imp4/etc/horde/imp4/conf.php.bak
+#	chown www-data:root debian/imp4/etc/horde/imp4/conf.php
+#	chown www-data:root debian/imp4/etc/horde/imp4/conf.php.bak
+
+	#### cloudbank-horde-client expects configuration in config subdir, an
+	#### update-alternatives symlink is created in maintainer's scripts to
+	#### comply with FHS
+
+    #### change made for program run with no problems ###
+#	cat config/prefs.php.dist | \
+		sed -e "5,10s@require_once dirname(__FILE__) . '/../lib/IMP.php';@require_once '/usr/share/horde3/imp/lib/IMP.php';@" > \
+		debian/imp4/etc/horde/imp4/prefs.php
+
+	#### create htaccess  to restrict acess by web ####
+	echo "Deny from all" > debian/cloudbank-horde-client/etc/horde/cloudbank/.htaccess
+
+	#### change made for program run with no problems ###
+	# change HORDE_BASE  in php files
+	# change /usr/local/bin/php to /usr/bin/php
+	# change IMP_BASE in php files
+#	for i in $$(find debian/imp4 -name "*.php"); do \
+		cat $$i | \
+		sed -e "s/define('HORDE_BASE'.*;/define\('HORDE_BASE', '\/usr\/share\/horde3\'\);/" |\
+		sed -e "s/define('IMP_BASE'.*;/define\('IMP_BASE', '\/usr\/share\/horde3\/imp'\);/" |\
+		sed -e "s/define('IMP_CONFIG'.*;/define\('IMP_CONFIG', '\/etc\/horde\/imp4'\);/" |\
+		sed -e "s/\/usr\/local\/bin/\/usr\/bin/" > $$i.rew; \
+		cat $$i.rew > $$i; \
+		rm -f $$i.rew; \
+	done
+
+	#### change permissions of scripts ####
+#	for i in $$(find debian/imp4/usr/share/horde3/imp -type f | \
+		xargs grep '^#!\/' |cut -d: -f1); do \
+		chmod u+x $$i; \
+	done
+#	chmod -x debian/imp4/usr/share/horde3/imp/locale/da_DK/help.xml
+	#### end ####
+
+	#### CREDITS file accessible to help viewer ####
+	#mkdir -m 755 debian/imp4/usr/share/horde3/imp/docs
+	#cp -a docs/CREDITS debian/imp4/usr/share/horde3/imp/docs/
+
+	#### Remove javascript source files
+#	rm -rf debian/imp4/usr/share/horde3/imp/js/src/
+	dh_install
+
+# Build architecture-dependent files here.
+binary-arch: build install
+# We have nothing to do by default.
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+#	dh_installdocs -XINSTALL
+	dh_installdocs
+#	mv debian/cloudbank-horde-client/usr/share/doc/cloudbank-horde-client/CHANGES \
+		debian/cloudbank-horde-client/usr/share/doc/cloudbank-horde-client/changelog
+	dh_installexamples
+	-find							\
+	 debian/cloudbank-horde-client -depth -name ".arch-ids"	\
+	 -exec rm -Rf {} \;
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+# -Xdebian/imp4/etc/horde/imp4/conf.php \
+#		-Xdebian/imp4/etc/horde/imp4/conf.php.bak
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+check-external-libs:
+	if [ -e js/builder.js ] || [ -e js/src/builder.js ] || \
+	   [ -e js/controls.js ] || [ -e js/src/controls.js ] || \
+	   [ -e js/dragdrop.js ] || [ -e js/src/dragdrop.js ] || \
+	   [ -e js/effects.js ] || [ -e js/src/effects.js ] || \
+	   [ -e js/prototype.js ] || [ -e js/src/prototype.js ] || \
+	   [ -e js/scriptaculous.js ] || [ -e js/src/scriptaculous.js ] || \
+	   [ -e js/slider.js ] || [ -e js/src/slider.js ]; then \
+               echo ""; \
+	      echo " **                                  **"; \
+	      echo " **  tar contains external files!    **"; \
+	      echo " **                                  **"; \
+	      echo ""; \
+	      exit 1; \
+        fi
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,0 +1,15 @@
+Source: cloudbank-server
+Section: misc
+Priority: optional
+Maintainer: Peter Sági <psagi@freemail.hu>
+Build-Depends: debhelper (>= 8)
+Standards-Version: 3.9.1
+Homepage: https://pety.dynu.net/cloudbank_repo
+
+Package: cloudbank-server
+Architecture: all
+Depends: ${misc:Depends}, libapache2-mod-php5 | php5-cgi , apache2 | httpd-cgi , php5-sca-sdo , php5-cli, php5-sqlite
+Description: CloudBank server
+ The CloudBank server is the back-end part of CloudBank. It can be
+ used for keeping track of personal finance matters. The incomes/expenses are
+ organized into Accounts and Categories.

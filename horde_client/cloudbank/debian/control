@@ -1,0 +1,17 @@
+Source: cloudbank-horde-client
+Section: web
+Priority: optional
+Maintainer: Peter Sági <psagi@freemail.hu>
+Build-Depends: debhelper (>= 8)
+Standards-Version: 3.9.1
+Homepage: https://pety.dynu.net/cloudbank_repo
+
+Package: cloudbank-horde-client
+Architecture: all
+Depends: ${misc:Depends}, horde, php5-sca-sdo
+Description: web client for the CloudBank server
+ The Cloudbank Application is web client for the Cloudbank Server. It can be
+ used for keeping track of personal finance matters. The incomes/expenses are
+ organiz ed into Accounts and Categories.
+ .
+ Cloudbank Horde Client v0.5 works with CloudBank Server v0.3.
