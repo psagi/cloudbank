@@ -21,7 +21,7 @@
 	 'event' => '
 	    CREATE TABLE event (
 	       id VARCHAR(39) NOT NULL PRIMARY KEY, date DATE NOT NULL,
-	       description VARCHAR(32) NOT NULL,
+	       description VARCHAR(64) NOT NULL,
 	       debit_ledger_account_id VARCHAR(39)
 		  NOT NULL REFERENCES ledger_account,
 	       credit_ledger_account_id VARCHAR(39)
