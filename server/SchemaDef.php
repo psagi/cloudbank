@@ -48,7 +48,7 @@
 	       id VARCHAR(16) NOT NULL PRIMARY KEY,
 	       ledger_account_name VARCHAR(32) NOT NULL,
 	       item_type CHARACTER(1) NOT NULL, date DATE NOT NULL,
-	       description VARCHAR(256), amount NUMERIC(16,2) NOT NULL,
+	       description VARCHAR(512), amount NUMERIC(16,2) NOT NULL,
 	       CHECK (item_type IN (\'O\', \'E\', \'C\'))
 	    )
 	 ', 
@@ -178,7 +178,7 @@
 	 return ($p_item_type == 'O' || $p_item_type == 'E' || $p_item_type == 'C');
       }
       public static function IsValidStatementItemDescription($p_item_description) {
-	 return self::CheckStrLength($p_item_description, 0, 256);
+	 return self::CheckStrLength($p_item_description, 0, 512);
       }
 
       private function __construct() { } // to prevent creating an instance

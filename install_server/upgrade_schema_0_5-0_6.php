@@ -13,13 +13,25 @@
    CloudBankServer::Singleton()->tryQuery('
       ALTER TABLE event RENAME TO event_bak 
    ');
+   CloudBankServer::Singleton()->tryQuery('
+      ALTER TABLE statement_item RENAME TO statement_item_bak 
+   ');
    $g_createSchemaStatements = SchemaDef::CreateSchemaStatements();
    CloudBankServer::Singleton()->tryQuery($g_createSchemaStatements['event']);
+   CloudBankServer::Singleton()->tryQuery(
+      $g_createSchemaStatements['statement_item']
+   );
    CloudBankServer::Singleton()->tryQuery('
       INSERT INTO event SELECT * FROM event_bak
    ');
    CloudBankServer::Singleton()->tryQuery('
+      INSERT INTO statement_item SELECT * FROM statement_item_bak
+   ');
+   CloudBankServer::Singleton()->tryQuery('
       DROP TABLE event_bak
+   ');
+   CloudBankServer::Singleton()->tryQuery('
+      DROP TABLE statement_item_bak
    ');
    foreach (
       array(
