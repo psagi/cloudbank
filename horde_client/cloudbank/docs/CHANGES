@@ -1,4 +1,12 @@
 ---
+0.6
+---
+
+[Peter Sagi] Remember the months limit setting when returning from the "Add Event" screen and when deleting an Event
+[Peter Sagi] Events screen: show cleared or matched amount even if there is no statement loaded
+[Peter Sagi] Display all events link
+
+---
 0.5
 ---
 
