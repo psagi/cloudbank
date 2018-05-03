@@ -36,33 +36,42 @@ untracked_destination_file () {
    fi
 }
 
+rm_untracked_4_package () {
+   p_ru4p_package_install_file="$1"
+
+#echo "DEBUG: package install file: $p_ru4p_package_install_file" >&2
+   cat $p_ru4p_package_install_file |
+      while read v_ru4p_line; do
+#echo "DEBUG: line: $v_ru4p_line" >&2
+	 # It looks like dh_install does no better parsing of the .install file
+	 # than as simple AWK-like split so lets not worry too much here
+	 v_ru4p_source_files="$(echo $v_ru4p_line | sed 's/[^[:blank:]]*$//')"
+	    # Note that we did the glob resolution here
+#echo "DEBUG: source files: $v_ru4p_source_files" >&2
+	 if [ -z "$v_ru4p_source_files" ]; then
+	    echo	\
+	       "ERROR: $g_script is not compatible with"	\
+	       "$p_ru4p_package_install_file"			\
+	    >&2
+	    exit 1
+	 fi
+	 v_ru4p_destination_dir=$(xtract_destination_dir "$v_ru4p_line")
+#echo "DEBUG: destination dir: $v_ru4p_destination_dir" >&2
+	 for v_ru4p_source_file in $v_ru4p_source_files; do
+	    untracked_destination_file	\
+	       "$v_ru4p_source_file" "$v_ru4p_destination_dir"	\
+	       $(basename "$p_ru4p_package_install_file" .install) |
+	       xargs -r rm -r 
+	 done
+      done
+}
+
+
 ### MAIN ###
 
-p_m_package="$1"
 g_script="$(basename $0)"
 
 check_if_git_repo || exit 0
-v_m_package_install_file="debian/$p_m_package.install"
-echo "DEBUG: package install file: $v_m_package_install_file" >&2
-cat $v_m_package_install_file |
-while read v_m_line; do
-echo "DEBUG: line: $v_m_line" >&2
-# It looks like dh_install does no better parsing of the .install file than as
-# simple AWK-like split so lets not worry too much here
-   v_m_source_files="$(echo $v_m_line | sed 's/[^[:blank:]]*$//')"
-      # Note that we did the glob resolution here
-echo "DEBUG: source files: $v_source_files" >&2
-   if [ -z "$v_m_source_files" ]; then
-      echo	\
-	 "ERROR: $g_script is not compatible with $v_m_package_install_file" \
-      >&2
-      exit 1
-   fi
-   v_m_destination_dir=$(xtract_destination_dir "$v_m_line")
-echo "DEBUG: destination dir: $v_m_destination_dir" >&2
-   for v_m_source_file in $v_m_source_files; do
-      untracked_destination_file	\
-	    "$v_m_source_file" "$v_m_destination_dir" "$p_m_package"	|
-      xargs -r rm -r 
-   done
+for v_m_package_install_file in debian/*.install; do
+   rm_untracked_4_package $v_m_package_install_file
 done

@@ -4,4 +4,4 @@
 
 override_dh_install:
 	dh_install
-	debian/rm_untracked.sh cloudbank-server
+	debian/rm_untracked.sh
