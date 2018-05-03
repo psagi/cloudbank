@@ -33,7 +33,7 @@ install: build
 	#### copy files ####
 	for i in $$(ls -1 | egrep -v "$(COPY_EXCLUDE)"); do \
 	 echo install $$i ; \
-	 cp -a $$i debian/cloudbank-horde-client/usr/share/horde/cloudbank ; \
+	 cp -a -L $$i debian/cloudbank-horde-client/usr/share/horde/cloudbank; \
 	done
 
 	#### copy configuration files ####

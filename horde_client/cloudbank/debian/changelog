@@ -1,3 +1,11 @@
+cloudbank-horde-client (0.6-1) UNRELEASED; urgency=low
+
+  * Remember the months limit setting when returning from the "Add Event" screen and when deleting an Event
+  * Events screen: show cleared or matched amount even if there is no statement loaded
+  * Display all events link
+
+ -- Peter Sági <psagi@freemail.hu>  Tue, 31 Oct 2017 14:30:07 +0100
+
 cloudbank-horde-client (0.5-1) UNRELEASED; urgency=low
 
   * Statement Reconciliation feature added
