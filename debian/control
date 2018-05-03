@@ -2,7 +2,7 @@ Source: cloudbank-server
 Section: misc
 Priority: optional
 Maintainer: Peter Sági <psagi@freemail.hu>
-Build-Depends: debhelper (>= 8)
+Build-Depends: debhelper (>= 8), sed, coreutils, findutils
 Standards-Version: 3.9.1
 Homepage: https://pety.dynu.net/cloudbank_repo
 

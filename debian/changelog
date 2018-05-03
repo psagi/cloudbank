@@ -1,8 +1,15 @@
+cloudbank-server (0.6-1) UNRELEASED; urgency=low
+
+  * Description lengths doubled (Event, Statement Item)
+  * FIX: EventService::getEvents(): now works w/ no NULL month limit
+
+ -- Peter Sági <psagi@freemail.hu>  Tue, 31 Oct 2017 14:30:07 +0100
+
 cloudbank-server (0.5-1) UNRELEASED; urgency=low
 
   * Statement Reconciliation: event matching: allow statement items to be late by 3days
 
- -- Peter Sági <psagi@freemail.hu>  Sun, 05 Jun 2016 11:11:07 +0200
+ -- Peter Sági <psagi@freemail.hu>  Sun, 29 Oct 2017 20:18:07 +0100
 
 cloudbank-server (0.4-1) UNRELEASED; urgency=low
 
