@@ -1,3 +1,10 @@
+cloudbank-server (0.7-1) UNRELEASED; urgency=low
+
+  * Statement items automatching: date tolerance now configurable via cloudbank.ini
+  * FIX: bug in unmatched_items view
+
+ -- Peter Sági <psagi@freemail.hu>  Fri, 04 May 2018 09:30:07 +0200
+
 cloudbank-server (0.6-1) UNRELEASED; urgency=low
 
   * Description lengths doubled (Event, Statement Item)
