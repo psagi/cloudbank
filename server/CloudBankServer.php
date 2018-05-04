@@ -52,8 +52,11 @@
 	       (is_bool($v_value) ? 'true' : 'false')
 	    );
 	    $v_isSuccess = $p_statement->bindValue(
-	       $v_parameter, $v_value,
-	       is_bool($v_value) ? PDO::PARAM_BOOL : PDO::PARAM_STR
+	       $v_parameter, $v_value, (
+		  is_bool($v_value) ?
+		  PDO::PARAM_BOOL :
+		  is_numeric($v_value) ? PDO::PARAM_INT : PDO::PARAM_STR
+	       )
 	    );
 	    Debug::Singleton()->log(
 	       'CloudBankServer::BindValues: $v_isSuccess = ' . $v_isSuccess

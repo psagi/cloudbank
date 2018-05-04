@@ -30,6 +30,9 @@
 
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
+	 $v_conf = parse_ini_file(dirname(__FILE__) . '/../conf/cloudbank.ini');
+	 $this->r_dateMatchRangeMin = $v_conf['date_match_range_min'];
+	 $this->r_dateMatchRangeMax = $v_conf['date_match_range_max'];
       }
 
       /**
@@ -156,9 +159,18 @@
 	       '
 		  SELECT event_id, statement_item_id
 		  FROM event_statement_item_match
-		  WHERE ledger_account_id = :account_id
+		  WHERE
+		     ledger_account_id = :account_id AND (
+			date_diff BETWEEN
+			:date_match_range_min AND
+			:date_match_range_max
+		     )
 	       ',
-	       array(':account_id' => $p_accountID)
+	       array(
+		  ':account_id' => $p_accountID,
+		  ':date_match_range_min' => $this->r_dateMatchRangeMin,
+		  ':date_match_range_max' => $this->r_dateMatchRangeMax
+	       )
 	    )
 	 );
 	 foreach($v_matches as $v_match_record) {
@@ -382,5 +394,7 @@
             in order SCA to be able to manipulate it. */
 
       private $r_cloudBankServer;
+      private $r_dateMatchRangeMin;
+      private $r_dateMatchRangeMax;
    }
 ?>

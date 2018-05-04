@@ -11,3 +11,7 @@
 debug = "off"
 ; debug log file - must be specified (even if debugging is turned off)
 ;log_file = "/tmp/php5/debug.log"
+
+; date range for automatching statement items to events
+date_match_range_min=-2
+date_match_range_max=4
