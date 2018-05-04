@@ -31,8 +31,16 @@
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
 	 $v_conf = parse_ini_file(dirname(__FILE__) . '/../conf/cloudbank.ini');
-	 $this->r_dateMatchRangeMin = $v_conf['date_match_range_min'];
-	 $this->r_dateMatchRangeMax = $v_conf['date_match_range_max'];
+	 $this->r_dateMatchRangeMin = (
+	    array_key_exists('date_match_range_min', $v_conf) ?
+	    $v_conf['date_match_range_min'] :
+	    0
+	 );
+	 $this->r_dateMatchRangeMax = (
+	    array_key_exists('date_match_range_max', $v_conf) ?
+	    $v_conf['date_match_range_max'] :
+	    0
+	 );
       }
 
       /**
