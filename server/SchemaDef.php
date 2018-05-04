@@ -93,9 +93,12 @@
 		  la_si.name = si.ledger_account_name AND
 		  NOT EXISTS (
 		     SELECT 1
-		     FROM event e, ledger_account la_e
+		     FROM event e
 		     WHERE
-			e.is_cleared = 0 AND la_si.id = la_e.id AND
+			e.is_cleared = 0 AND (
+			   e.debit_ledger_account_id = la_si.id OR
+			   e.credit_ledger_account_id = la_si.id
+			) AND
 			si.id = e.statement_item_id
 		  )
 	 ',
