@@ -64,6 +64,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="findOpeningBalance">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="findOpeningBalanceResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="findOpeningBalanceReturn" type="ns0:StatementItem"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="findClosingBalance">
         <xs:complexType>
           <xs:sequence>
@@ -131,6 +145,12 @@
   <wsdl:message name="clearAllMatchedEventsResponse">
     <wsdl:part name="return" element="tns2:clearAllMatchedEventsResponse"/>
   </wsdl:message>
+  <wsdl:message name="findOpeningBalanceRequest">
+    <wsdl:part name="findOpeningBalanceRequest" element="tns2:findOpeningBalance"/>
+  </wsdl:message>
+  <wsdl:message name="findOpeningBalanceResponse">
+    <wsdl:part name="return" element="tns2:findOpeningBalanceResponse"/>
+  </wsdl:message>
   <wsdl:message name="findClosingBalanceRequest">
     <wsdl:part name="findClosingBalanceRequest" element="tns2:findClosingBalance"/>
   </wsdl:message>
@@ -165,6 +185,10 @@
     <wsdl:operation name="clearAllMatchedEvents">
       <wsdl:input message="tns2:clearAllMatchedEventsRequest"/>
       <wsdl:output message="tns2:clearAllMatchedEventsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="findOpeningBalance">
+      <wsdl:input message="tns2:findOpeningBalanceRequest"/>
+      <wsdl:output message="tns2:findOpeningBalanceResponse"/>
     </wsdl:operation>
     <wsdl:operation name="findClosingBalance">
       <wsdl:input message="tns2:findClosingBalanceRequest"/>
@@ -209,6 +233,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="clearAllMatchedEvents">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findOpeningBalance">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>

@@ -241,44 +241,24 @@
 	 @param string $p_accountID	\
 	    The LedgerAccount the related statement balance to be returned for
 	 @return StatementItem http://pety.dynu.net/CloudBank/StatementService
+	     Statement opening balance
+      */ 
+      public function findOpeningBalance($p_accountID) {
+	 return (
+	    $this->findBalance($p_accountID, self::StatementItemType_Opening)
+	 );
+      }
+      /**
+	 @param string $p_accountID	\
+	    The LedgerAccount the related statement balance to be returned for
+	 @return StatementItem http://pety.dynu.net/CloudBank/StatementService
 	     Statement closing balance
       */ 
       public function findClosingBalance($p_accountID) {
-	 $this->r_cloudBankServer->beginTransaction();
-	 $this->r_ledgerAccountService->assertAccountOrCategoryExists(
-	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
-	 );
-	 $v_statementItems = (
-	    $this->r_cloudBankServer->execQuery(
-	       '
-		  SELECT
-		     si.id, si.ledger_account_name, si.item_type, si.date,
-		     si.description, si.amount
-		  FROM statement_item si, ledger_account la
-		  WHERE
-		     si.ledger_account_name = la.name AND la.type = :Account AND
-		     si.item_type = :C AND la.id = :accountID
-	       ',
-	       array(
-		  ':Account' => CloudBankConsts::LedgerAccountType_Account,
-		  ':C' => self::StatementItemType_Closing, 
-		  ':accountID' => $p_accountID
-	       )
-	    )
-	 );
-	 $this->r_cloudBankServer->commitTransaction();
 	 return (
-	    self::ToSDO(
-	       $v_statementItems, NULL, 'StatementItem',
-	       array(
-		  'id' => 'id', 'ledger_account_name' => 'ledger_account_name',
-		  'item_type' => 'item_type', 'date' => 'date',
-		  'description' => 'description', 'amount' => 'amount'
-	       )
-	    )
+	    $this->findBalance($p_accountID, self::StatementItemType_Closing)
 	 );
       }
-
       /**
 	 @return boolean	Success
       */ 
@@ -389,7 +369,43 @@
 	    )
 	 );
       }
+      private function findBalance($p_accountID, $p_statementItemType) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $this->r_ledgerAccountService->assertAccountOrCategoryExists(
+	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
+	 );
+	 $v_statementItems = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT
+		     si.id, si.ledger_account_name, si.item_type, si.date,
+		     si.description, si.amount
+		  FROM statement_item si, ledger_account la
+		  WHERE
+		     si.ledger_account_name = la.name AND la.type = :Account AND
+		     si.item_type = :C AND la.id = :accountID
+	       ',
+	       array(
+		  ':Account' => CloudBankConsts::LedgerAccountType_Account,
+		  ':C' => $p_statementItemType,
+		  ':accountID' => $p_accountID
+	       )
+	    )
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return (
+	    self::ToSDO(
+	       $v_statementItems, NULL, 'StatementItem',
+	       array(
+		  'id' => 'id', 'ledger_account_name' => 'ledger_account_name',
+		  'item_type' => 'item_type', 'date' => 'date',
+		  'description' => 'description', 'amount' => 'amount'
+	       )
+	    )
+	 );
+      }
 
+      const StatementItemType_Opening = 'O';
       const StatementItemType_Closing = 'C';
 
       /**

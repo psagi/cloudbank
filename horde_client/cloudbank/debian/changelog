@@ -1,3 +1,9 @@
+cloudbank-horde-client (0.7-1) UNRELEASED; urgency=low
+
+  * display statement opening balance, too
+
+ -- Peter Sági <psagi@freemail.hu>  Fri, 04 May 2017 21:11:07 +0200
+
 cloudbank-horde-client (0.6-1) UNRELEASED; urgency=low
 
   * Remember the months limit setting when returning from the "Add Event" screen and when deleting an Event

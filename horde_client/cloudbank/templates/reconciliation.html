@@ -1,0 +1,32 @@
+<div class="header">
+   <span class="leftFloat">
+      <span dir="ltr">Reconciliation</span>
+   </span>
+   <br class="clear"/>
+</div>
+<table class="item" width="100%" cellspacing="4">
+   <if:is_there_statement>
+      <tr class="control">
+     	 <td align="left"><tag:statement_opening.date /></td>
+       	 <td align="left">Statement opening balance</td>
+	 <td align="right"><tag:statement_opening.amount_fmt /></td>
+      </tr>
+   </if:is_there_statement>
+   <tr class="control">
+      <td align="left"></td>
+      <td align="left">Total cleared or matched</td>
+      <td align="right"><tag:cleared_or_matched_balance /></td>
+   </tr>
+   <if:is_there_statement>
+      <tr class="control">
+     	 <td align="left"><tag:statement_closing.date /></td>
+       	 <td align="left">Statement closing balance</td>
+	 <td align="right"><tag:statement_closing.amount_fmt /></td>
+      </tr>
+      <tr class="control">
+	 <td align="left"></td>
+	 <td align="left">Amount left to reconcile</td>
+	 <td align="right"><tag:amount_left /></td>
+      </tr>
+   </if:is_there_statement>
+</table>

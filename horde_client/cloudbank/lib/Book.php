@@ -460,6 +460,18 @@
       public function clearAllMatchedEvents($p_account_id) {
 	 $this->r_statementService->clearAllMatchedEvents($p_account_id);
       }
+      public function getOpeningBalance($p_id) {
+//echo "DEBUG: getOpeningBalance($p_id)<br>";
+	 $v_statementItem_SDO = (
+	    $this->r_statementService->findOpeningBalance($p_id)
+	 );
+	 $v_statementItem = self::CopyArray($v_statementItem_SDO);
+//var_dump($v_statementItem);
+	 $v_statementItem['amount_fmt'] = (
+	    self::FormatAmount($v_statementItem['amount'])
+	 );
+	 return $v_statementItem;
+      }
       public function getClosingBalance($p_id) {
 	 $v_statementItem_SDO = (
 	    $this->r_statementService->findClosingBalance($p_id)

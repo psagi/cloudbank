@@ -16,11 +16,44 @@ Horde_Registry::appInit('cloudbank');
 require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
+function populateReconciliationTemplate($p_account_id) {
+   $v_template = new Horde_Template;
+   $v_clearedOrMatchedBalance = (
+      Book::Singleton()->getClearedOrMatchedBalance($p_account_id)
+   );
+   $v_template->set(
+      'cleared_or_matched_balance',
+      Book::FormatAmount($v_clearedOrMatchedBalance)
+   );
+   if (Book::Singleton()->isThereStatementForAccount($p_account_id)) {
+//echo "DEBUG: before getOpeningBalance()\n";
+      $v_openingStatementItem = (
+	 Book::Singleton()->getOpeningBalance($p_account_id)
+      );
+//echo "DEBUG: before getClosingBalance()\n";
+      $v_closingStatementItem = (
+	 Book::Singleton()->getClosingBalance($p_account_id)
+      );
+      $v_template->set('is_there_statement', true, true);
+      $v_template->set('statement_opening', $v_openingStatementItem);
+      $v_template->set('statement_closing', $v_closingStatementItem);
+      $v_template->set(
+	 'amount_left',
+	 Book::FormatAmount(
+	    $v_clearedOrMatchedBalance - $v_closingStatementItem['amount']
+	 )
+      );
+   }
+   else $v_template->set('is_there_statement', false, true);
+//echo "DEBUG: before return\n";
+   return $v_template;
+}
+
 function populateStatementItemsTemplateIf(
    $p_account_id, $p_accountName, $p_limitMonth
 ) {
-   $v_template = new Horde_Template;
    if (Book::Singleton()->isThereStatementForAccount($p_account_id)) {
+      $v_template = new Horde_Template;
       $v_statementItems = (
 	 Book::Singleton()->getUnmatchedStatementItems(
    	    $p_account_id, $p_accountName, $p_limitMonth
@@ -37,10 +70,6 @@ function populateStatementItemsTemplateIf(
 	 ), 'description', 'description_link'
       );
       Book::SortResultSet($v_statementItems, 'date', TRUE);
-      $v_closingStatementItem = (
-	 Book::Singleton()->getClosingBalance($p_account_id)
-      );
-      $v_template->set('is_there_statement', true, true);
       $v_template->set(
 	 'match_link', (
    	    Horde::link(
@@ -50,33 +79,20 @@ function populateStatementItemsTemplateIf(
 	    ) . 'Match</a>'
 	 )
       );
-      $v_template->set('statement_closing', $v_closingStatementItem);
       $v_template->set(
-	 'amount_left',
-	 Book::FormatAmount(
-	    $v_clearedOrMatchedBalance - $v_closingStatementItem['amount']
+	 'clear_all_matched_link', (
+	    Horde::link(
+	       Horde::url('clear_all_matched_events.php')->add(
+		  array('account_id' => $p_account_id)
+	       ),
+	       'Clear all matched Events and PURGE corresponding STATEMENT ' . 
+		  'ITEMS'
+	    ) . 'Clear all matched</a>'
 	 )
       );
+      $v_template->set('statement_items', $v_statementItems);
    }
-   else $v_template->set('is_there_statement', false, true);
-   $v_clearedOrMatchedBalance = (
-      Book::Singleton()->getClearedOrMatchedBalance($p_account_id)
-   );
-   $v_template->set(
-      'cleared_or_matched_balance',
-      Book::FormatAmount($v_clearedOrMatchedBalance)
-   );
-   $v_template->set(
-      'clear_all_matched_link', (
-	 Horde::link(
-	    Horde::url('clear_all_matched_events.php')->add(
-               array('account_id' => $p_account_id)
-            ),
-	    'Clear all matched Events and PURGE corresponding STATEMENT ITEMS'
-         ) . 'Clear all matched</a>'
-      )
-   );
-   $v_template->set('statement_items', $v_statementItems);
+   else return NULL;
 //var_dump($v_template);
    return $v_template;
 }
@@ -218,14 +234,18 @@ try {
 
    $title = $g_accountOrCategoryName;
 
+//echo "DEBUG: before populateReconciliationTemplate()\n";
+   $g_reconciliationTemplate = populateReconciliationTemplate($g_id);
    $g_statementItemsTemplate = NULL;
    if ($g_type == CloudBankConsts::LedgerAccountType_Account) {
+//echo "DEBUG: before populateStatementItemsTemplate()\n";
       $g_statementItemsTemplate = (
 	 populateStatementItemsTemplateIf(
 	    $g_id, $g_accountOrCategoryName, $g_limitMonth
 	 )
       );
    }
+//echo "DEBUG: before catch\n";
 }
 catch (Exception $v_exception) {
    Cloudbank::PushError(Book::XtractMessage($v_exception));
@@ -236,6 +256,11 @@ $page_output->header();
 $notification->notify(array('listeners' => 'status'));
 if (!$g_isError) {
    echo $g_template->fetch(CLOUDBANK_TEMPLATES . '/events.html');
+   echo (
+      $g_reconciliationTemplate->fetch(
+	 CLOUDBANK_TEMPLATES . '/reconciliation.html'
+      )
+   );
    if ($g_statementItemsTemplate) {
 //var_dump($g_statementItemsTemplate);
 //$g_statementItemsTemplate->setOption('debug', true);
