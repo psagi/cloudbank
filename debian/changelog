@@ -1,3 +1,8 @@
+cloudbank-server (0.8-1) UNRELEASED; urgency=low
+
+  * StatementItem::findOpeningBalance()
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 06 May 2018 15:08:07 +0200
 cloudbank-server (0.7-1) UNRELEASED; urgency=low
 
   * Statement items automatching: date tolerance now configurable via cloudbank.ini
