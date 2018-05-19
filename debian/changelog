@@ -1,3 +1,8 @@
+cloudbank-server (0.9-1) UNRELEASED; urgency=low
+
+  * FIX: EventService::getEvent() now returns the correct Event representation
+
+ -- Peter Sági <psagi@freemail.hu>  Sat, 19 May 2018 18:59:07 +0200
 cloudbank-server (0.8-1) UNRELEASED; urgency=low
 
   * StatementItem::findOpeningBalance()
