@@ -73,49 +73,6 @@
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
       }
-      /**
-	 @param string $p_eventID	The ID of the event
-	 @return Event http://pety.homelinux.org/CloudBank/EventService
-	     Event details
-      */ /*
-      public function getEvent($p_eventID) {
-	 $this->r_cloudBankServer->beginTransaction();
-	 $this->assertNonBeginningEventExists($p_eventID);
-	 $v_event = (
-	    $this->r_cloudBankServer->execQuery(
-	       '
-		  SELECT
-		     id, date, description, other_ledger_account_id,
-		     other_ledger_account_name, other_ledger_account_type,
-		     amount, statement_item_id, is_cleared
-		  FROM account_events
-		  WHERE id = :iD AND ledger_account_type = :ledgerAccountType
-	       ',
-	       array(
-		  ':iD' => $p_eventID,
-		  ':ledgerAccountType' =>
-		     CloudBankConsts::LedgerAccountType_Account
-	       )
-	    )
-	 );
-	 $this->r_cloudBankServer->commitTransaction();
-	 return (
-	    self::ToSDO(
-	       $v_event, NULL, 'Event',
-	       array(
-		  'id' => 'id', 'date' => 'date',
-		  'description' => 'description',
-		  'other_ledger_account_id' => 'other_account_id',
-		  'other_ledger_account_name' => 'other_account_name',
-		  'other_ledger_account_type' => 'other_account_type',
-		  'amount' => 'amount',
-		  'statement_item_id' => 'statement_item_id',
-		  'is_cleared' => 'is_cleared'
-	       )
-	    )
-	 );
-      }
-*/
 
       /**
 	 @param string $p_accountID	\

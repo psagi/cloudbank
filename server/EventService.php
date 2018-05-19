@@ -69,10 +69,12 @@
  
       /**
 	 @param string $p_eventID	The ID of the event
+	 @param string $p_accountID	\
+	    The LedgerAccount the related event to be returned for
 	 @return Event http://pety.homelinux.org/CloudBank/EventService
 	     Event details
       */
-      public function getEvent($p_eventID) {
+      public function getEvent($p_eventID, $p_accountID) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->assertNonBeginningEventExists($p_eventID);
 	 $v_event = (
@@ -83,12 +85,15 @@
 		     other_ledger_account_name, other_ledger_account_type,
 		     amount, statement_item_id, is_cleared
 		  FROM account_events
-		  WHERE id = :iD AND ledger_account_type = :ledgerAccountType
+		  WHERE
+		     id = :iD AND ledger_account_type = :ledgerAccountType AND
+		     ledger_account_id = :accountID
 	       ',
 	       array(
 		  ':iD' => $p_eventID,
 		  ':ledgerAccountType' =>
-		     CloudBankConsts::LedgerAccountType_Account
+		     CloudBankConsts::LedgerAccountType_Account, 
+		  ':accountID' => $p_accountID
 	       )
 	    )
 	 );

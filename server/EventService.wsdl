@@ -30,6 +30,7 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element name="p_eventID" type="xs:string"/>
+            <xs:element name="p_accountID" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
