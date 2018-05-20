@@ -239,7 +239,7 @@ try {
 		     'account_name' => $g_accountOrCategoryName,
 		     'limit_month' => $g_limitMonth
 		  )
-	       ), 'New'
+	       ), 'New (<Alt> + n)', '', '', '', '', 'n'
 	    ) . 'New</a>'
 	 ) :
 	 ''
