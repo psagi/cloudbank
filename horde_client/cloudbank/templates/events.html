@@ -8,34 +8,53 @@
    <span class="rightFloat"><tag:total /></span>
    <br class="clear"/>
 </div>
-<table class="item" width="100%" cellspacing="1">
-   <tr class="control" align="left">
-      <th colspan=7><tag:new_event_link /></th>
-   </tr>
-   <tr class="item">
-      <th align="left">Date</th>
-      <th align="left">Description</th>
-      <th align="left"></th>
-      <th align="left">To/From</th>
-      <th align="left">Amount</th>
-      <th align="left"></th>
-      <th align="left">Reference</th>
-   </tr>
-   <loop:events>
-      <tr class="linedRow">
-	 <td><tag:events.date /></td>
-	 <td><tag:events.description_link /></td>
-	 <td><tag:events.delete_icon_link /></td>
-	 <td>
-	    <tag:events.account_icon /><tag:events.account_link />
-	 </td>
-	 <td align="right"><tag:events.amount_fmt /></td>
-	 <td><tag:events.cleared_icon /></td>
-	 <td><tag:events.statement_item_id /></td>
+<form action="<tag:self_url />" method="post">
+   <table class="item" width="100%" cellspacing="1">
+      <tr class="control" align="left">
+	 <th colspan=4><tag:new_event_link /></th>
+	 <th colspan=3><input type="submit" value="Commit cleared status"></th>
       </tr>
-   </loop:events>
-   <tr class="item">
-      <th align="left"><tag:more_events_link /></th>
-      <th colspan=4 align="left"><tag:all_events_link /></th>
-   </tr>
-</table>
+      <tr class="item">
+	 <th align="left">Date</th>
+	 <th align="left">Description</th>
+	 <th align="left"></th>
+	 <th align="left">To/From</th>
+	 <th align="left">Amount</th>
+	 <th align="left"></th>
+	 <th align="left">Reference</th>
+      </tr>
+      <loop:events>
+	 <tr class="linedRow">
+	    <td><tag:events.date /></td>
+	    <td><tag:events.description_link /></td>
+	    <td><tag:events.delete_icon_link /></td>
+	    <td>
+	       <tag:events.account_icon /><tag:events.account_link />
+	    </td>
+	    <td align="right"><tag:events.amount_fmt /></td>
+	    <td>
+	       <if:events.is_beginning>
+		  <tag:events.cleared_icon />
+		  <else:events.is_beginning>
+		     <input
+		      	type="hidden"
+			name="is_cleared_<tag:events.id_encoded />"
+			value=0
+		     > <!-- workaround for submitting unchecked checkboxes -->
+		     <input
+			type="checkbox"
+			name="is_cleared_<tag:events.id_encoded />" value=1
+			<if:events.is_cleared>checked</if:events.is_cleared>
+		     >
+		  </else:events.is_beginning>
+	       </if:events.is_beginning>
+	    </td>
+	    <td><tag:events.statement_item_id /></td>
+	 </tr>
+      </loop:events>
+      <tr class="item">
+	 <th align="left"><tag:more_events_link /></th>
+	 <th colspan=4 align="left"><tag:all_events_link /></th>
+      </tr>
+   </table>
+</form>

@@ -321,11 +321,16 @@
 	    Horde_Themes_Image::tag('delete.png', array('alt' => 'Delete'))
 	 );
 	 foreach ($v_events as &$v_event) {
+	    $v_event['id_encoded'] = Cloudbank::EncodeID($v_event['id']);
 	    $v_event['account_id'] = $p_id;
 	    $v_event['account_type'] = $p_type;
 	    $v_event['account_name'] = $p_name;
 	    $v_event['limit_month'] = $p_limitMonth;
 	    $v_event['delete_icon'] = $v_delete_icon;
+	    $v_event['is_beginning'] = (
+	       $v_event['other_account_type'] ==
+	       CloudbankConsts::LedgerAccountType_Beginning
+	    );
 	 }
 	 return $v_events;
       }
@@ -382,6 +387,18 @@
 	 $v_newEvent_SDO->amount = $v_amount;
 	 $this->r_eventService->modifyEvent(
 	    $p_variables->get('account_id'), $v_oldEvent_SDO, $v_newEvent_SDO
+	 );
+      }
+      public function updateIsClearedAttribute(
+	 $p_eventID, $p_isCleared, $p_accountID
+      ) {
+	 $v_oldEvent_SDO = (
+	    $this->r_eventService->getEvent($p_eventID, $p_accountID)
+	 );
+	 $v_newEvent_SDO = clone $v_oldEvent_SDO;
+	 $v_newEvent_SDO->is_cleared = $p_isCleared;
+	 $this->r_eventService->modifyEvent(
+	    $p_accountID, $v_oldEvent_SDO, $v_newEvent_SDO
 	 );
       }
       public function deleteEvent($p_event_id) {

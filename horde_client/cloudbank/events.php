@@ -16,6 +16,25 @@ Horde_Registry::appInit('cloudbank');
 require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
+function xtractEventID($p_variableName) {
+   return Cloudbank::DecodeID(substr($p_variableName, 11));
+}
+
+function updateIsClearedAttributesIf($p_variables, $p_accountID) {
+   $v_isUpdateDone = false;
+   foreach($p_variables as $v_variable => $v_value) {
+//echo "DEBUG: updateIsClearedAttributesIf(): $v_variable = $v_value<p>";
+      if (strpos($v_variable, 'is_cleared_') === 0) {
+//echo "DEBUG: updateIsClearedAttributesIf(): is_cleared. found<p>";
+	 Book::Singleton()->updateIsClearedAttribute(
+	    xtractEventID($v_variable), ($v_value == 1 ? 1 : 0), $p_accountID
+	 );
+	 $v_isUpdateDone = true;
+      }
+   }
+   return $v_isUpdateDone;
+}
+
 function populateReconciliationTemplate($p_account_id) {
    $v_template = new Horde_Template;
    $v_clearedOrMatchedBalance = (
@@ -101,7 +120,24 @@ function populateStatementItemsTemplateIf(
 /* main() */
 
 $g_variables = &Horde_Variables::getDefaultVariables();
+//var_dump($g_variables);
+
+/* process actions */
+/* + just display the event list (we are not here via form submit)
+      + no is_cleared.* form variables are set
+   + update the is_cleared attribute of all events (we are here via submit)
+      + if error occurs during the update, display the error and display the
+	 event list (see above)
+*/
 $g_id = $g_variables->get('ledger_account_id');
+try {
+   if (updateIsClearedAttributesIf($g_variables, $g_id)) {
+      Cloudbank::PushInfo("Cleared status updated");
+   }
+}
+catch (Exception $v_exception) {
+   Cloudbank::PushError(Book::XtractMessage($v_exception));
+}
 $g_type = $g_variables->get('ledger_account_type');
 $g_limitMonth = $g_variables->get('limit_month');
 if (!$g_limitMonth) {
@@ -185,6 +221,15 @@ try {
 
    $g_template = &new Horde_Template;
    $g_template->set(
+      'self_url',
+      Horde::url('events.php')->add(
+	 array(
+	    'ledger_account_id' => $g_id, 'ledger_account_type' => $g_type,
+	    'limit_month' => $g_limitMonth
+	 )
+      )
+   );
+   $g_template->set(
       'new_event_link', (
 	 $g_type == CloudBankConsts::LedgerAccountType_Account ? (
 	    Horde::link(
@@ -252,9 +297,11 @@ catch (Exception $v_exception) {
    $g_isError = TRUE;
 }
 
+/* render view */
 $page_output->header();
 $notification->notify(array('listeners' => 'status'));
 if (!$g_isError) {
+//$g_template->setOption('debug', true);
    echo $g_template->fetch(CLOUDBANK_TEMPLATES . '/events.html');
    echo (
       $g_reconciliationTemplate->fetch(

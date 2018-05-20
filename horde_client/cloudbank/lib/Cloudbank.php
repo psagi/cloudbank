@@ -68,4 +68,14 @@ class Cloudbank {
       global $notification;
       $notification->push($p_message, 'horde.error');
    }
+   public static function PushInfo($p_message) {
+      global $notification;
+      $notification->push($p_message, 'horde.message');
+   }
+   public static function EncodeID($p_str) {
+      return strtr(base64_encode($p_str), '+/=', '-_~');
+   }
+   public static function DecodeID($p_str) {
+      return base64_decode(strtr($p_str, '-_~', '+/='));
+   }
 }
