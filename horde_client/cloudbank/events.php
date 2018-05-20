@@ -248,6 +248,9 @@ try {
       )
    );
    $g_template->set('account_or_category_name', $g_accountOrCategoryName);
+   $g_template->set(
+      'is_account', $g_type == CloudBankConsts::LedgerAccountType_Account
+   );
    $g_template->set('account_or_category_icon', $g_accountOrCategoryIcon);
    $g_template->set('limit_month', $g_limitMonth);
    $g_template->set('events', $g_events);

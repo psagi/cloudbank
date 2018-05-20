@@ -12,7 +12,11 @@
    <table class="item" width="100%" cellspacing="1">
       <tr class="control" align="left">
 	 <th colspan=4><tag:new_event_link /></th>
-	 <th colspan=3><input type="submit" value="Commit cleared status"></th>
+	 <th colspan=3>
+	    <if:is_account>
+	       <input type="submit" value="Commit cleared status">
+	    </if:is_account>
+	 </th>
       </tr>
       <tr class="item">
 	 <th align="left">Date</th>
@@ -33,21 +37,24 @@
 	    </td>
 	    <td align="right"><tag:events.amount_fmt /></td>
 	    <td>
-	       <if:events.is_beginning>
-		  <tag:events.cleared_icon />
-		  <else:events.is_beginning>
-		     <input
-		      	type="hidden"
-			name="is_cleared_<tag:events.id_encoded />"
-			value=0
-		     > <!-- workaround for submitting unchecked checkboxes -->
-		     <input
-			type="checkbox"
-			name="is_cleared_<tag:events.id_encoded />" value=1
-			<if:events.is_cleared>checked</if:events.is_cleared>
-		     >
-		  </else:events.is_beginning>
-	       </if:events.is_beginning>
+	       <if:is_account>
+		  <if:events.is_beginning>
+		     <tag:events.cleared_icon />
+		     <else:events.is_beginning>
+			<input
+			   type="hidden"
+			   name="is_cleared_<tag:events.id_encoded />"
+			   value=0
+			> <!-- workaround for submitting unchecked checkboxes -->
+			<input
+			   type="checkbox"
+			   name="is_cleared_<tag:events.id_encoded />" value=1
+			   <if:events.is_cleared>checked</if:events.is_cleared>
+			>
+		     </else:events.is_beginning>
+		  </if:events.is_beginning>
+		  <else:is_account><tag:events.cleared_icon /></else:is_account>
+	       </if:is_account>
 	    </td>
 	    <td><tag:events.statement_item_id /></td>
 	 </tr>
