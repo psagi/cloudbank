@@ -327,6 +327,7 @@
 	    $v_event['account_name'] = $p_name;
 	    $v_event['limit_month'] = $p_limitMonth;
 	    $v_event['delete_icon'] = $v_delete_icon;
+	    $v_event['delete_icon_link'] = '';
 	    $v_event['is_beginning'] = (
 	       $v_event['other_account_type'] ==
 	       CloudbankConsts::LedgerAccountType_Beginning
