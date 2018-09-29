@@ -13,6 +13,7 @@
 	       name VARCHAR(32) NOT NULL,
 	       type VARCHAR(16) NOT NULL,
 	       is_local_currency BOOLEAN NOT NULL DEFAULT TRUE,
+	       rate NUMERIC(16,4),
 	       UNIQUE (name, type),
 	       CHECK (type IN (\'Account\', \'Category\', \'Beginning\')),
 	       CHECK (type = \'Account\' OR is_local_currency)

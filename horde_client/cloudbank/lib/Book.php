@@ -105,8 +105,18 @@
 	 }
       }
       private static function ReformatNumber2CLocale($p_number) {
+	 Horde::log("Book::ReformatNumber2CLocale($p_number)", 'DEBUG');
 	 $v_localeconv = localeconv();
-	 return str_replace($v_localeconv['decimal_point'], '.', $p_number);
+	 $v_reformattedNumber = (
+	    str_replace($v_localeconv['decimal_point'], '.', $p_number)
+	 );
+	 Horde::log(
+	    (
+	       "Book::ReformatNumber2CLocale(): \$v_reformattedNumber = " .
+	       $v_reformattedNumber
+	    ), 'DEBUG'
+	 );
+	 return $v_reformattedNumber;
       }
       private static function FixAmount(
 	 $p_variables, $p_amountVarName, $p_isIncomeVarName
@@ -150,8 +160,9 @@
 	    $p_variables->set(
 	       'is_local_currency', $v_account_SDO['is_local_currency']
 	    );
+	    $p_variables->set('rate', $v_account_SDO['rate']);
 	    $v_vars_arr = (
-	       array('name', 'beginning_balance', 'is_local_currency')
+	       array('name', 'beginning_balance', 'is_local_currency', 'rate')
 	    );
 	 }
 	 else { $v_vars_arr = array('name'); }
@@ -252,11 +263,14 @@
 	 return Horde_Themes_Image::tag($v_iconFile, array('alt' => $p_type));
       }
       public function createAccount($p_variables) {
+	 $v_p_variables_dump = var_export($p_variables, TRUE);
+	 Horde::log("Book::createAccount($v_p_variables_dump)", 'DEBUG');
 	 $this->r_ledgerAccountService->createAccount(
 	    $p_variables->get('name'), strftime('%Y-%m-%d'),
 	    self::ReformatNumber2CLocale(
 	       $p_variables->get('beginning_balance')
-	    ), ($p_variables->get('is_local_currency') == TRUE)
+	    ), ($p_variables->get('is_local_currency') == TRUE),
+	    self::ReformatNumber2CLocale($p_variables->get('rate'))	
 	 );
       }
       public function modifyAccount($p_variables) {
@@ -265,6 +279,10 @@
 	    self::ReformatNumber2CLocale(
 	       $p_variables->get('old_beginning_balance')
 	    )
+	 );
+	 $p_variables->set(
+	    'old_rate',
+	    self::ReformatNumber2CLocale($p_variables->get('old_rate'))
 	 );
 	 $v_oldAccount_SDO = (
 	    self::VariablesToSDO(
@@ -276,13 +294,17 @@
 	       array(
 		  'account_id' => 'id', 'old_name' => 'name',
 		  'old_beginning_balance' => 'beginning_balance',
-		  'old_is_local_currency' => 'is_local_currency'
+		  'old_is_local_currency' => 'is_local_currency',
+		  'old_rate' => 'rate'
 	       )
 	    )
 	 );
 	 $p_variables->set(
 	    'beginning_balance',
 	    self::ReformatNumber2CLocale($p_variables->get('beginning_balance'))
+	 );
+	 $p_variables->set(
+	    'rate', self::ReformatNumber2CLocale($p_variables->get('rate'))
 	 );
 	 $v_newAccount_SDO = (
 	    self::VariablesToSDO(
@@ -294,7 +316,7 @@
 	       array(
 		  'account_id' => 'id', 'name' => 'name',
 		  'beginning_balance' => 'beginning_balance',
-		  'is_local_currency' => 'is_local_currency'
+		  'is_local_currency' => 'is_local_currency', 'rate' => 'rate'
 	       )
 	    )
 	 );

@@ -8,6 +8,9 @@
       ALTER TABLE ledger_account ADD is_local_currency BOOLEAN
 	 NOT NULL DEFAULT TRUE CHECK (type = \'Account\' OR is_local_currency)
    ');
+   CloudBankServer::Singleton()->tryQuery('
+      ALTER TABLE ledger_account ADD rate NUMERIC(16,4)
+   ');
 /*   
    CloudBankServer::Singleton()->tryQuery('
       ALTER TABLE event ADD is_cleared BOOLEAN DEFAULT 0

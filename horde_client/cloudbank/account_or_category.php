@@ -44,6 +44,8 @@ if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
    );
    $g_isLocalCurrencyVar->setDefault(true);
    $g_form->addHidden('', 'old_is_local_currency', 'boolean', false);
+   $g_form->addVariable('Rate/price', 'rate', 'text', false);
+   $g_form->addHidden('', 'old_rate', 'text', false);
 }
 $g_form->addHidden('', 'account_id', 'text', false);
 $g_form->addHidden('', 'account_type', 'text', false);

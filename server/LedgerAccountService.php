@@ -46,15 +46,17 @@
 	 @param boolean $p_is_local_currency	\
 	    False if the balance of the account is not in the local currency \
 	    (e.g. foreign currency or securities account)
+	 @param string $p_rate	Rate/price on non-local-currency account
 	 @return boolean	Success
       */
       public function createAccount(
-	 $p_name, $p_date, $p_beginningBalance, $p_is_local_currency = true
+	 $p_name, $p_date, $p_beginningBalance, $p_is_local_currency = true,
+	 $p_rate = NULL
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $v_accntID = $this->createOrUpdateLedgerAccount(
 	    $p_name, CloudBankConsts::LedgerAccountType_Account,
-	    $p_is_local_currency
+	    $p_is_local_currency, $p_rate
 	 );
 	 $this->r_eventService->createOrUpdateEvent(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
@@ -269,7 +271,8 @@ throw $v_exception;
 	 );
 	 $this->createOrUpdateLedgerAccount(
 	    $p_newAccount['name'], CloudBankConsts::LedgerAccountType_Account,
-	    $p_newAccount['is_local_currency'], $p_newAccount['id']
+	    $p_newAccount['is_local_currency'], $p_newAccount['rate'],
+	    $p_newAccount['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -288,7 +291,7 @@ throw $v_exception;
 	 $this->assertSameCategoryAsCurrent($p_oldCategory);
 	 $this->createOrUpdateLedgerAccount(
 	    $p_newCategory['name'], CloudBankConsts::LedgerAccountType_Category,
-	    true, $p_newCategory['id']
+	    TRUE, NULL, $p_newCategory['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -393,7 +396,8 @@ throw $v_exception;
       }
 
       private function createOrUpdateLedgerAccount(
-	 $p_name, $p_type, $p_is_local_currency = true, $p_id = NULL
+	 $p_name, $p_type, $p_is_local_currency = true, $p_rate = NULL,
+	 $p_id = NULL
       ) {
 	 if (!SchemaDef::IsValidLedgerAccountName($p_name)) {
 	    throw new Exception("Invalid LedgerAccount name ($p_name)");
@@ -407,7 +411,7 @@ throw $v_exception;
 	 $v_bindArray = (
 	    array(
 	       ':id' => $v_accountID, ':name' => $p_name,
-	       ':is_local_currency' => $p_is_local_currency
+	       ':is_local_currency' => $p_is_local_currency, ':rate' => $p_rate
 	    )
 	 );
 	 if (is_null($p_id)) $v_bindArray[':type'] = $p_type;
@@ -416,14 +420,18 @@ throw $v_exception;
 	       is_null($p_id) ? 
 	       '
 		  INSERT 
-		     INTO ledger_account(id, name, type, is_local_currency)
+		     INTO ledger_account(
+			id, name, type, is_local_currency, rate
+		     )
 		     VALUES (
-			:id, :name, :type, :is_local_currency
+			:id, :name, :type, :is_local_currency, :rate
 		     )
 	       ' :
 	       '
 		  UPDATE ledger_account
-		     SET name = :name, is_local_currency = :is_local_currency
+		     SET
+			name = :name, is_local_currency = :is_local_currency,
+			rate = :rate
 		     WHERE id = :id
 	       '
 		  // NOTE that the type of the LedgerAccount can not be modified
@@ -435,7 +443,7 @@ throw $v_exception;
 	 $v_currentAccount = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT la.name, la.is_local_currency, ae.amount
+		  SELECT la.name, la.is_local_currency, la.rate, ae.amount
 		  FROM ledger_account la, account_events ae
 		  WHERE
 		     ae.ledger_account_id = la.id AND
@@ -453,7 +461,7 @@ throw $v_exception;
 	       $p_oldAccount, $v_currentAccount[0],
 	       array(
 		  'name' => 'name',
-		  'is_local_currency' => 'is_local_currency',
+		  'is_local_currency' => 'is_local_currency', 'rate' => 'rate',
 		  'beginning_balance' => 'amount'
 	       )
 	    )
@@ -527,7 +535,7 @@ throw $v_exception;
 		  '
 		     SELECT
 			la.id, la.name,
-			ae.amount, la.is_local_currency
+			ae.amount, la.is_local_currency, la.rate
 		     FROM ledger_account la, account_events ae
 		     WHERE
 			la.id = :id AND ae.ledger_account_id = la.id AND
@@ -546,6 +554,7 @@ throw $v_exception;
 	       );
 	       $v_map['amount'] = 'beginning_balance';
 	       $v_map['is_local_currency'] = 'is_local_currency';
+	       $v_map['rate'] = 'rate';
 	       break;
 	    case CloudBankConsts::LedgerAccountType_Category :
 	       $v_queryStr = (

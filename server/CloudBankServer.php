@@ -54,8 +54,11 @@
 	    $v_isSuccess = $p_statement->bindValue(
 	       $v_parameter, $v_value, (
 		  is_bool($v_value) ?
-		  PDO::PARAM_BOOL :
-		  is_numeric($v_value) ? PDO::PARAM_INT : PDO::PARAM_STR
+		  PDO::PARAM_BOOL : (
+		     (is_numeric($v_value) && is_int($v_value + 0)) ?
+		     PDO::PARAM_INT :
+		     PDO::PARAM_STR
+		  )
 	       )
 	    );
 	    Debug::Singleton()->log(
