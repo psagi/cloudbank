@@ -12,8 +12,10 @@
 	       id VARCHAR(39) NOT NULL PRIMARY KEY,
 	       name VARCHAR(32) NOT NULL,
 	       type VARCHAR(16) NOT NULL,
+	       is_local_currency BOOLEAN NOT NULL DEFAULT TRUE,
 	       UNIQUE (name, type),
-	       CHECK (type IN (\'Account\', \'Category\', \'Beginning\'))
+	       CHECK (type IN (\'Account\', \'Category\', \'Beginning\')),
+	       CHECK (type = \'Account\' OR is_local_currency)
 	    )
 	 ',	/* Account types should have been referenced from the constants
 		  declared above, but PHP can not do string concatenation in a

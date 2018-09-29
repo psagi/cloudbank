@@ -28,13 +28,6 @@
 	 }
 	 return $p_rootDO;
       }
-      public static function PopulateAccountForm(&$p_variables) {
-	 $p_variables->set(
-	    'beginning_balance',
-	    self::FormatNumber($p_variables->get('beginning_balance'))
-	 );
-	 self::CopyToOldVars($p_variables, array('name', 'beginning_balance'));
-      }
       public static function PopulateEventForm(&$p_variables) {
 	 $p_variables->set(
 	    'is_income',
@@ -140,6 +133,33 @@
 	 return NULL;
       }
       
+      public function populateAccountForm(&$p_variables) {
+	 if (
+	    $p_variables->get('account_type') ==
+	    CloudBankConsts::LedgerAccountType_Account
+	 ) {
+	    $p_variables->set(
+	       'beginning_balance',
+	       self::FormatNumber($p_variables->get('beginning_balance'))
+	    );
+	    $v_account_SDO = (
+	       $this->r_ledgerAccountService->getAccount(
+		  $p_variables->get('account_id')
+	       )
+	    );
+	    $p_variables->set(
+	       'is_local_currency', $v_account_SDO['is_local_currency']
+	    );
+	    $v_vars_arr = (
+	       array('name', 'beginning_balance', 'is_local_currency')
+	    );
+	 }
+	 else { $v_vars_arr = array('name'); }
+	 self::CopyToOldVars(
+	    $p_variables,
+	    $v_vars_arr
+	 );
+      }
       public function getAccountOrCategoryBalance($p_id) {
 	 return (
 	    self::FormatAmount($this->r_ledgerAccountService->getBalance($p_id))
@@ -234,7 +254,9 @@
       public function createAccount($p_variables) {
 	 $this->r_ledgerAccountService->createAccount(
 	    $p_variables->get('name'), strftime('%Y-%m-%d'),
-	    self::ReformatNumber2CLocale($p_variables->get('beginning_balance'))
+	    self::ReformatNumber2CLocale(
+	       $p_variables->get('beginning_balance')
+	    ), ($p_variables->get('is_local_currency') == TRUE)
 	 );
       }
       public function modifyAccount($p_variables) {
@@ -254,6 +276,7 @@
 	       array(
 		  'account_id' => 'id', 'old_name' => 'name',
 		  'old_beginning_balance' => 'beginning_balance',
+		  'old_is_local_currency' => 'is_local_currency'
 	       )
 	    )
 	 );
@@ -271,6 +294,7 @@
 	       array(
 		  'account_id' => 'id', 'name' => 'name',
 		  'beginning_balance' => 'beginning_balance',
+		  'is_local_currency' => 'is_local_currency'
 	       )
 	    )
 	 );

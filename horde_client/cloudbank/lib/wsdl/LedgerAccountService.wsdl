@@ -12,6 +12,7 @@
             <xs:element name="p_name" type="xs:string"/>
             <xs:element name="p_date" type="xs:string"/>
             <xs:element name="p_beginningBalance" type="xs:string"/>
+            <xs:element name="p_is_local_currency" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

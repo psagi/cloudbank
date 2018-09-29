@@ -39,6 +39,11 @@ if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
       'Beginning balance', 'beginning_balance', 'text', true
    );
    $g_form->addHidden('', 'old_beginning_balance', 'text', false);
+   $g_isLocalCurrencyVar = $g_form->addVariable(
+      'Is it in local currency?', 'is_local_currency', 'boolean', true
+   );
+   $g_isLocalCurrencyVar->setDefault(true);
+   $g_form->addHidden('', 'old_is_local_currency', 'boolean', false);
 }
 $g_form->addHidden('', 'account_id', 'text', false);
 $g_form->addHidden('', 'account_type', 'text', false);
@@ -80,7 +85,7 @@ if ($g_form->validate($g_variables)) {	// submitted -> process
 
 // render
 if ($g_isEdit && !$g_isRetry) {
-   Book::PopulateAccountForm($g_variables);
+   Book::Singleton()->populateAccountForm($g_variables);
 }
 $title = ($g_isEdit ? 'Edit' : 'Add') . ' ' . $g_objectName;
 $page_output->header();

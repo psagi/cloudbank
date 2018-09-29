@@ -43,14 +43,18 @@
 	 @param string $p_date	The date of creation of the account (YYYY-MM-DD)
 	 @param string $p_beginningBalance	\
 	    The beginning balance of the account 
+	 @param boolean $p_is_local_currency	\
+	    False if the balance of the account is not in the local currency \
+	    (e.g. foreign currency or securities account)
 	 @return boolean	Success
       */
       public function createAccount(
-	 $p_name, $p_date, $p_beginningBalance
+	 $p_name, $p_date, $p_beginningBalance, $p_is_local_currency = true
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $v_accntID = $this->createOrUpdateLedgerAccount(
-	    $p_name, CloudBankConsts::LedgerAccountType_Account
+	    $p_name, CloudBankConsts::LedgerAccountType_Account,
+	    $p_is_local_currency
 	 );
 	 $this->r_eventService->createOrUpdateEvent(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
@@ -265,7 +269,7 @@ throw $v_exception;
 	 );
 	 $this->createOrUpdateLedgerAccount(
 	    $p_newAccount['name'], CloudBankConsts::LedgerAccountType_Account,
-	    $p_newAccount['id']
+	    $p_newAccount['is_local_currency'], $p_newAccount['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -284,7 +288,7 @@ throw $v_exception;
 	 $this->assertSameCategoryAsCurrent($p_oldCategory);
 	 $this->createOrUpdateLedgerAccount(
 	    $p_newCategory['name'], CloudBankConsts::LedgerAccountType_Category,
-	    $p_newCategory['id']
+	    true, $p_newCategory['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -389,7 +393,7 @@ throw $v_exception;
       }
 
       private function createOrUpdateLedgerAccount(
-	 $p_name, $p_type, $p_id = NULL
+	 $p_name, $p_type, $p_is_local_currency = true, $p_id = NULL
       ) {
 	 if (!SchemaDef::IsValidLedgerAccountName($p_name)) {
 	    throw new Exception("Invalid LedgerAccount name ($p_name)");
@@ -400,18 +404,28 @@ throw $v_exception;
 	    ;
 	 }
 	 $v_accountID = (is_null($p_id) ? CloudBankServer::UUID() : $p_id);
-	 $v_bindArray = array(':id' => $v_accountID, ':name' => $p_name);
+	 $v_bindArray = (
+	    array(
+	       ':id' => $v_accountID, ':name' => $p_name,
+	       ':is_local_currency' => $p_is_local_currency
+	    )
+	 );
 	 if (is_null($p_id)) $v_bindArray[':type'] = $p_type;
 	 $this->r_cloudBankServer->execQuery(
 	    (
 	       is_null($p_id) ? 
 	       '
 		  INSERT 
-		     INTO ledger_account(id, name, type) VALUES (
-			:id, :name, :type
+		     INTO ledger_account(id, name, type, is_local_currency)
+		     VALUES (
+			:id, :name, :type, :is_local_currency
 		     )
 	       ' :
-	       'UPDATE ledger_account SET name = :name WHERE id = :id'
+	       '
+		  UPDATE ledger_account
+		     SET name = :name, is_local_currency = :is_local_currency
+		     WHERE id = :id
+	       '
 		  // NOTE that the type of the LedgerAccount can not be modified
 	    ), $v_bindArray
 	 );
@@ -421,11 +435,12 @@ throw $v_exception;
 	 $v_currentAccount = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT ledger_account_name, amount
-		  FROM account_events
+		  SELECT la.name, la.is_local_currency, ae.amount
+		  FROM ledger_account la, account_events ae
 		  WHERE
-		     ledger_account_id = :accountID AND
-		     other_ledger_account_id = :beginningAccountID
+		     ae.ledger_account_id = la.id AND
+		     ae.ledger_account_id = :accountID AND
+		     ae.other_ledger_account_id = :beginningAccountID
 	       ',
 	       array(
 		  ':accountID' => $p_oldAccount['id'],
@@ -437,7 +452,8 @@ throw $v_exception;
 	    !CloudBankServer::IsEqual(
 	       $p_oldAccount, $v_currentAccount[0],
 	       array(
-		  'name' => 'ledger_account_name',
+		  'name' => 'name',
+		  'is_local_currency' => 'is_local_currency',
 		  'beginning_balance' => 'amount'
 	       )
 	    )
@@ -510,11 +526,11 @@ throw $v_exception;
 	       $v_queryStr = (
 		  '
 		     SELECT
-			ledger_account_id AS id, ledger_account_name AS name,
-			amount
-		     FROM account_events
+			la.id, la.name,
+			ae.amount, la.is_local_currency
+		     FROM ledger_account la, account_events ae
 		     WHERE
-			ledger_account_id = :id AND
+			la.id = :id AND ae.ledger_account_id = la.id AND
 			other_ledger_account_id = :beginning_account_id
 		  '
 	       );
@@ -529,6 +545,7 @@ throw $v_exception;
 		  )
 	       );
 	       $v_map['amount'] = 'beginning_balance';
+	       $v_map['is_local_currency'] = 'is_local_currency';
 	       break;
 	    case CloudBankConsts::LedgerAccountType_Category :
 	       $v_queryStr = (
