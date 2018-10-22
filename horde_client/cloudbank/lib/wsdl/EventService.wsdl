@@ -16,6 +16,7 @@
             <xs:element name="p_amount" type="xs:string"/>
             <xs:element name="p_statement_item_id" type="xs:string"/>
             <xs:element name="p_is_cleared" type="xs:boolean"/>
+            <xs:element name="p_quantity" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

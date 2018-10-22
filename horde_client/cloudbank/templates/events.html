@@ -5,13 +5,19 @@
 	 <tag:limit_month />&nbsp - 
       </span>
    </span>
-   <span class="rightFloat"><tag:total /></span>
+   <span class="rightFloat">
+      <table>
+	 <th style="font-weight: normal"><tag:total_quantity /></th>
+	 <th />
+	 <th><tag:total /></th>
+      </table>
+   </span>
    <br class="clear"/>
 </div>
 <form action="<tag:self_url />" method="post">
    <table class="item" width="100%" cellspacing="1">
       <tr class="control" align="left">
-	 <th colspan=4><tag:new_event_link /></th>
+	 <th colspan=5><tag:new_event_link /></th>
 	 <th colspan=3>
 	    <if:is_account>
 	       <input type="submit" value="Commit cleared status">
@@ -23,6 +29,7 @@
 	 <th align="left">Description</th>
 	 <th align="left"></th>
 	 <th align="left">To/From</th>
+	 <th align="left">Quantity</th>
 	 <th align="left">Amount</th>
 	 <th align="left"></th>
 	 <th align="left">Reference</th>
@@ -36,6 +43,7 @@
 	       <if:is_account><tag:events.account_icon /></if:is_account>
 	       <tag:events.account_link />
 	    </td>
+	    <td align="right"><tag:events.quantity_fmt /></td>
 	    <td align="right"><tag:events.amount_fmt /></td>
 	    <td>
 	       <if:is_account>

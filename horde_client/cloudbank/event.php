@@ -30,6 +30,7 @@ function prepareForm($p_variables) {
       'To/From', 'other_account_id', 'enum', true, false, '',
       array($v_accountsAndCategories, true)
    );
+   $v_form->addVariable('Quantity', 'quantity', 'text', false);
    $v_form->addVariable('Amount', 'amount', 'text', true);
    $v_form->addVariable('Is it cleared?', 'is_cleared', 'boolean', true);
    $v_form->addVariable(
@@ -40,6 +41,7 @@ function prepareForm($p_variables) {
    $v_form->addHidden('', 'old_description', 'text', false);
    $v_form->addHidden('', 'old_is_income', 'boolean', false);
    $v_form->addHidden('', 'old_other_account_id', 'text', false);
+   $v_form->addHidden('', 'old_quantity', 'text', false);
    $v_form->addHidden('', 'old_amount', 'text', false);
    $v_form->addHidden('', 'old_is_cleared', 'boolean', false);
    $v_form->addHidden('', 'old_statement_item_id', 'text', false);

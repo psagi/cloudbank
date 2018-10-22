@@ -21,6 +21,7 @@
       <xsd:attribute name="other_account_name" type="xsd:string"/>
       <xsd:attribute name="other_account_type" type="xsd:string"/>
       <xsd:attribute name="amount" type="xsd:string"/>
+      <xsd:attribute name="quantity" type="xsd:string" minOccurs="0" />
       <xsd:attribute name="statement_item_id" type="xsd:string" minOccurs="0" />
       <xsd:attribute name="is_cleared" type="xsd:boolean" default="false"/>
    </xsd:complexType>

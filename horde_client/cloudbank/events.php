@@ -166,7 +166,7 @@ try {
       array(
 	 'date' => 'date', 'description' => 'description', 
 	 'account_id' => 'account_id', 'limit_month' => 'limit_month',
-	 'other_account_id' => 'other_account_id',
+	 'other_account_id' => 'other_account_id', 'quantity' => 'quantity',
 	 'amount' => 'amount', 'is_cleared' => 'is_cleared',
 	 'statement_item_id' => 'statement_item_id', 'event_id' => 'id',
 	 'account_type' => 'account_type', 'account_name' => 'account_name',
@@ -177,7 +177,8 @@ try {
       array(
 	 'date' => NULL, 'description' => NULL, 'account_id' => NULL,
 	 'limit_month' => NULL,
-	 'other_account_id' => NULL, 'amount' => NULL, 'is_cleared' => NULL,
+	 'other_account_id' => NULL, 'quantity' => NULL, 'amount' => NULL,
+	 'is_cleared' => NULL,
 	 'statement_item_id' => NULL, 'id' => NULL,
 	 'account_type' => CloudBankConsts::LedgerAccountType_Category,
 	 'account_name' => NULL,
@@ -219,7 +220,7 @@ try {
       $g_events, 'checkmark.png', 'Cleared', 'cleared_icon', array('is_cleared' => true)
    );
    Book::SortResultSet($g_events, 'date', TRUE);
-   $g_total = Book::Singleton()->getAccountOrCategoryBalance($g_id);
+   $g_total_arr = Book::Singleton()->getAccountOrCategoryBalance($g_id);
 
    $g_template = &new Horde_Template;
    $g_template->set(
@@ -254,7 +255,8 @@ try {
    $g_template->set('account_or_category_icon', $g_accountOrCategoryIcon);
    $g_template->set('limit_month', $g_limitMonth);
    $g_template->set('events', $g_events);
-   $g_template->set('total', $g_total);
+   $g_template->set('total_quantity', $g_total_arr['total_quantity']);
+   $g_template->set('total', $g_total_arr['balance']);
    $g_template->set(
       'more_events_link', (
 	 Horde::link(

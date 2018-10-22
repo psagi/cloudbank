@@ -14,6 +14,7 @@
             <xs:element name="p_beginningBalance" type="xs:string"/>
             <xs:element name="p_is_local_currency" type="xs:boolean"/>
             <xs:element name="p_rate" type="xs:string"/>
+            <xs:element name="p_beginningQuantity" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -115,7 +116,7 @@
       <xs:element name="getBalanceResponse">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="getBalanceReturn" type="xs:string"/>
+            <xs:element name="getBalanceReturn" type="ns0:Balance"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

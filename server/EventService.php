@@ -32,6 +32,35 @@
       private static function ApplyDefaults(&$p_event) {
 	 if (!isset($p_event['is_cleared'])) $p_event['is_cleared'] = false;
       }
+      private function assertQuantityRule(
+	 $p_quantity, $p_accountID, $p_otherAccountID
+      ) {
+	 if (
+	    empty($p_quantity) && (
+	       count(
+		  $this->r_cloudBankServer->execQuery(
+		     '
+			SELECT 1
+			   FROM ledger_account
+			   WHERE
+			      NOT is_local_currency AND
+			      (id IN (:account_id, :other_account_id))
+		     ',
+		     array(
+			':account_id' => $p_accountID,
+			':other_account_id' => $p_otherAccountID
+		     )
+		  )
+	       ) != 0
+	    )
+	 ) {
+	    throw (
+	       new Exception(
+		  "Quantity must be specified for non-local-currency accounts."
+	       )
+	    );
+	 }
+      }
 
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
@@ -52,16 +81,19 @@
 	 @param boolean $p_is_cleared
 	    Flag for indicating the cleared status of the event. Mandatory, 
 	    defaults to false.
+	 @param string $p_quantity
+	    Optional quantity (amount in foreign currency, number of securities
+	    etc.) attribute. If left empty it counts as zero in total quantity.
 	 @return boolean		Success
       */
       public function createEvent(
 	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount,
-	 $p_statement_item_id, $p_is_cleared = false
+	 $p_statement_item_id, $p_is_cleared = FALSE, $p_quantity = NULL
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->createOrUpdateEvent(
 	    $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount,
-	    $p_statement_item_id, $p_is_cleared
+	    $p_statement_item_id, $p_is_cleared, $p_quantity
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -135,6 +167,7 @@
 		  SELECT
 		     id, date, description, other_ledger_account_id,
 		     other_ledger_account_name, other_ledger_account_type,
+		     quantity,
 		     amount, statement_item_id, is_cleared
 		  FROM account_events
 		  WHERE ledger_account_id = :accountID
@@ -152,6 +185,7 @@
 		  'other_ledger_account_id' => 'other_account_id',
 		  'other_ledger_account_name' => 'other_account_name',
 		  'other_ledger_account_type' => 'other_account_type',
+		  'quantity' => 'quantity',
 		  'amount' => 'amount',
 		  'statement_item_id' => 'statement_item_id',
 		  'is_cleared' => 'is_cleared'
@@ -188,7 +222,8 @@
 	       $v_newEvent['statement_item_id'] :
 	       NULL
 	    ),
-	    $v_newEvent['is_cleared'], $v_newEvent['id']
+	    $v_newEvent['is_cleared'], $v_newEvent['quantity'],
+	    $v_newEvent['id']
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -210,9 +245,14 @@
 
       public function createOrUpdateEvent(
 	 $p_date, $p_description, $p_accountID, $p_otherAccountID, $p_amount, 
-	 $p_statement_item_id, $p_is_cleared,
+	 $p_statement_item_id, $p_is_cleared, $p_quantity = NULL,
 	 $p_id = NULL
       ) {
+	 Debug::Singleton()->log(
+	    "EventService::createOrUpdateEvent($p_date, $p_description, " .
+	       "$p_accountID, $p_otherAccountID, $p_amount, " .
+	       "$p_statement_item_id, $p_is_cleared, $p_quantity, $p_id)"
+	 );
 	 if (!SchemaDef::IsValidDate($p_date)) {
 	    throw new Exception("Invalid Event date ($p_date)");
 	 }
@@ -224,9 +264,19 @@
 	       "Invalid amount ($p_amount). Must be a floating point number."
 	    );
 	 }
+	 if (!SchemaDef::IsValidQuantity($p_quantity)) {
+	    throw new Exception(
+	       "Invalid quantity ($p_quantity). Must be a floating point " .
+		  "number."
+	    );
+	 }
+	 $this->assertQuantityRule(
+	    $p_quantity, $p_accountID, $p_otherAccountID
+	 );
 	 $this->prepareRelatedAccounts(
-	    $p_accountID, $p_otherAccountID, $p_amount, $v_debitLedgerAccountID,
-	    $v_creditLedgerAccountID, $v_amount
+	    $p_accountID, $p_otherAccountID, $p_amount, $p_quantity,
+	    $v_debitLedgerAccountID, $v_creditLedgerAccountID, $v_amount,
+	    $v_quantity
 	 );
 	 if (
 	    !(
@@ -250,11 +300,13 @@
 		  INSERT 
 		     INTO event(
 		     	id, date, description, credit_ledger_account_id,
-		       	debit_ledger_account_id, amount, statement_item_id,
+		       	debit_ledger_account_id, amount, quantity,
+			statement_item_id,
 			is_cleared
 		     ) VALUES (
 		      	:id, :date, :description, :credit_ledger_account_id,
-			:debit_ledger_account_id, :amount, :statement_item_id,
+			:debit_ledger_account_id, :amount, :quantity,
+			:statement_item_id,
 			:is_cleared
 		     )
 	       ' :
@@ -264,7 +316,8 @@
 		     date = :date, description = :description,
 		     credit_ledger_account_id = :credit_ledger_account_id,
 		     debit_ledger_account_id = :debit_ledger_account_id,
-		     amount = :amount, statement_item_id = :statement_item_id,
+		     amount = :amount, quantity = :quantity,
+		     statement_item_id = :statement_item_id,
 		     is_cleared = :is_cleared
 		  WHERE id = :id
 	       '
@@ -275,7 +328,7 @@
 	       ':description' => $p_description,
 	       ':credit_ledger_account_id' => $v_creditLedgerAccountID,
 	       ':debit_ledger_account_id' => $v_debitLedgerAccountID,
-	       ':amount' => $v_amount,
+	       ':amount' => $v_amount, ':quantity' => $v_quantity,
 	       ':statement_item_id' => $p_statement_item_id,
 	       ':is_cleared' => $p_is_cleared
 	    )
@@ -352,6 +405,7 @@
 	       '
 		  SELECT
 		     date, description, other_ledger_account_id, amount,
+		     quantity,
 		     statement_item_id, is_cleared
 		  FROM account_events
 		  WHERE ledger_account_id = :account_id AND id = :id
@@ -363,7 +417,7 @@
 	    array(
 	       'date' => 'date', 'description' => 'description',
 	       'other_account_id' => 'other_ledger_account_id',
-	       'amount' => 'amount',
+	       'amount' => 'amount', 'quantity' => 'quantity',
 	       'is_cleared' => 'is_cleared'
 	    )
 	 );
@@ -384,7 +438,8 @@
       }
       private function prepareRelatedAccounts(
 	    $p_accountID, $p_otherAccountID, $p_amount_client,
-	    &$p_debitLedgerAccountID, &$p_creditLedgerAccountID, &$p_amount
+	    $p_quantity_client, &$p_debitLedgerAccountID,
+	    &$p_creditLedgerAccountID, &$p_amount, &$p_quantity
 	 ) {
 	 $this->assertLedgerAccountExists(
 	    $p_accountID, CloudBankConsts::LedgerAccountType_Account
@@ -395,6 +450,11 @@
 	    $p_debitLedgerAccountID, $p_creditLedgerAccountID
 	 ); 
 	 $p_amount = abs($p_amount_client);
+	 $p_quantity = (
+	    $p_quantity_client == '' ?
+	    $p_quantity_client :
+	    abs($p_quantity_client)
+	 );
       }
 
       private $r_cloudBankServer;

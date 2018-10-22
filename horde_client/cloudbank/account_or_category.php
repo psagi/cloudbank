@@ -36,6 +36,10 @@ $g_form = &new Horde_Form(
 $g_form->addVariable('Name', 'name', 'text', true);
 if ($g_account_type == CloudBankConsts::LedgerAccountType_Account) {
    $g_form->addVariable(
+      'Beginning quantity', 'beginning_quantity', 'text', FALSE
+   );
+   $g_form->addHidden('', 'old_beginning_quantity', 'text', false);
+   $g_form->addVariable(
       'Beginning balance', 'beginning_balance', 'text', true
    );
    $g_form->addHidden('', 'old_beginning_balance', 'text', false);

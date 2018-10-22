@@ -12,7 +12,7 @@
 	       id VARCHAR(39) NOT NULL PRIMARY KEY,
 	       name VARCHAR(32) NOT NULL,
 	       type VARCHAR(16) NOT NULL,
-	       is_local_currency BOOLEAN NOT NULL DEFAULT TRUE,
+	       is_local_currency BOOLEAN NOT NULL DEFAULT 1,
 	       rate NUMERIC(16,4),
 	       UNIQUE (name, type),
 	       CHECK (type IN (\'Account\', \'Category\', \'Beginning\')),
@@ -30,6 +30,7 @@
 	       credit_ledger_account_id VARCHAR(39)
 		  NOT NULL REFERENCES ledger_account,
 	       amount NUMERIC(16,2) NOT NULL,
+	       quantity NUMERIC(16,4),
 	       statement_item_id VARCHAR(16),
 	       is_cleared BOOLEAN NOT NULL,
 	       CHECK (amount >= 0), 
@@ -61,6 +62,7 @@
 		  la.id AS ledger_account_id, la.name AS ledger_account_name,
 		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
 		  e.description AS description, e.amount AS amount,
+		  e.quantity AS quantity,
 		  e.statement_item_id AS statement_item_id,
 		  e.is_cleared AS is_cleared,
 		  o_la.id AS other_ledger_account_id,
@@ -75,6 +77,10 @@
 		  la.id AS ledger_account_id, la.name AS ledger_account_name,
 		  la.type AS ledger_account_type, e.id AS id, e.date AS date,
 		  e.description AS description, -e.amount AS amount,
+		  CASE
+		     WHEN e.quantity ISNULL OR e.quantity = "" THEN NULL
+		     ELSE -e.quantity
+		  END AS quantity,
 		  e.statement_item_id AS statement_item_id,
 		  e.is_cleared AS is_cleared,
 		  o_la.id AS other_ledger_account_id,
@@ -142,6 +148,9 @@
 	 ); 
 	 return ($v_length >= $p_minLen && $v_length <= $p_maxLen);
       }
+      private static function IsValidFloat($p_number) {
+	 return (is_numeric($p_number) && (strpos($p_number, 'x') === FALSE));
+      }
       public static function IsValidLedgerAccountName($p_name) {
 	 return self::CheckStrLength($p_name, 1, 32);
       }
@@ -163,7 +172,13 @@
 	 );
       }
       public static function IsValidAmount($p_amount) {
-	 return (is_numeric($p_amount) && (strpos($p_amount, 'x') === FALSE));
+	 return self::IsValidFloat($p_amount);
+      }
+      public static function IsValidQuantity($p_quantity) {
+	 return (empty($p_quantity) || self::IsValidFloat($p_quantity));
+      }
+      public static function IsValidRate($p_rate) {
+	 return (empty($p_rate) || self::IsValidFloat($p_rate));
       }
       public static function IsValidLedgerAccountPair(
 	 $p_debitLedgerAccountID, $p_creditLedgerAccountID

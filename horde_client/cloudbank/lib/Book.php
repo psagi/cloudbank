@@ -42,10 +42,15 @@
 	 $p_variables->set(
 	    'amount', self::FormatNumber(abs($p_variables->get('amount')))
 	 );
+	 $v_quantity = $p_variables->get('quantity');
+	 if ($v_quantity != '') {
+	    $p_variables->set('quantity', self::FormatNumber(abs($v_quantity)));
+	 }
 	 self::CopyToOldVars(
 	    $p_variables,  
 	    array(
-	       'date', 'description', 'is_income', 'other_account_id', 'amount',
+	       'date', 'description', 'is_income', 'other_account_id',
+	       'quantity', 'amount',
 	       'is_cleared', 'statement_item_id'
 	    )
 	 );
@@ -79,6 +84,7 @@
 	 return $v_message;
       }
       public static function FormatAmount($p_amount) {
+	 Horde::log("Book::FormatAmount($p_amount)", 'DEBUG');
 	 return money_format('%!.2n', $p_amount);
       }
       private static function CopyArray($p_array) {
@@ -99,9 +105,13 @@
       private static function FormatNumber($p_amount) {
 	 return money_format('%!^.2n', $p_amount);
       }
-      private static function FormatAmounts(&$p_resultSet) {
+      private static function FormatAmounts(
+	 &$p_resultSet, $v_amountFieldName = 'amount'
+      ) {
 	 foreach ($p_resultSet as &$v_record) {
-	    $v_record['amount_fmt'] = self::FormatAmount($v_record['amount']);
+	    $v_record[$v_amountFieldName . '_fmt'] = (
+	       self::FormatAmount($v_record[$v_amountFieldName])
+	    );
 	 }
       }
       private static function ReformatNumber2CLocale($p_number) {
@@ -121,11 +131,12 @@
       private static function FixAmount(
 	 $p_variables, $p_amountVarName, $p_isIncomeVarName
       ) {
+	 $v_amount = $p_variables->get($p_amountVarName);
+	 if (empty($v_amount)) return $v_amount;
 	 return (
 	    self::ReformatNumber2CLocale(
-	       self::ReformatNumber2CLocale(
-		  $p_variables->get($p_amountVarName)
-	       ) * ($p_variables->get($p_isIncomeVarName) ? 1 : -1)
+	       self::ReformatNumber2CLocale($v_amount) *
+	       ($p_variables->get($p_isIncomeVarName) ? 1 : -1)
 	    )
 	 );
       }
@@ -136,9 +147,11 @@
 	    );
 	 }
       }
-      private static function GetBalance($p_balances, $p_id) {
+      private static function GetAttribute(
+	 $p_balances, $p_id, $p_attributeName
+      ) {
 	 foreach($p_balances as $v_balance) {
-	    if ($v_balance['id'] == $p_id) return $v_balance['balance'];
+	    if ($v_balance['id'] == $p_id) return $v_balance[$p_attributeName];
 	 }      
 	 return NULL;
       }
@@ -161,8 +174,14 @@
 	       'is_local_currency', $v_account_SDO['is_local_currency']
 	    );
 	    $p_variables->set('rate', $v_account_SDO['rate']);
+	    $p_variables->set(
+	       'beginning_quantity', $v_account_SDO['beginning_quantity']
+	    );
 	    $v_vars_arr = (
-	       array('name', 'beginning_balance', 'is_local_currency', 'rate')
+	       array(
+		  'name', 'beginning_quantity', 'beginning_balance',
+		  'is_local_currency', 'rate'
+	       )
 	    );
 	 }
 	 else { $v_vars_arr = array('name'); }
@@ -172,12 +191,23 @@
 	 );
       }
       public function getAccountOrCategoryBalance($p_id) {
+	 $v_balance_SDO = $this->r_ledgerAccountService->getBalance($p_id);
+	 Horde::log(
+	    (
+	       "Book::getAccountOrCategoryBalance(): \$v_balance_SDO = " .
+		  var_export($v_balance_SDO, TRUE)
+	    ), 'DEBUG'
+	 );
 	 return (
-	    self::FormatAmount($this->r_ledgerAccountService->getBalance($p_id))
+	    array(
+	       'balance' => self::FormatAmount($v_balance_SDO->balance),
+	       'total_quantity' =>
+		  self::FormatAmount($v_balance_SDO->total_quantity)
+	    )
 	 );
       }
       public function getClearedOrMatchedBalance($p_id) {
-	 return $this->r_ledgerAccountService->getBalance($p_id, TRUE);
+	 return $this->r_ledgerAccountService->getBalance($p_id, TRUE)->balance;
       }
       public function getAccountsOrCategoriesWBalance($p_type) {
 	 $v_accountsOrCategories = (
@@ -195,7 +225,16 @@
 	 foreach ($v_accountsOrCategories as &$v_accountOrCategory) {
 	    $v_accountOrCategory['balance'] = (
 	       self::FormatAmount(
-		  self::GetBalance($v_balances, $v_accountOrCategory['id'])
+		  self::GetAttribute(
+		     $v_balances, $v_accountOrCategory['id'], 'balance'
+		  )
+	       )
+	    );
+	    $v_accountOrCategory['total_quantity'] = (
+	       self::FormatAmount(
+		  self::GetAttribute(
+		     $v_balances, $v_accountOrCategory['id'], 'total_quantity'
+		  )
 	       )
 	    );
 	    $v_accountOrCategory['type'] = $p_type;
@@ -270,10 +309,19 @@
 	    self::ReformatNumber2CLocale(
 	       $p_variables->get('beginning_balance')
 	    ), ($p_variables->get('is_local_currency') == TRUE),
-	    self::ReformatNumber2CLocale($p_variables->get('rate'))	
+	    self::ReformatNumber2CLocale($p_variables->get('rate')),
+	    self::ReformatNumber2CLocale(
+	       $p_variables->get('beginning_quantity')
+	    )
 	 );
       }
       public function modifyAccount($p_variables) {
+	 $p_variables->set(
+	    'old_beginning_quantity',
+	    self::ReformatNumber2CLocale(
+	       $p_variables->get('old_beginning_quantity')
+	    )
+	 );
 	 $p_variables->set(
 	    'old_beginning_balance',
 	    self::ReformatNumber2CLocale(
@@ -293,10 +341,17 @@
 	       ), 
 	       array(
 		  'account_id' => 'id', 'old_name' => 'name',
+		  'old_beginning_quantity' => 'beginning_quantity',
 		  'old_beginning_balance' => 'beginning_balance',
 		  'old_is_local_currency' => 'is_local_currency',
 		  'old_rate' => 'rate'
 	       )
+	    )
+	 );
+	 $p_variables->set(
+	    'beginning_quantity',
+	    self::ReformatNumber2CLocale(
+	       $p_variables->get('beginning_quantity')
 	    )
 	 );
 	 $p_variables->set(
@@ -315,6 +370,7 @@
 	       ), 
 	       array(
 		  'account_id' => 'id', 'name' => 'name',
+		  'beginning_quantity' => 'beginning_quantity',
 		  'beginning_balance' => 'beginning_balance',
 		  'is_local_currency' => 'is_local_currency', 'rate' => 'rate'
 	       )
@@ -362,7 +418,8 @@
 	    )
 	 );
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
-	 self::FormatAmounts($v_events);
+	 self::FormatAmounts($v_events, 'amount');
+	 self::FormatAmounts($v_events, 'quantity');
 	 $v_delete_icon = (
 	    Horde_Themes_Image::tag('delete.png', array('alt' => 'Delete'))
 	 );
@@ -383,12 +440,13 @@
       }
       public function createEvent($p_variables) {
 	 $v_amount = self::FixAmount($p_variables, 'amount', 'is_income');
+	 $v_quantity = self::FixAmount($p_variables, 'quantity', 'is_income');
 	 $this->r_eventService->createEvent(
 	    $p_variables->get('date'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
 	    $p_variables->get('other_account_id'), $v_amount,
 	    $p_variables->get('statement_item_id'),
-	    ($p_variables->get('is_cleared') ? true : false)
+	    ($p_variables->get('is_cleared') ? true : false), $v_quantity
 	 );
       }
       public function modifyEvent($p_variables) {
@@ -404,6 +462,7 @@
 		  'old_other_account_id' => 'other_account_id',
 		  'old_other_account_name' => 'other_account_name',
 		  'old_other_account_type' => 'other_account_type',
+		  'old_quantity' => 'quantity',
 		  'old_amount' => 'amount', 'old_is_cleared' => 'is_cleared',
 		  'old_statement_item_id' => 'statement_item_id'
 	       )
@@ -413,6 +472,10 @@
 	    self::FixAmount($p_variables, 'old_amount', 'old_is_income')
 	 );
 	 $v_oldEvent_SDO->amount = $v_oldAmount;
+	 $v_oldQuantity = (
+	    self::FixAmount($p_variables, 'old_quantity', 'old_is_income')
+	 );
+	 $v_oldEvent_SDO->quantity = $v_oldQuantity;
 	 $v_newEvent_SDO = (
 	    self::VariablesToSDO(
 	       $p_variables,
@@ -425,6 +488,7 @@
 		  'other_account_id' => 'other_account_id',
 		  'other_account_name' => 'other_account_name',
 		  'other_account_type' => 'other_account_type',
+		  'quantity' => 'quantity',
 		  'amount' => 'amount', 'is_cleared' => 'is_cleared',
 		  'statement_item_id' => 'statement_item_id'
 	       )
@@ -432,6 +496,8 @@
 	 );
 	 $v_amount = self::FixAmount($p_variables, 'amount', 'is_income');
 	 $v_newEvent_SDO->amount = $v_amount;
+	 $v_quantity = self::FixAmount($p_variables, 'quantity', 'is_income');
+	 $v_newEvent_SDO->quantity = $v_quantity;
 	 $this->r_eventService->modifyEvent(
 	    $p_variables->get('account_id'), $v_oldEvent_SDO, $v_newEvent_SDO
 	 );

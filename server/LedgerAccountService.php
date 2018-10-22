@@ -33,6 +33,27 @@
 	    )
 	 );
       }
+      private static function AssertBeginningQuantityRule(
+	 $p_isLocalCurrency, $p_beginningQuantity
+      ) {
+	 if ($p_isLocalCurrency && !empty($p_beginningQuantity)) {
+	    throw (
+	       new Exception(
+		  "Only Accounts in non-local currency can have beginning " .
+		     "quantity"
+	       )
+	    );
+	 }
+      }
+      /*
+	 PHP SDO XML does not implement the default attribute of the XSD. This
+	 is to fix this behaviour
+      */
+      private static function ApplyDefaults(&$p_account) {
+	 if (!isset($p_account['is_local_currency'])) {
+	    $p_account['is_local_currency'] = TRUE;
+	 }
+      }
 
       public function __construct() {
 	 $this->r_cloudBankServer = CloudBankServer::Singleton();
@@ -47,12 +68,18 @@
 	    False if the balance of the account is not in the local currency \
 	    (e.g. foreign currency or securities account)
 	 @param string $p_rate	Rate/price on non-local-currency account
+	 @param string $p_beginningQuantity	\
+	    The beginning quantity balance of the account. Valid only if \
+	    account is not in local currency.
 	 @return boolean	Success
       */
       public function createAccount(
 	 $p_name, $p_date, $p_beginningBalance, $p_is_local_currency = true,
-	 $p_rate = NULL
+	 $p_rate = NULL, $p_beginningQuantity = NULL 
       ) {
+	 self::AssertBeginningQuantityRule(
+	    $p_is_local_currency, $p_beginningQuantity
+	 );
 	 $this->r_cloudBankServer->beginTransaction();
 	 $v_accntID = $this->createOrUpdateLedgerAccount(
 	    $p_name, CloudBankConsts::LedgerAccountType_Account,
@@ -60,7 +87,8 @@
 	 );
 	 $this->r_eventService->createOrUpdateEvent(
 	    $p_date, self::BeginningEvntDesc, $v_accntID,
-	    self::GetBeginningAccountID(), $p_beginningBalance, NULL, true
+	    self::GetBeginningAccountID(), $p_beginningBalance, NULL, true,
+	    $p_beginningQuantity
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -183,7 +211,7 @@ throw $v_exception;
 	 @param boolean $p_isClearedOrReferencedOnly
 	    If set only the cleared events or those that have the statement
 	    reference filled in are counted. Defaults to false.
-	 @return string				Its balance
+	 @return Balance http://pety.homelinux.org/CloudBank/LedgerAccountService
       */
       public function getBalance(
 	 $p_ledgerAccountID, $p_isClearedOrReferencedOnly = FALSE
@@ -193,9 +221,16 @@ throw $v_exception;
 	 $v_balance = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT SUM(amount) AS balance
-		  FROM account_events
-		  WHERE ledger_account_id = :ledgerAccountID
+		  SELECT
+		     la.id AS id, SUM(ae.amount) AS balance,
+		     CASE la.is_local_currency
+			WHEN 0 THEN SUM(ae.quantity)
+			ELSE NULL
+		     END AS total_quantity
+		  FROM account_events ae, ledger_account la
+		  WHERE
+		     ae.ledger_account_id = la.id AND
+		     ae.ledger_account_id = :ledgerAccountID
 	       ' .
 	       (
 		  $p_isClearedOrReferencedOnly ?
@@ -208,7 +243,13 @@ throw $v_exception;
 	    )
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
-	 return $v_balance[0]['balance'];
+	 return self::ToSDO(
+	    $v_balance, NULL, 'Balance',
+	    array(
+	       'id' => 'id', 'balance' => 'balance',
+	       'total_quantity' => 'total_quantity'
+	    )
+	 );
       }
 
       /**
@@ -222,17 +263,28 @@ throw $v_exception;
 	 $v_balances = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT ledger_account_id AS id, SUM(amount) AS balance
-		  FROM account_events
-		  WHERE ledger_account_type = :ledgerAccountType
-		  GROUP BY ledger_account_id
+		  SELECT
+		     ae.ledger_account_id AS id, SUM(ae.amount) AS balance,
+		     CASE la.is_local_currency
+		     	WHEN 0
+			THEN SUM(ae.quantity)
+			ELSE NULL
+		     END AS total_quantity
+		  FROM account_events ae, ledger_account la
+		  WHERE
+		     ae.ledger_account_id = la.id AND
+		     ae.ledger_account_type = :ledgerAccountType
+		  GROUP BY ae.ledger_account_id
 	       ', array(':ledgerAccountType' => $p_ledgerAccountType)
 	    )
 	 );
 	 return (
 	    self::ToSDO(
 	       $v_balances, 'BalanceSet', 'Balance',
-	       array('id' => 'id', 'balance' => 'balance')
+	       array(
+		  'id' => 'id', 'balance' => 'balance',
+		  'total_quantity' => 'total_quantity'
+	       )
 	    )
 	 );
       }
@@ -257,22 +309,37 @@ throw $v_exception;
 	 @return boolean	Success
       */
       public function modifyAccount($p_oldAccount, $p_newAccount) {
+	 Debug::Singleton()->log(
+	    "LedgerAccountService::modifyAccount(" .
+	       var_export($p_oldAccount, true) . ", " .
+	       var_export($p_newAccount, true) . ")"
+	 );
+	 $v_oldAccount = $p_oldAccount;
+	 self::ApplyDefaults($v_oldAccount);
+	 $v_newAccount = $p_newAccount;
+	 self::ApplyDefaults($v_newAccount);
 	 CloudBankServer::AssertIDsMatch(
-	    $p_newAccount['id'], $p_oldAccount['id']
+	    $v_newAccount['id'], $v_oldAccount['id']
+	 );
+	 self::AssertBeginningQuantityRule(
+	    $v_newAccount['is_local_currency'],
+	    $v_newAccount['beginning_quantity']
 	 );
 	 $this->r_cloudBankServer->beginTransaction();
-	 $this->assertSameAccountAsCurrent($p_oldAccount);
-	 $v_beginningEvent = $this->getBeginningEvent($p_oldAccount['id']);
+	 $this->assertSameAccountAsCurrent($v_oldAccount);
+	 $v_beginningEvent = $this->getBeginningEvent($v_oldAccount['id']);
+	 $this->createOrUpdateLedgerAccount(
+	    $v_newAccount['name'], CloudBankConsts::LedgerAccountType_Account,
+	    $v_newAccount['is_local_currency'], $v_newAccount['rate'],
+	    $v_newAccount['id']
+	 );
 	 $this->r_eventService->createOrUpdateEvent(
 	    $v_beginningEvent['date'], $v_beginningEvent['description'],
-	    $p_newAccount['id'], $v_beginningEvent['other_account_id'],
-	    $p_newAccount['beginning_balance'], $v_beginningEvent['statement_item_id'], 
-	    $v_beginningEvent['is_cleared'], $v_beginningEvent['id'] 
-	 );
-	 $this->createOrUpdateLedgerAccount(
-	    $p_newAccount['name'], CloudBankConsts::LedgerAccountType_Account,
-	    $p_newAccount['is_local_currency'], $p_newAccount['rate'],
-	    $p_newAccount['id']
+	    $v_newAccount['id'], $v_beginningEvent['other_account_id'],
+	    $v_newAccount['beginning_balance'], $v_beginningEvent['statement_item_id'], 
+	    $v_beginningEvent['is_cleared'],
+	    $v_newAccount['beginning_quantity'],
+	    $v_beginningEvent['id'] 
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -402,6 +469,14 @@ throw $v_exception;
 	 if (!SchemaDef::IsValidLedgerAccountName($p_name)) {
 	    throw new Exception("Invalid LedgerAccount name ($p_name)");
 	 }
+	 if (!SchemaDef::IsValidRate($p_rate)) {
+	    throw (
+	       new Exception(
+		  "Invalid rate ($p_rate). Must be empty or a floating point " .
+		     "number"
+	       )
+	    );
+	 }
 	 if ($this->doesExistAndNotThis($p_name, $p_type, $p_id)) {
 	    throw
 	       new Exception("LedgerAccount ($p_name, $p_type) already exists.")
@@ -443,7 +518,9 @@ throw $v_exception;
 	 $v_currentAccount = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT la.name, la.is_local_currency, la.rate, ae.amount
+		  SELECT
+		     la.name, la.is_local_currency, la.rate, ae.quantity,
+		     ae.amount
 		  FROM ledger_account la, account_events ae
 		  WHERE
 		     ae.ledger_account_id = la.id AND
@@ -462,6 +539,7 @@ throw $v_exception;
 	       array(
 		  'name' => 'name',
 		  'is_local_currency' => 'is_local_currency', 'rate' => 'rate',
+		  'beginning_quantity' => 'quantity',
 		  'beginning_balance' => 'amount'
 	       )
 	    )
@@ -534,7 +612,7 @@ throw $v_exception;
 	       $v_queryStr = (
 		  '
 		     SELECT
-			la.id, la.name,
+			la.id, la.name, ae.quantity,
 			ae.amount, la.is_local_currency, la.rate
 		     FROM ledger_account la, account_events ae
 		     WHERE
@@ -552,6 +630,7 @@ throw $v_exception;
 		     )
 		  )
 	       );
+	       $v_map['quantity'] = 'beginning_quantity';
 	       $v_map['amount'] = 'beginning_balance';
 	       $v_map['is_local_currency'] = 'is_local_currency';
 	       $v_map['rate'] = 'rate';

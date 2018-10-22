@@ -20,7 +20,8 @@
       <xsd:attribute
 	 name="is_local_currency" type="xsd:boolean" default="true"
       />
-      <xsd:attribute name="rate" type="xsd:string"/>
+      <xsd:attribute name="rate" type="xsd:string" minOccurs="0"/>
+      <xsd:attribute name="beginning_quantity" type="xsd:string" minOccurs="0"/>
       <xsd:attribute name="beginning_balance" type="xsd:string"/>
    </xsd:complexType>
    <xsd:element name="CategorySet" type="LedgerAccountService:CategorySet"/>
@@ -50,5 +51,6 @@
    <xsd:complexType name="Balance">
       <xsd:attribute name="id" type="xsd:string"/>
       <xsd:attribute name="balance" type="xsd:string"/>
+      <xsd:attribute name="total_quantity" type="xsd:string" minOccurs="0" />
    </xsd:complexType>
 </xsd:schema>
