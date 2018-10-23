@@ -31,7 +31,7 @@ function prepareForm($p_variables) {
       array($v_accountsAndCategories, true)
    );
    $v_form->addVariable('Quantity', 'quantity', 'text', false);
-   $v_form->addVariable('Amount', 'amount', 'text', true);
+   $v_form->addVariable('Amount', 'amount', 'text', false);
    $v_form->addVariable('Is it cleared?', 'is_cleared', 'boolean', true);
    $v_form->addVariable(
       'Statement reference', 'statement_item_id', 'text', false

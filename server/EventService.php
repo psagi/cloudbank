@@ -32,6 +32,12 @@
       private static function ApplyDefaults(&$p_event) {
 	 if (!isset($p_event['is_cleared'])) $p_event['is_cleared'] = false;
       }
+      private static function ReallyEmpty($p_var) {
+	 return (
+	    !isset($p_var) || $p_var === "" || $p_var === NULL ||
+	    $p_var === array()
+	 );
+      }
       private function assertQuantityRule(
 	 $p_quantity, $p_accountID, $p_otherAccountID
       ) {
@@ -259,11 +265,6 @@
 	 if (!SchemaDef::IsValidEventDescription($p_description)) {
 	    throw new Exception("Invalid Event description ($p_description)");
 	 }
-	 if (!SchemaDef::IsValidAmount($p_amount)) {
-	    throw new Exception(
-	       "Invalid amount ($p_amount). Must be a floating point number."
-	    );
-	 }
 	 if (!SchemaDef::IsValidQuantity($p_quantity)) {
 	    throw new Exception(
 	       "Invalid quantity ($p_quantity). Must be a floating point " .
@@ -273,8 +274,16 @@
 	 $this->assertQuantityRule(
 	    $p_quantity, $p_accountID, $p_otherAccountID
 	 );
+	 $v_amount = $this->calcAmountIf(
+	    $p_quantity, $p_amount, $p_accountID, $p_otherAccountID
+	 );
+	 if (!SchemaDef::IsValidAmount($v_amount)) {
+	    throw new Exception(
+	       "Invalid amount ($v_amount). Must be a floating point number."
+	    );
+	 }
 	 $this->prepareRelatedAccounts(
-	    $p_accountID, $p_otherAccountID, $p_amount, $p_quantity,
+	    $p_accountID, $p_otherAccountID, $v_amount, $p_quantity,
 	    $v_debitLedgerAccountID, $v_creditLedgerAccountID, $v_amount,
 	    $v_quantity
 	 );
@@ -435,6 +444,38 @@
 		  "again."
 	    );
 	 }
+      }
+      private function getRate($p_accountID, $p_otherAccountID) {
+	 $v_result_arr = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+	  	  SELECT rate
+		     FROM ledger_account
+		     WHERE
+		  	(id IN (:account_id, :other_account_id)) AND
+			rate IS NOT NULL and rate != ""
+	       ',
+	       array(
+	  	  ':account_id' => $p_accountID,
+	  	  ':other_account_id' => $p_otherAccountID
+	       )
+  	    )
+	 );
+	 return (count($v_result_arr) ? $v_result_arr[0]['rate'] : NULL);
+      }
+      private function calcAmountIf(
+	    $p_quantity, $p_amount, $p_accountID, $p_otherAccountID
+      ) {
+	 Debug::Singleton()->log(
+	    'EventService::calcAmountIf(' . var_export($p_quantity, true) .
+	    ', ' .  var_export($p_amount, true) .
+	    ", $p_accountID, $p_otherAccountID)"
+	 );
+	 if (
+	    !self::ReallyEmpty($p_amount) || self::ReallyEmpty($p_quantity) ||
+	    !($v_rate = $this->getRate($p_accountID, $p_otherAccountID))
+	 ) return $p_amount;
+	 return $p_quantity * $v_rate;
       }
       private function prepareRelatedAccounts(
 	    $p_accountID, $p_otherAccountID, $p_amount_client,
