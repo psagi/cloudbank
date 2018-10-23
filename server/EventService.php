@@ -32,7 +32,7 @@
       private static function ApplyDefaults(&$p_event) {
 	 if (!isset($p_event['is_cleared'])) $p_event['is_cleared'] = false;
       }
-      private static function ReallyEmpty($p_var) {
+      private static function IsReallyEmpty($p_var) {
 	 return (
 	    !isset($p_var) || $p_var === "" || $p_var === NULL ||
 	    $p_var === array()
@@ -42,7 +42,7 @@
 	 $p_quantity, $p_accountID, $p_otherAccountID
       ) {
 	 if (
-	    empty($p_quantity) && (
+	    self::IsReallyEmpty($p_quantity) && (
 	       count(
 		  $this->r_cloudBankServer->execQuery(
 		     '
@@ -472,7 +472,8 @@
 	    ", $p_accountID, $p_otherAccountID)"
 	 );
 	 if (
-	    !self::ReallyEmpty($p_amount) || self::ReallyEmpty($p_quantity) ||
+	    !self::IsReallyEmpty($p_amount) ||
+	    self::IsReallyEmpty($p_quantity) ||
 	    !($v_rate = $this->getRate($p_accountID, $p_otherAccountID))
 	 ) return $p_amount;
 	 return $p_quantity * $v_rate;
