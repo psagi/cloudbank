@@ -35,23 +35,43 @@ function updateIsClearedAttributesIf($p_variables, $p_accountID) {
    return $v_isUpdateDone;
 }
 
-function populateReconciliationTemplate($p_account_id) {
+function populateReconciliationTemplate(
+   $p_accountID, $p_accountType, $p_accountOrCategoryName, $p_balance,
+   $p_limitMonth
+) {
    $v_template = new Horde_Template;
+   $v_template->set(
+      'reconcile_to_balance_link', (
+	 $p_accountType == CloudBankConsts::LedgerAccountType_Account ? (
+	    Horde::link(
+	       Horde::url('reconcile_to_balance.php')->add(
+		  array(
+		     'account_id' => $p_accountID,
+		     'account_name' => $p_accountOrCategoryName,
+		     'balance' => $p_balance,
+		     'limit_month' => $p_limitMonth
+		  )
+	       ), 'Reconcile to balance', '', '', '', '', ''
+	    ) . 'Reconcile to balance</a>'
+	 ) :
+	 ''
+      )
+   );
    $v_clearedOrMatchedBalance = (
-      Book::Singleton()->getClearedOrMatchedBalance($p_account_id)
+      Book::Singleton()->getClearedOrMatchedBalance($p_accountID)
    );
    $v_template->set(
       'cleared_or_matched_balance',
       Book::FormatAmount($v_clearedOrMatchedBalance)
    );
-   if (Book::Singleton()->isThereStatementForAccount($p_account_id)) {
+   if (Book::Singleton()->isThereStatementForAccount($p_accountID)) {
 //echo "DEBUG: before getOpeningBalance()\n";
       $v_openingStatementItem = (
-	 Book::Singleton()->getOpeningBalance($p_account_id)
+	 Book::Singleton()->getOpeningBalance($p_accountID)
       );
 //echo "DEBUG: before getClosingBalance()\n";
       $v_closingStatementItem = (
-	 Book::Singleton()->getClosingBalance($p_account_id)
+	 Book::Singleton()->getClosingBalance($p_accountID)
       );
       $v_template->set('is_there_statement', true, true);
       $v_template->set('statement_opening', $v_openingStatementItem);
@@ -255,8 +275,10 @@ try {
    $g_template->set('account_or_category_icon', $g_accountOrCategoryIcon);
    $g_template->set('limit_month', $g_limitMonth);
    $g_template->set('events', $g_events);
-   $g_template->set('total_quantity', $g_total_arr['total_quantity']);
-   $g_template->set('total', $g_total_arr['balance']);
+   $g_template->set(
+      'total_quantity', Book::FormatAmount($g_total_arr['total_quantity'])
+   );
+   $g_template->set('total', Book::FormatAmount($g_total_arr['balance']));
    $g_template->set(
       'more_events_link', (
 	 Horde::link(
@@ -287,7 +309,12 @@ try {
    $title = $g_accountOrCategoryName;
 
 //echo "DEBUG: before populateReconciliationTemplate()\n";
-   $g_reconciliationTemplate = populateReconciliationTemplate($g_id);
+   $g_reconciliationTemplate = (
+      populateReconciliationTemplate(
+	 $g_id, $g_type, $g_accountOrCategoryName, $g_total_arr['balance'],
+	 $g_limitMonth
+      )
+   );
    $g_statementItemsTemplate = NULL;
    if ($g_type == CloudBankConsts::LedgerAccountType_Account) {
 //echo "DEBUG: before populateStatementItemsTemplate()\n";

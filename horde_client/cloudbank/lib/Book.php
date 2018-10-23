@@ -200,9 +200,9 @@
 	 );
 	 return (
 	    array(
-	       'balance' => self::FormatAmount($v_balance_SDO->balance),
+	       'balance' => $v_balance_SDO->balance,
 	       'total_quantity' =>
-		  self::FormatAmount($v_balance_SDO->total_quantity)
+		  $v_balance_SDO->total_quantity
 	    )
 	 );
       }
