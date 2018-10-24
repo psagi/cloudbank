@@ -253,6 +253,26 @@ throw $v_exception;
       }
 
       /**
+	 @param string $p_ledgerAccountID	The ID of the Account
+	 @return string
+	    The reconciliation amount. (Calculated as the difference between
+	    the current balance and the balance calculated based on the total
+	    quantity and the rate.
+      */
+      public function getReconcileToRateAmount($p_ledgerAccountID) {
+	 $this->assertAccountOrCategoryExists(
+	    $p_ledgerAccountID, CloudBankConsts::LedgerAccountType_Account
+	 );
+	 $this->assertIsNotLocalCurrencyAccount($p_ledgerAccountID);
+	 $v_balance_SDO = $this->getBalance($p_ledgerAccountID);
+	 return (
+	    (
+	       $v_balance_SDO->total_quantity *
+	       $this->getAccount($p_ledgerAccountID)->rate
+	    ) - $v_balance_SDO->balance
+	 );
+      }
+      /**
 	 @param string $p_ledgerAccountType	Either Account or Category
 	 @return BalanceSet http://pety.homelinux.org/CloudBank/LedgerAccountService
 	 NOTE that this operation is redundant, however needed for having
@@ -568,6 +588,23 @@ throw $v_exception;
 		  "not exist or has been modified by another session. Please " .
 		  "try again."
             );
+	 }
+      }
+      private function assertIsNotLocalCurrencyAccount($p_ledgerAccountID) {
+	 if (
+	    count(
+	       $this->r_cloudBankServer->execQuery(
+		  '
+		     SELECT 1
+			FROM ledger_account
+			WHERE id = :id AND is_local_currency = 0
+		  ', array(':id' => $p_ledgerAccountID)
+	       )
+	    ) == 0
+	 ) {
+	    throw new Exception(
+	       "Referenced Account ($p_ledgerAccountID) is in local currency."
+	    );
 	 }
       }
       private function getBeginningEvent($p_accountID) {

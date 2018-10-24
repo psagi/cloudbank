@@ -57,21 +57,44 @@ function populateReconciliationTemplate(
 	 ''
       )
    );
+   $v_book = Book::Singleton();
+   $v_template->set(
+      'reconcile_to_rate_link', (
+	 (
+	    ($p_accountType == CloudBankConsts::LedgerAccountType_Account) &&
+	    !$v_book->isLocalCurrencyAccount($p_accountID)
+	 ) ? (
+	    Horde::link(
+	       Horde::url('event.php')->add(
+		  array(
+		     'date' => strftime('%Y-%m-%d'), 'quantity' => 0,
+		     'amount' =>
+			$v_book->getReconcileToRateAmount($p_accountID),
+		     'account_id' => $p_accountID,
+		     'account_name' => $p_accountOrCategoryName,
+		     'limit_month' => $p_limitMonth
+		  )
+	       ), 'Reconcile to rate', '', '', '', '', ''
+	    ) . 'Reconcile to rate</a>'
+	 ) :
+	 ''
+      )
+   );
    $v_clearedOrMatchedBalance = (
-      Book::Singleton()->getClearedOrMatchedBalance($p_accountID)
+      $v_book->getClearedOrMatchedBalance($p_accountID)
    );
    $v_template->set(
       'cleared_or_matched_balance',
       Book::FormatAmount($v_clearedOrMatchedBalance)
    );
-   if (Book::Singleton()->isThereStatementForAccount($p_accountID)) {
+   if ($v_book->isThereStatementForAccount($p_accountID)) {
 //echo "DEBUG: before getOpeningBalance()\n";
       $v_openingStatementItem = (
-	 Book::Singleton()->getOpeningBalance($p_accountID)
+	 $v_book->getOpeningBalance($p_accountID)
       );
 //echo "DEBUG: before getClosingBalance()\n";
       $v_closingStatementItem = (
-	 Book::Singleton()->getClosingBalance($p_accountID)
+	 $v_book->getClosingBalance($p_accountID)
       );
       $v_template->set('is_there_statement', true, true);
       $v_template->set('statement_opening', $v_openingStatementItem);

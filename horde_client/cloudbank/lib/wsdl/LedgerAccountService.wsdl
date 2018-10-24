@@ -120,6 +120,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getReconcileToRateAmount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_ledgerAccountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getReconcileToRateAmountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="getReconcileToRateAmountReturn" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getBalances">
         <xs:complexType>
           <xs:sequence>
@@ -291,6 +305,12 @@
   <wsdl:message name="getBalanceResponse">
     <wsdl:part name="return" element="tns2:getBalanceResponse"/>
   </wsdl:message>
+  <wsdl:message name="getReconcileToRateAmountRequest">
+    <wsdl:part name="getReconcileToRateAmountRequest" element="tns2:getReconcileToRateAmount"/>
+  </wsdl:message>
+  <wsdl:message name="getReconcileToRateAmountResponse">
+    <wsdl:part name="return" element="tns2:getReconcileToRateAmountResponse"/>
+  </wsdl:message>
   <wsdl:message name="getBalancesRequest">
     <wsdl:part name="getBalancesRequest" element="tns2:getBalances"/>
   </wsdl:message>
@@ -377,6 +397,10 @@
     <wsdl:operation name="getBalance">
       <wsdl:input message="tns2:getBalanceRequest"/>
       <wsdl:output message="tns2:getBalanceResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getReconcileToRateAmount">
+      <wsdl:input message="tns2:getReconcileToRateAmountRequest"/>
+      <wsdl:output message="tns2:getReconcileToRateAmountResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getBalances">
       <wsdl:input message="tns2:getBalancesRequest"/>
@@ -481,6 +505,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="getBalance">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getReconcileToRateAmount">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>

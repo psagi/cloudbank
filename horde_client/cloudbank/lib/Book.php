@@ -613,6 +613,19 @@
 	 );
 	 return $v_statementItem;
       }
+      public function isLocalCurrencyAccount($p_accountID) {
+	 return (
+	    $this->r_ledgerAccountService->getAccount($p_accountID)->
+	       is_local_currency
+	 );
+      }
+      public function getReconcileToRateAmount($p_accountID) {
+	 return (
+	    -$this->r_ledgerAccountService->getReconcileToRateAmount(
+	       $p_accountID
+	    )
+	 );
+      }
 
       private function __construct() {
 	 global $conf;

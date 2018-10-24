@@ -6,27 +6,28 @@
 </div>
 <table class="item" width="100%" cellspacing="4">
    <tr class="control">
-      <th align="left" colspan=3><tag:reconcile_to_balance_link /></th>
+      <th align="left" colspan=1><tag:reconcile_to_balance_link /></th>
+      <th align="left" colspan=2><tag:reconcile_to_rate_link /></th>
    </tr>
    <if:is_there_statement>
-      <tr class="control">
+      <tr>
      	 <td align="left"><tag:statement_opening.date /></td>
        	 <td align="left">Statement opening balance</td>
 	 <td align="right"><tag:statement_opening.amount_fmt /></td>
       </tr>
    </if:is_there_statement>
-   <tr class="control">
+   <tr>
       <td align="left"></td>
       <td align="left">Total cleared or matched</td>
       <td align="right"><tag:cleared_or_matched_balance /></td>
    </tr>
    <if:is_there_statement>
-      <tr class="control">
+      <tr>
      	 <td align="left"><tag:statement_closing.date /></td>
        	 <td align="left">Statement closing balance</td>
 	 <td align="right"><tag:statement_closing.amount_fmt /></td>
       </tr>
-      <tr class="control">
+      <tr>
 	 <td align="left"></td>
 	 <td align="left">Amount left to reconcile</td>
 	 <td align="right"><tag:amount_left /></td>
