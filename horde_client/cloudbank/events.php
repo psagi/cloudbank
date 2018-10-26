@@ -67,7 +67,7 @@ function populateReconciliationTemplate(
 	    Horde::link(
 	       Horde::url('event.php')->add(
 		  array(
-		     'date' => strftime('%Y-%m-%d'), 'quantity' => 0,
+		     'date' => strftime(Book::DateFormat), 'quantity' => 0,
 		     'amount' =>
 			$v_book->getReconcileToRateAmount($p_accountID),
 		     'account_id' => $p_accountID,

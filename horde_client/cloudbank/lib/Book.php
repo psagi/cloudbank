@@ -4,6 +4,7 @@
 
    class Book {
       const MonthFormat = 'Y-m';
+      const DateFormat = '%Y-%m-%d';
 
       public static function Singleton() {
 	 static $v_instance = NULL;
@@ -49,7 +50,7 @@
 	 self::CopyToOldVars(
 	    $p_variables,  
 	    array(
-	       'date', 'description', 'is_income', 'other_account_id',
+	       'date_str', 'description', 'is_income', 'other_account_id',
 	       'quantity', 'amount',
 	       'is_cleared', 'statement_item_id'
 	    )
@@ -305,7 +306,7 @@
 	 $v_p_variables_dump = var_export($p_variables, TRUE);
 	 Horde::log("Book::createAccount($v_p_variables_dump)", 'DEBUG');
 	 $this->r_ledgerAccountService->createAccount(
-	    $p_variables->get('name'), strftime('%Y-%m-%d'),
+	    $p_variables->get('name'), strftime(self::DateFormat),
 	    self::ReformatNumber2CLocale(
 	       $p_variables->get('beginning_balance')
 	    ), ($p_variables->get('is_local_currency') == TRUE),
@@ -442,7 +443,7 @@
 	 $v_amount = self::FixAmount($p_variables, 'amount', 'is_income');
 	 $v_quantity = self::FixAmount($p_variables, 'quantity', 'is_income');
 	 $this->r_eventService->createEvent(
-	    $p_variables->get('date'), $p_variables->get('description'),
+	    $p_variables->get('date_str'), $p_variables->get('description'),
 	    $p_variables->get('account_id'),
 	    $p_variables->get('other_account_id'), $v_amount,
 	    $p_variables->get('statement_item_id'),
@@ -457,7 +458,7 @@
 		  'http://pety.homelinux.org/CloudBank/EventService', 'Event'
 	       ), 
 	       array(
-		  'event_id' => 'id', 'old_date' => 'date',
+		  'event_id' => 'id', 'old_date_str' => 'date',
 		  'old_description' => 'description',
 		  'old_other_account_id' => 'other_account_id',
 		  'old_other_account_name' => 'other_account_name',
@@ -483,7 +484,7 @@
 		  'http://pety.homelinux.org/CloudBank/EventService', 'Event'
 	       ), 
 	       array(
-		  'event_id' => 'id', 'date' => 'date',
+		  'event_id' => 'id', 'date_str' => 'date',
 		  'description' => 'description',
 		  'other_account_id' => 'other_account_id',
 		  'other_account_name' => 'other_account_name',

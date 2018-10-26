@@ -16,10 +16,34 @@ Horde_Registry::appInit('cloudbank');
 require_once CLOUDBANK_BASE . '/lib/Cloudbank.php';
 require_once CLOUDBANK_BASE . '/lib/Book.php';
 
-function prepareForm($p_variables) {
+function prepareForm(&$p_variables) {
    $v_account_name = $p_variables->get('account_name');
    $v_form = new Horde_Form($p_variables, $v_account_name . '::Event', 'event');
-   $v_form->addVariable('Date', 'date', 'date', true);
+   $v_date_form_variable = (
+      $v_form->addVariable(
+	 'Date', 'date', 'monthdayyear', true, false, null,
+	 array('', '', true, null, Book::DateFormat)
+      )
+   );
+//var_dump($v_date_form_variable->getValue($p_variables));
+   Horde::log(
+      "prepareForm(): \$v_date_form_variable->getValue() = " .
+	 var_export($v_date_form_variable->getValue($p_variables), true),
+      'DEBUG'
+   );
+   Horde::log(
+      "prepareForm(): \$v_date_form_variable as string = " .
+	 var_export(
+	    $v_date_form_variable->getType()->formatDate(
+	       $v_date_form_variable->getValue($p_variables)
+	    ), true
+      ), 'DEBUG'
+   );
+   $p_variables['date_str'] = (
+      $v_date_form_variable->getType()->formatDate(
+	 $v_date_form_variable->getValue($p_variables)
+      )
+   );
    $v_form->addVariable('Description', 'description', 'text', true);
    $v_form->addHidden('', 'account_id', 'text', false);
    $v_form->addHidden('', 'account_name', 'text', false);
@@ -37,7 +61,7 @@ function prepareForm($p_variables) {
       'Statement reference', 'statement_item_id', 'text', false
    );
    $v_form->addHidden('', 'event_id', 'text', false);
-   $v_form->addHidden('', 'old_date', 'date', false);
+   $v_form->addHidden('', 'old_date_str', 'text', false);
    $v_form->addHidden('', 'old_description', 'text', false);
    $v_form->addHidden('', 'old_is_income', 'boolean', false);
    $v_form->addHidden('', 'old_other_account_id', 'text', false);
@@ -45,11 +69,13 @@ function prepareForm($p_variables) {
    $v_form->addHidden('', 'old_amount', 'text', false);
    $v_form->addHidden('', 'old_is_cleared', 'boolean', false);
    $v_form->addHidden('', 'old_statement_item_id', 'text', false);
+//var_dump($v_form->getVariables());
+//Horde::log("just a test", "DEBUG");
    return $v_form;
 }
 
 function setDefaultValues(&$p_variables) {
-   $p_variables->set('date', strftime('%Y-%m-%d'));
+   $p_variables->set('date', strftime(Book::DateFormat));
 }
 
 function processActions(&$p_variables, &$p_form) {
