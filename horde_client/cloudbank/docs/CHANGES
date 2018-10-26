@@ -1,4 +1,12 @@
 ---
+0.9
+---
+
+[Peter Sagi] Features for managing non-local-currency (FX, securities etc.) accounts
+[Peter Sagi] Reconciliation entry calculator functions
+[Peter Sagi] Date picker on Event screen
+
+---
 0.8
 ---
 

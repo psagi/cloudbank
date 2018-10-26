@@ -1,3 +1,10 @@
+cloudbank-server (0.10-1) UNRELEASED; urgency=low
+
+  * Features for managing non-local-currency (FX, securities etc.) accounts
+  * Reconciliation entry calculator functions
+  * FIX: util/event_loader.php adjusted to current Event record structure
+
+ -- Peter Sági <psagi@freemail.hu>  Fri, 26 Oct 2018 18:02:07 +0200
 cloudbank-server (0.9-1) UNRELEASED; urgency=low
 
   * FIX: EventService::getEvent() now returns the correct Event representation
