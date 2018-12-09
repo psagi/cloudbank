@@ -121,7 +121,7 @@
 		  SELECT
 		     id, date, description, other_ledger_account_id,
 		     other_ledger_account_name, other_ledger_account_type,
-		     amount, statement_item_id, is_cleared
+		     amount, statement_item_id, is_cleared, quantity
 		  FROM account_events
 		  WHERE
 		     id = :iD AND ledger_account_type = :ledgerAccountType AND
@@ -147,7 +147,8 @@
 		  'other_ledger_account_type' => 'other_account_type',
 		  'amount' => 'amount',
 		  'statement_item_id' => 'statement_item_id',
-		  'is_cleared' => 'is_cleared'
+		  'is_cleared' => 'is_cleared',
+		  'quantity' => 'quantity'
 	       )
 	    )
 	 );
