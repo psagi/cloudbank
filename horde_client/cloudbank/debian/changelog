@@ -1,10 +1,16 @@
+cloudbank-horde-client (0.10-1) UNRELEASED; urgency=low
+
+   * FIX: Event entry: Allow dates from the past years
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 09 Dec 2018 10:32:07 +0100
+
 cloudbank-horde-client (0.9-1) UNRELEASED; urgency=low
 
    * Features for managing non-local-currency (FX, securities etc.) accounts
    * Reconciliation entry calculator functions
    * Date picker on Event screen
 
- -- Peter Sági <psagi@freemail.hu>  Sat, 23 Jun 2017 20:41:07 +0200
+ -- Peter Sági <psagi@freemail.hu>  Fri, 26 Oct 2018 20:41:07 +0200
 
 cloudbank-horde-client (0.8-1) UNRELEASED; urgency=low
 
@@ -12,13 +18,13 @@ cloudbank-horde-client (0.8-1) UNRELEASED; urgency=low
   * Access key for the New event link
   * minor fixes
 
- -- Peter Sági <psagi@freemail.hu>  Sat, 23 Jun 2017 20:41:07 +0200
+ -- Peter Sági <psagi@freemail.hu>  Sat, 23 Jun 2018 20:41:07 +0200
 
 cloudbank-horde-client (0.7-1) UNRELEASED; urgency=low
 
   * display statement opening balance, too
 
- -- Peter Sági <psagi@freemail.hu>  Fri, 04 May 2017 21:11:07 +0200
+ -- Peter Sági <psagi@freemail.hu>  Fri, 04 May 2018 21:11:07 +0200
 
 cloudbank-horde-client (0.6-1) UNRELEASED; urgency=low
 
