@@ -22,7 +22,7 @@ function prepareForm(&$p_variables) {
    $v_date_form_variable = (
       $v_form->addVariable(
 	 'Date', 'date', 'monthdayyear', true, false, null,
-	 array('', '', true, null, Book::DateFormat)
+	 array(1970, '', true, null, Book::DateFormat)
       )
    );
 //var_dump($v_date_form_variable->getValue($p_variables));
