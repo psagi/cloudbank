@@ -16,6 +16,7 @@
       public static function SortResultSet(
 	 &$p_resultSet, $p_colName, $p_isDescending = FALSE
       ) {
+	 if (empty($p_resultSet)) return;
 	 array_multisort(
 	    self::GetColValues($p_resultSet, $p_colName),
 	    ($p_isDescending ? SORT_DESC : SORT_ASC), $p_resultSet
@@ -86,7 +87,9 @@
       }
       public static function FormatAmount($p_amount) {
 	 Horde::log("Book::FormatAmount($p_amount)", 'DEBUG');
-	 return money_format('%!.2n', $p_amount);
+	 return (
+	    is_numeric($p_amount) ? money_format('%!.2n', $p_amount) : NULL
+	 );
       }
       private static function CopyArray($p_array) {
 	 if (is_scalar($p_array)) $v_retval = $p_array;
@@ -419,6 +422,7 @@
 	    )
 	 );
 	 $v_events = self::CopyArray($v_events_SDO['Event']);
+	 if (empty($v_events)) return $v_events;
 	 self::FormatAmounts($v_events, 'amount');
 	 self::FormatAmounts($v_events, 'quantity');
 	 $v_delete_icon = (
@@ -686,4 +690,3 @@
       private $r_statementService;
    }
 ?>
-      

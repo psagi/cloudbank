@@ -34,40 +34,50 @@
 	 <th align="left"></th>
 	 <th align="left">Reference</th>
       </tr>
-      <loop:events>
-	 <tr class="linedRow">
-	    <td><tag:events.date /></td>
-	    <td><tag:events.description_link /></td>
-	    <td><tag:events.delete_icon_link /></td>
-	    <td>
-	       <if:is_account><tag:events.account_icon /></if:is_account>
-	       <tag:events.account_link />
-	    </td>
-	    <td align="right"><tag:events.quantity_fmt /></td>
-	    <td align="right"><tag:events.amount_fmt /></td>
-	    <td>
-	       <if:is_account>
-		  <if:events.is_beginning>
-		     <tag:events.cleared_icon />
-		     <else:events.is_beginning>
-			<input
-			   type="hidden"
-			   name="is_cleared_<tag:events.id_encoded />"
-			   value=0
-			> <!-- workaround for submitting unchecked checkboxes -->
-			<input
-			   type="checkbox"
-			   name="is_cleared_<tag:events.id_encoded />" value=1
-			   <if:events.is_cleared>checked</if:events.is_cleared>
-			>
-		     </else:events.is_beginning>
-		  </if:events.is_beginning>
-		  <else:is_account><tag:events.cleared_icon /></else:is_account>
-	       </if:is_account>
-	    </td>
-	    <td><tag:events.statement_item_id /></td>
-	 </tr>
-      </loop:events>
+      <if:is_events_not_empty>
+	 <loop:events>
+	    <tr class="linedRow">
+	       <td><tag:events.date /></td>
+	       <td><tag:events.description_link /></td>
+	       <td><tag:events.delete_icon_link /></td>
+	       <td>
+		  <if:is_account><tag:events.account_icon /></if:is_account>
+		  <tag:events.account_link />
+	       </td>
+	       <td align="right"><tag:events.quantity_fmt /></td>
+	       <td align="right"><tag:events.amount_fmt /></td>
+	       <td>
+		  <if:is_account>
+		     <if:events.is_beginning>
+			<tag:events.cleared_icon />
+			<else:events.is_beginning>
+			   <input
+			      type="hidden"
+			      name="is_cleared_<tag:events.id_encoded />"
+			      value=0
+			   >
+			      <!--
+				 workaround for submitting unchecked checkboxes
+			      -->
+			   <input
+			      type="checkbox"
+			      name="is_cleared_<tag:events.id_encoded />"
+			      value=1
+			      <if:events.is_cleared>
+				 checked
+			      </if:events.is_cleared>
+			   >
+			</else:events.is_beginning>
+		     </if:events.is_beginning>
+		     <else:is_account>
+			<tag:events.cleared_icon />
+		     </else:is_account>
+		  </if:is_account>
+	       </td>
+	       <td><tag:events.statement_item_id /></td>
+	    </tr>
+	 </loop:events>
+      </if:is_events_not_empty>
       <tr class="item">
 	 <th align="left"><tag:more_events_link /></th>
 	 <th colspan=4 align="left"><tag:all_events_link /></th>

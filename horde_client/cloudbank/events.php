@@ -297,6 +297,7 @@ try {
    );
    $g_template->set('account_or_category_icon', $g_accountOrCategoryIcon);
    $g_template->set('limit_month', $g_limitMonth);
+   $g_template->set('is_events_not_empty', !empty($g_events));
    $g_template->set('events', $g_events);
    $g_template->set(
       'total_quantity', Book::FormatAmount($g_total_arr['total_quantity'])

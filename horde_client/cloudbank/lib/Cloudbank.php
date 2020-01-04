@@ -20,6 +20,7 @@ class Cloudbank {
    ) {
    /* Please note that p_exclusionFilter has to contain every field of the key,
       exlusion occurs if ANY of the fields match the provided value. */
+      if (empty($p_recordSet)) return;
       foreach ($p_recordSet as &$v_record) {
 	 $v_isExcluded = false;
 	 $v_showURL = Horde::url($p_phpScript);
@@ -51,6 +52,7 @@ class Cloudbank {
    ) {
    /* Please note that inclusion occurs if EVERY field of the record included in
       p_conditionFilter match the provided value */
+      if (empty($p_recordSet)) return;
       $v_icon = (
 	 Horde_Themes_Image::tag($p_iconFile, array('alt' => $p_altText))
       );
