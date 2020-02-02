@@ -36,7 +36,8 @@ function updateIsClearedAttributesIf($p_variables, $p_accountID) {
 }
 
 function populateReconciliationTemplate(
-   $p_accountID, $p_accountType, $p_accountOrCategoryName, $p_balance,
+   $p_accountID, $p_accountType, $p_accountOrCategoryName, $p_isLocalCurrency,
+   $p_balance,
    $p_limitMonth
 ) {
    $v_template = new Horde_Template;
@@ -62,7 +63,7 @@ function populateReconciliationTemplate(
       'reconcile_to_rate_link', (
 	 (
 	    ($p_accountType == CloudBankConsts::LedgerAccountType_Account) &&
-	    !$v_book->isLocalCurrencyAccount($p_accountID)
+	    !$p_isLocalCurrency
 	 ) ? (
 	    Horde::link(
 	       Horde::url('event.php')->add(
@@ -189,9 +190,8 @@ if (!$g_limitMonth) {
 
 $g_isError = FALSE;
 try {
-   $g_accountOrCategoryName = (
-      Book::Singleton()->getAccountOrCategoryName($g_id, $g_type)
-   );
+   $v_account_arr = Book::Singleton()->getAccountOrCategory($g_id, $g_type);
+   $g_accountOrCategoryName = $v_account_arr['name'];
    $g_accountOrCategoryIcon = (
       Book::Singleton()->getAccountOrCategoryIcon($g_type)
    );
@@ -335,7 +335,8 @@ try {
 //echo "DEBUG: before populateReconciliationTemplate()\n";
    $g_reconciliationTemplate = (
       populateReconciliationTemplate(
-	 $g_id, $g_type, $g_accountOrCategoryName, $g_total_arr['balance'],
+	 $g_id, $g_type, $g_accountOrCategoryName,
+	 $v_account_arr['is_local_currency'], $g_total_arr['balance'],
 	 $g_limitMonth
       )
    );

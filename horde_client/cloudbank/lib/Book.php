@@ -273,7 +273,7 @@
 	 asort($v_accountsAndCategories_iDNameMap);
 	 return $v_accountsAndCategories_iDNameMap;
       }
-      public function getAccountOrCategoryName($p_id, $p_type) {
+      public function getAccountOrCategory($p_id, $p_type) {
 	 switch ($p_type) {
 	    case CloudBankConsts::LedgerAccountType_Account :
 	       $v_accountOrCategory = (
@@ -289,7 +289,7 @@
 	       throw new Exception("Invalid type ($p_type)");
 	       break;
 	 }
-	 return $v_accountOrCategory['name'];
+	 return $v_accountOrCategory;
       }
       public function getAccountOrCategoryIcon($p_type) {
 	 switch ($p_type) {
