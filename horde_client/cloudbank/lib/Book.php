@@ -558,10 +558,7 @@
 	 );
       }
       public function isThereStatementForAccount($p_id) {
-	 foreach($this->getAccountsForStatement($p_id) as $v_account) {
-	    if ($v_account['id'] == $p_id) return TRUE;
-	 }
-	 return FALSE;
+	 return $this->r_statementService->isThereStatementForAccount($p_id);
       }
       public function getUnmatchedStatementItems(
 	 $p_id, $p_accountName, $p_limitMonth

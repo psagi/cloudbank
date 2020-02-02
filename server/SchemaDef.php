@@ -50,7 +50,7 @@
 	 'statement_item' => '
 	    CREATE TABLE statement_item (
 	       id VARCHAR(16) NOT NULL PRIMARY KEY,
-	       ledger_account_name VARCHAR(32) NOT NULL,
+	       ledger_account_id VARCHAR(39) NOT NULL REFERENCES ledger_account,
 	       item_type CHARACTER(1) NOT NULL, date DATE NOT NULL,
 	       description VARCHAR(512), amount NUMERIC(16,2) NOT NULL,
 	       CHECK (item_type IN (\'O\', \'E\', \'C\'))
@@ -94,19 +94,18 @@
 	 'statement_item_unmatched' => '
 	    CREATE VIEW statement_item_unmatched AS
 	       SELECT
-		  si.id, si.ledger_account_name, la_si.id as ledger_account_id,
+		  si.id, si.ledger_account_id,
 		  si.item_type, si.date, si.description, si.amount
-	       FROM statement_item si, ledger_account la_si
+	       FROM statement_item si
 	       WHERE
-		  si.item_type = "E" AND la_si.type = "Account" AND
-		  la_si.name = si.ledger_account_name AND
+		  si.item_type = "E" AND
 		  NOT EXISTS (
 		     SELECT 1
 		     FROM event e
 		     WHERE
 			e.is_cleared = 0 AND (
-			   e.debit_ledger_account_id = la_si.id OR
-			   e.credit_ledger_account_id = la_si.id
+			   e.debit_ledger_account_id = si.ledger_account_id OR
+			   e.credit_ledger_account_id = si.ledger_account_id
 			) AND
 			si.id = e.statement_item_id
 		  )
@@ -119,7 +118,7 @@
 		  julianday(si.date) - julianday(ae.date) AS date_diff
 	       FROM statement_item si, account_events ae
 	       WHERE
-		  si.ledger_account_name = ae.ledger_account_name AND
+		  si.ledger_account_id = ae.ledger_account_id AND
 		  si.amount = ae.amount AND
 		  si.item_type = "E" AND ae.is_cleared = 0
 	 ',

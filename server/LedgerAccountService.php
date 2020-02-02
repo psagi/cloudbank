@@ -163,7 +163,7 @@ throw $v_exception;
 	       ' . 
 	       (
    		  $p_is4StatementOnly ?
-  		  ' AND ae.ledger_account_name = si.ledger_account_name' :
+  		  ' AND ae.ledger_account_id = si.ledger_account_id' :
    		  ''
   	       ), 
 	       array(
@@ -417,26 +417,29 @@ throw $v_exception;
 	 );
 	 $this->r_cloudBankServer->commitTransaction();
       }
-      
-      public function doesExistAndNotThis($p_name, $p_type, $p_id = NULL) {
+
+      public function findAccount($p_name, $p_type) {
 	 $v_queryStr = (
 	    '
-	       SELECT 1
+	       SELECT id
 	       FROM ledger_account
 	       WHERE name = :name AND type = :type
 	    '
 	 );
 	 $v_bindArray = array(':name' => $p_name, ':type' => $p_type);
-	 if (!is_null($p_id)) {
-	    $v_queryStr = $v_queryStr . ' AND id <> :id';
-	    $v_bindArray[':id'] = $p_id;
-	 }
+	 $v_result_arr = (
+	    $this->r_cloudBankServer->execQuery($v_queryStr, $v_bindArray)
+	 );
 	 return (
-	    count(
-	       $this->r_cloudBankServer->execQuery($v_queryStr, $v_bindArray)
-	    ) > 0
+	    empty($v_result_arr) ? NULL : $v_result_arr[0]['id']
 	 );
       }
+
+      private function doesExistAndNotThis($p_name, $p_type, $p_id = NULL) {
+	 $v_account_id = $this->findAccount($p_name, $p_type);
+	 return (is_null($v_account_id) ? FALSE : ($v_account_id <> $p_id));
+      }
+ 
       public function assertAccountOrCategoryExists(
 	 $p_id, $p_ledgerAccountType = NULL
       ) {

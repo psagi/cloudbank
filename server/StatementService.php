@@ -68,7 +68,23 @@
 	    $this->assertStatementItemIsValid(
 	       $v_statement_item_arr, $v_line_no, $v_statement_line
 	    );
-	    $this->createStatementItem($v_statement_item_arr);
+	    if (is_null(
+		  $v_ledger_account_id = (
+		     $this->r_ledgerAccountService->findAccount(
+			$v_statement_item_arr[1],
+			CloudBankConsts::LedgerAccountType_Account
+		     )
+		  )
+	       )
+	    ) {
+	       throw new Exception(
+		  "Statement file: line #$v_line_no: account (" .
+		  "$v_statement_item_arr[1]) does not exist"
+	       );
+	    }
+	    $this->createStatementItem(
+	       $v_statement_item_arr, $v_ledger_account_id
+	    );
 	 }
 	 $this->r_cloudBankServer->commitTransaction();
 	 return true;
@@ -89,7 +105,7 @@
 	    $this->r_cloudBankServer->execQuery(
 	       '
 		  SELECT
-		     id, ledger_account_name, item_type, date, description,
+		     id, ledger_account_id, item_type, date, description,
 		     amount
 		  FROM statement_item_unmatched
 		  WHERE ledger_account_id = :accountID
@@ -102,7 +118,7 @@
 	    self::ToSDO(
 	       $v_statementItems, 'StatementItemSet', 'StatementItem',
 	       array(
-		  'id' => 'id', 'ledger_account_name' => 'ledger_account_name',
+		  'id' => 'id', 'ledger_account_id' => 'ledger_account_id',
 		  'item_type' => 'item_type', 'date' => 'date',
 		  'description' => 'description', 'amount' => 'amount'
 	       )
@@ -234,6 +250,28 @@
 	 return $this->r_ledgerAccountService->findAccounts(true);
       }
 
+      /**
+	 @param string $p_accountID	\
+	    The ID of the Account Statement items to be searched for
+	 @return boolean	\
+	    True if there is a Statement item for the Account
+      */
+      public function isThereStatementForAccount($p_accountID) {
+	 $this->r_cloudBankServer->beginTransaction();
+	 $v_result_arr = (
+	    $this->r_cloudBankServer->execQuery(
+	       '
+		  SELECT 1
+		  FROM statement_item
+		  WHERE ledger_account_id = :ledger_account_id
+	       ', array(':ledger_account_id' => $p_accountID)
+	    )
+
+	 );
+	 $this->r_cloudBankServer->commitTransaction();
+	 return (!empty($v_result_arr));
+}
+
 
       private function __clone() { }
       private function assertTableIsEmpty() {
@@ -258,19 +296,6 @@
 	    throw new Exception(
 	       "Statement file: line #$p_line_no: invalid item ID (" .
 	       "$p_statement_item_arr[0])"
-	    );
-	 }
-	 if (
-	    !(
-	       $this->r_ledgerAccountService->doesExistAndNotThis(
-	  	  $p_statement_item_arr[1],
-		  CloudBankConsts::LedgerAccountType_Account
-	       )
-	    )
-	 ) {
-	    throw new Exception(
-	       "Statement file: line #$p_line_no: account (" .
-	       "$p_statement_item_arr[1]) does not exist"
 	    );
 	 }
 	 if (!SchemaDef::IsValidStatementItemType($p_statement_item_arr[2])) {
@@ -304,21 +329,23 @@
 	    );
 	 }
       }
-      private function createStatementItem($p_statement_item_arr) {
+      private function createStatementItem(
+	 $p_statement_item_arr, $p_ledger_account_id
+      ) {
 	 $this->r_cloudBankServer->execQuery(
 	    '
 	       INSERT
 		  INTO statement_item(
-		     id, ledger_account_name, item_type, date, description,
+		     id, ledger_account_id, item_type, date, description,
 		     amount
 		  ) VALUES (
-		     :id, :ledger_account_name, :item_type, :date, :description,
+		     :id, :ledger_account_id, :item_type, :date, :description,
 		     :amount
 		  )
 	    ',
 	    array(
 	       ':id' => $p_statement_item_arr[0],
-	       ':ledger_account_name' => $p_statement_item_arr[1],
+	       ':ledger_account_id' => $p_ledger_account_id,
 	       ':item_type' => $p_statement_item_arr[2],
 	       ':date' => $p_statement_item_arr[3],
 	       ':description' => $p_statement_item_arr[4],
@@ -335,15 +362,13 @@
 	    $this->r_cloudBankServer->execQuery(
 	       '
 		  SELECT
-		     si.id, si.ledger_account_name, si.item_type, si.date,
+		     si.id, si.ledger_account_id, si.item_type, si.date,
 		     si.description, si.amount
-		  FROM statement_item si, ledger_account la
+		  FROM statement_item si 
 		  WHERE
-		     si.ledger_account_name = la.name AND la.type = :Account AND
-		     si.item_type = :C AND la.id = :accountID
+		     si.item_type = :C AND ledger_account_id = :accountID
 	       ',
 	       array(
-		  ':Account' => CloudBankConsts::LedgerAccountType_Account,
 		  ':C' => $p_statementItemType,
 		  ':accountID' => $p_accountID
 	       )
@@ -354,7 +379,7 @@
 	    self::ToSDO(
 	       $v_statementItems, NULL, 'StatementItem',
 	       array(
-		  'id' => 'id', 'ledger_account_name' => 'ledger_account_name',
+		  'id' => 'id', 'ledger_account_id' => 'ledger_account_id',
 		  'item_type' => 'item_type', 'date' => 'date',
 		  'description' => 'description', 'amount' => 'amount'
 	       )

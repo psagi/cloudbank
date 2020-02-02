@@ -20,7 +20,7 @@
    <xsd:element name="StatementItem" type="StatementService:StatementItem"/>
    <xsd:complexType name="StatementItem">
       <xsd:attribute name="id" type="xsd:string"/>
-      <xsd:attribute name="ledger_account_name" type="xsd:string"/>
+      <xsd:attribute name="ledger_account_id" type="xsd:string"/>
       <xsd:attribute name="item_type" type="xsd:Character"/>
       <xsd:attribute name="date" type="xsd:string"/>
       <xsd:attribute name="description" type="xsd:string"/>

@@ -118,6 +118,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="isThereStatementForAccount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="p_accountID" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="isThereStatementForAccountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="isThereStatementForAccountReturn" type="xs:boolean"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:schema>
   </wsdl:types>
 
@@ -169,6 +183,12 @@
   <wsdl:message name="findAccountsForStatementResponse">
     <wsdl:part name="return" element="tns2:findAccountsForStatementResponse"/>
   </wsdl:message>
+  <wsdl:message name="isThereStatementForAccountRequest">
+    <wsdl:part name="isThereStatementForAccountRequest" element="tns2:isThereStatementForAccount"/>
+  </wsdl:message>
+  <wsdl:message name="isThereStatementForAccountResponse">
+    <wsdl:part name="return" element="tns2:isThereStatementForAccountResponse"/>
+  </wsdl:message>
   <wsdl:portType name="StatementServicePortType">
     <wsdl:operation name="importStatement">
       <wsdl:input message="tns2:importStatementRequest"/>
@@ -201,6 +221,10 @@
     <wsdl:operation name="findAccountsForStatement">
       <wsdl:input message="tns2:findAccountsForStatementRequest"/>
       <wsdl:output message="tns2:findAccountsForStatementResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="isThereStatementForAccount">
+      <wsdl:input message="tns2:isThereStatementForAccountRequest"/>
+      <wsdl:output message="tns2:isThereStatementForAccountResponse"/>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="StatementServiceBinding" type="tns2:StatementServicePortType">
@@ -269,6 +293,15 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="findAccountsForStatement">
+      <soap:operation soapAction=""/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="isThereStatementForAccount">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>

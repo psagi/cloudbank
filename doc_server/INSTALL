@@ -30,6 +30,7 @@ Upgrade instructions for CloudBank server
 ----------------------------------------------
 
 Steps:
+   0. If upgrading from v0.11 or below, make sure that no statement is loaded in the database. The upgrade WILL PURGE THE loadaed STATEMENT.
    1. Backup cloudbank-server/conf/cloudbank.ini to somewhere outside cloudbank-server.
    2. Remove the previous CloudBank Server code: rm -rf cloudbank-server
    3. tar xvzf cloudbank-server-v.w.tar.gz
