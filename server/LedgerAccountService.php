@@ -208,13 +208,11 @@ throw $v_exception;
 
       /**
 	 @param string $p_ledgerAccountID	The ID of the Account/Category
-	 @param boolean $p_isClearedOrReferencedOnly
-	    If set only the cleared events or those that have the statement
-	    reference filled in are counted. Defaults to false.
 	 @return Balance http://pety.homelinux.org/CloudBank/LedgerAccountService
+	    The total and the cleared or matched balance of the account/category
       */
       public function getBalance(
-	 $p_ledgerAccountID, $p_isClearedOrReferencedOnly = FALSE
+	 $p_ledgerAccountID
       ) {
 	 $this->r_cloudBankServer->beginTransaction();
 	 $this->assertAccountOrCategoryExists($p_ledgerAccountID);
@@ -222,21 +220,11 @@ throw $v_exception;
 	    $this->r_cloudBankServer->execQuery(
 	       '
 		  SELECT
-		     la.id AS id, SUM(ae.amount) AS balance,
-		     CASE la.is_local_currency
-			WHEN 0 THEN SUM(ae.quantity)
-			ELSE NULL
-		     END AS total_quantity
-		  FROM account_events ae, ledger_account la
+		     id, balance, cleared_or_matched_balance, total_quantity
+		  FROM ledger_account_balances
 		  WHERE
-		     ae.ledger_account_id = la.id AND
-		     ae.ledger_account_id = :ledgerAccountID
-	       ' .
-	       (
-		  $p_isClearedOrReferencedOnly ?
-		  'AND (is_cleared = 1 OR LENGTH(statement_item_id) > 0)' :
-		  ''
-	       ),
+		     id = :ledgerAccountID
+	       ',
 	       array(
 		  ':ledgerAccountID' => $p_ledgerAccountID
 	       )
@@ -247,6 +235,7 @@ throw $v_exception;
 	    $v_balance, NULL, 'Balance',
 	    array(
 	       'id' => 'id', 'balance' => 'balance',
+	       'cleared_or_matched_balance' => 'cleared_or_matched_balance',
 	       'total_quantity' => 'total_quantity'
 	    )
 	 );
@@ -283,18 +272,9 @@ throw $v_exception;
 	 $v_balances = (
 	    $this->r_cloudBankServer->execQuery(
 	       '
-		  SELECT
-		     ae.ledger_account_id AS id, SUM(ae.amount) AS balance,
-		     CASE la.is_local_currency
-		     	WHEN 0
-			THEN SUM(ae.quantity)
-			ELSE NULL
-		     END AS total_quantity
-		  FROM account_events ae, ledger_account la
-		  WHERE
-		     ae.ledger_account_id = la.id AND
-		     ae.ledger_account_type = :ledgerAccountType
-		  GROUP BY ae.ledger_account_id
+		  SELECT id, balance, cleared_or_matched_balance, total_quantity
+		  FROM ledger_account_balances
+		  WHERE type = :ledgerAccountType
 	       ', array(':ledgerAccountType' => $p_ledgerAccountType)
 	    )
 	 );
@@ -303,6 +283,7 @@ throw $v_exception;
 	       $v_balances, 'BalanceSet', 'Balance',
 	       array(
 		  'id' => 'id', 'balance' => 'balance',
+		  'cleared_or_matched_balance' => 'cleared_or_matched_balance',
 		  'total_quantity' => 'total_quantity'
 	       )
 	    )

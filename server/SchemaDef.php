@@ -91,6 +91,31 @@
                   e.credit_ledger_account_id = la.id AND
                   e.debit_ledger_account_id = o_la.id
 	 ',
+	 'ledger_account_balances' => '
+	    CREATE VIEW ledger_account_balances AS
+	       SELECT
+                     ae.ledger_account_type AS type, ae.ledger_account_id AS id,
+		     SUM(ae.amount) AS balance,
+		     SUM(
+			CASE
+			   WHEN
+			      ae.is_cleared = 1 OR
+			      (LENGTH(IFNULL(ae.statement_item_id, "")) > 0)
+			   THEN ae.amount
+			END
+		     ) AS cleared_or_matched_balance,
+                     CASE la.is_local_currency
+                        WHEN 0
+                        THEN SUM(ae.quantity)
+                        ELSE NULL
+                     END AS total_quantity
+                  FROM account_events ae, ledger_account la
+                  WHERE
+                     ae.ledger_account_id = la.id
+                  GROUP BY
+		     ae.ledger_account_type, ae.ledger_account_id,
+		     la.is_local_currency
+	 ',
 	 'statement_item_unmatched' => '
 	    CREATE VIEW statement_item_unmatched AS
 	       SELECT

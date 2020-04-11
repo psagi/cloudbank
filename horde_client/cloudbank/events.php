@@ -37,7 +37,7 @@ function updateIsClearedAttributesIf($p_variables, $p_accountID) {
 
 function populateReconciliationTemplate(
    $p_accountID, $p_accountType, $p_accountOrCategoryName, $p_isLocalCurrency,
-   $p_balance,
+   $p_balance_arr,
    $p_limitMonth
 ) {
    $v_template = new Horde_Template;
@@ -49,7 +49,7 @@ function populateReconciliationTemplate(
 		  array(
 		     'account_id' => $p_accountID,
 		     'account_name' => $p_accountOrCategoryName,
-		     'balance' => $p_balance,
+		     'balance' => $p_balance['balance'],
 		     'limit_month' => $p_limitMonth
 		  )
 	       ), 'Reconcile to balance', '', '', '', '', ''
@@ -81,9 +81,7 @@ function populateReconciliationTemplate(
 	 ''
       )
    );
-   $v_clearedOrMatchedBalance = (
-      $v_book->getClearedOrMatchedBalance($p_accountID)
-   );
+   $v_clearedOrMatchedBalance = $p_balance_arr['cleared_or_matched_balance'];
    $v_template->set(
       'cleared_or_matched_balance',
       Book::FormatAmount($v_clearedOrMatchedBalance)
@@ -336,7 +334,7 @@ try {
    $g_reconciliationTemplate = (
       populateReconciliationTemplate(
 	 $g_id, $g_type, $g_accountOrCategoryName,
-	 $v_account_arr['is_local_currency'], $g_total_arr['balance'],
+	 $v_account_arr['is_local_currency'], $g_total_arr,
 	 $g_limitMonth
       )
    );

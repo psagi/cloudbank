@@ -205,14 +205,18 @@
 	 return (
 	    array(
 	       'balance' => $v_balance_SDO->balance,
+	       'cleared_or_matched_balance' =>
+		  $v_balance_SDO->cleared_or_matched_balance,
 	       'total_quantity' =>
 		  $v_balance_SDO->total_quantity
 	    )
 	 );
       }
+/*
       public function getClearedOrMatchedBalance($p_id) {
 	 return $this->r_ledgerAccountService->getBalance($p_id, TRUE)->balance;
       }
+*/
       public function getAccountsOrCategoriesWBalance($p_type) {
 	 $v_accountsOrCategories = (
 	    $p_type == CloudBankConsts::LedgerAccountType_Account ? 

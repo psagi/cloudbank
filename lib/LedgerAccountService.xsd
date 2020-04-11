@@ -52,5 +52,6 @@
       <xsd:attribute name="id" type="xsd:string"/>
       <xsd:attribute name="balance" type="xsd:string"/>
       <xsd:attribute name="total_quantity" type="xsd:string" minOccurs="0" />
+      <xsd:attribute name="cleared_or_matched_balance" type="xsd:string"/>
    </xsd:complexType>
 </xsd:schema>
