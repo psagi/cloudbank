@@ -109,7 +109,6 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element name="p_ledgerAccountID" type="xs:string"/>
-            <xs:element name="p_isClearedOrReferencedOnly" type="xs:boolean"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -230,13 +229,13 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="doesExistAndNotThis">
+      <xs:element name="findAccount">
         <xs:complexType>
           <xs:sequence>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="doesExistAndNotThisResponse">
+      <xs:element name="findAccountResponse">
         <xs:complexType>
           <xs:sequence>
           </xs:sequence>
@@ -353,11 +352,11 @@
   <wsdl:message name="createBeginningAccountResponse">
     <wsdl:part name="return" element="tns2:createBeginningAccountResponse"/>
   </wsdl:message>
-  <wsdl:message name="doesExistAndNotThisRequest">
-    <wsdl:part name="doesExistAndNotThisRequest" element="tns2:doesExistAndNotThis"/>
+  <wsdl:message name="findAccountRequest">
+    <wsdl:part name="findAccountRequest" element="tns2:findAccount"/>
   </wsdl:message>
-  <wsdl:message name="doesExistAndNotThisResponse">
-    <wsdl:part name="return" element="tns2:doesExistAndNotThisResponse"/>
+  <wsdl:message name="findAccountResponse">
+    <wsdl:part name="return" element="tns2:findAccountResponse"/>
   </wsdl:message>
   <wsdl:message name="assertAccountOrCategoryExistsRequest">
     <wsdl:part name="assertAccountOrCategoryExistsRequest" element="tns2:assertAccountOrCategoryExists"/>
@@ -430,9 +429,9 @@
       <wsdl:input message="tns2:createBeginningAccountRequest"/>
       <wsdl:output message="tns2:createBeginningAccountResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="doesExistAndNotThis">
-      <wsdl:input message="tns2:doesExistAndNotThisRequest"/>
-      <wsdl:output message="tns2:doesExistAndNotThisResponse"/>
+    <wsdl:operation name="findAccount">
+      <wsdl:input message="tns2:findAccountRequest"/>
+      <wsdl:output message="tns2:findAccountResponse"/>
     </wsdl:operation>
     <wsdl:operation name="assertAccountOrCategoryExists">
       <wsdl:input message="tns2:assertAccountOrCategoryExistsRequest"/>
@@ -585,7 +584,7 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="doesExistAndNotThis">
+    <wsdl:operation name="findAccount">
       <soap:operation soapAction=""/>
       <wsdl:input>
         <soap:body use="literal"/>
