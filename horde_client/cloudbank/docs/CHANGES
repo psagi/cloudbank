@@ -1,4 +1,11 @@
 ---
+0.11
+---
+
+[Peter Sagi] FIX: Loading of the Events screen is faster, more efficient
+[Peter Sagi] FIX: Eliminate PHP Warnings
+
+---
 0.10
 ---
 

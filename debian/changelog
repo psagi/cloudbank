@@ -1,3 +1,8 @@
+cloudbank-server (0.12-1) UNRELEASED; urgency=low
+
+  * FIX: Speed up balance calculation, detection of loaded Statement
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 12 Apr 2020 17:28:07 +0200
 cloudbank-server (0.11-1) UNRELEASED; urgency=low
 
   * FIX: Bulk cleared status setting now works again. (Bug introduced by v0.10.)

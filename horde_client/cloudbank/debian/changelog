@@ -1,3 +1,10 @@
+cloudbank-horde-client (0.11-1) UNRELEASED; urgency=low
+
+   * FIX: Loading of the Events screen is faster, more efficient
+   * FIX: Eliminate PHP Warnings
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 09 Dec 2018 10:32:07 +0100
+
 cloudbank-horde-client (0.10-1) UNRELEASED; urgency=low
 
    * FIX: Event entry: Allow dates from the past years
