@@ -11,7 +11,8 @@
    $g_createSchemaStatements = SchemaDef::CreateSchemaStatements();
    foreach (
       array(
-	 'statement_item', 'statement_item_unmatched',
+	 'ledger_account_balances', 'statement_item',
+	 'statement_item_unmatched',
 	 'event_statement_item_match'
       ) as
       $v_dBObject
