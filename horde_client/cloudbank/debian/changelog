@@ -1,9 +1,15 @@
+cloudbank-horde-client (0.12-1) UNRELEASED; urgency=low
+
+   * FIX: Error on Category Event list screen
+
+ -- Peter Sági <psagi@freemail.hu>  Tue, 14 Apr 2020 21:38:28 +0200
+
 cloudbank-horde-client (0.11-1) UNRELEASED; urgency=low
 
    * FIX: Loading of the Events screen is faster, more efficient
    * FIX: Eliminate PHP Warnings
 
- -- Peter Sági <psagi@freemail.hu>  Sun, 09 Dec 2018 10:32:07 +0100
+ -- Peter Sági <psagi@freemail.hu>  Sun, 09 Dec 2020 10:32:07 +0100
 
 cloudbank-horde-client (0.10-1) UNRELEASED; urgency=low
 
