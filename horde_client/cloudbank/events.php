@@ -334,7 +334,11 @@ try {
    $g_reconciliationTemplate = (
       populateReconciliationTemplate(
 	 $g_id, $g_type, $g_accountOrCategoryName,
-	 $v_account_arr['is_local_currency'], $g_total_arr,
+	 (
+	    $g_type == CloudbankConsts::LedgerAccountType_Account ?
+	    $v_account_arr['is_local_currency'] :
+	    NULL
+	 ), $g_total_arr,
 	 $g_limitMonth
       )
    );
