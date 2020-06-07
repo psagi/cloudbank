@@ -37,6 +37,7 @@ function processActions(&$p_variables, &$p_form) {
      	    Horde::url('event.php', true)->add(
 	       array(
 		  'date' => strftime(Book::DateFormat),
+		  'quantity' => 0,
 		  'amount' => (
 		     $p_variables->get('balance') -
 		     $p_variables->get('new_amount')
