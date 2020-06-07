@@ -1,3 +1,10 @@
+cloudbank-horde-client (0.13-1) UNRELEASED; urgency=low
+
+   * FIX: reconcile to balance false amount
+   * Reconcile to balance presets quantity to 0
+
+ -- Peter Sági <psagi@freemail.hu>  Sun, 07 Jun 2020 23:20:28 +0200
+
 cloudbank-horde-client (0.12-1) UNRELEASED; urgency=low
 
    * FIX: Error on Category Event list screen
