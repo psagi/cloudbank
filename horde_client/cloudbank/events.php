@@ -49,7 +49,7 @@ function populateReconciliationTemplate(
 		  array(
 		     'account_id' => $p_accountID,
 		     'account_name' => $p_accountOrCategoryName,
-		     'balance' => $p_balance['balance'],
+		     'balance' => $p_balance_arr['balance'],
 		     'limit_month' => $p_limitMonth
 		  )
 	       ), 'Reconcile to balance', '', '', '', '', ''
